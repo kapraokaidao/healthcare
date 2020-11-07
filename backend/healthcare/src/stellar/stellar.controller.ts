@@ -5,8 +5,14 @@ import { StellarService } from './stellar.service';
 export class StellarController {
   constructor(private readonly stellarService: StellarService) {}
 
-  @Get(':id')
-  findHello(@Param('id') id): string {
-    return this.stellarService.hello(id);
+  @Get('account')
+  async createAccount(): Promise<string> {
+    return await this.stellarService.createAccount();
   }
+
+  @Get('balance/:secret')
+  async getBalanceBySecret(@Param('secret') secret): Promise<string> {
+    return await this.stellarService.getBalanceBySecret(secret)
+  }
+  
 }
