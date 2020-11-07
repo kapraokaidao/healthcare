@@ -16,7 +16,7 @@ async function bootstrap() {
   app.enableCors();
 
   const options = new DocumentBuilder()
-    .setTitle('NestJS with SQL skeleton')
+    .setTitle('Healthcare Backend')
     .setVersion('0.1')
     .addBearerAuth()
     .build();

@@ -1,6 +1,10 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { StellarService } from './stellar.service';
+import { PublicAPI } from "../decorators/public-api.decorator";
+import { ApiTags } from "@nestjs/swagger";
 
+@PublicAPI()
+@ApiTags('Stellar')
 @Controller('stellar')
 export class StellarController {
   constructor(private readonly stellarService: StellarService) {}

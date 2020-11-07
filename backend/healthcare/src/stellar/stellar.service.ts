@@ -4,10 +4,7 @@ import axios from 'axios';
 
 @Injectable()
 export class StellarService {
-  hello(id: string) {
-    return `hello ${id}`;
-  }
-  
+
   async createAccount() {
     const pair = StellarSdk.Keypair.random();
     try {
@@ -24,12 +21,12 @@ export class StellarService {
   }
 
   async getBalanceBySecret(secret: string) {
-    var pair = StellarSdk.Keypair.fromSecret(
+    const pair = StellarSdk.Keypair.fromSecret(
       secret,
     );
     const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
     const account = await server.loadAccount(pair.publicKey());
-    let ret: string = '';
+    let ret = '';
     account.balances.forEach(function (balance) {
       ret += "Type:" + balance.asset_type +  ", Balance:" + balance.balance + '\n'
     });

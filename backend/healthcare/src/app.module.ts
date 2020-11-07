@@ -19,10 +19,6 @@ import { StellarModule } from "./stellar/stellar.module";
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        /**
-         * For more details, see
-         * https://typeorm.io/#/connection-options
-         */
         type: 'mysql',
         host: configService.get<string>('db.host'),
         port: configService.get<number>('db.port'),
@@ -31,7 +27,7 @@ import { StellarModule } from "./stellar/stellar.module";
         database: configService.get<string>('db.database'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get<string>('node_env') !== 'production',
-        timezone: 'utc',
+        timezone: 'utc+7',
       }),
     }),
     AuthModule,
