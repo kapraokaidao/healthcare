@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { StellarService } from './stellar.service';
-import { PublicAPI } from "../decorators/public-api.decorator";
-import { ApiTags } from "@nestjs/swagger";
+import { PublicAPI } from '../decorators/public-api.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @PublicAPI()
 @ApiTags('Stellar')
@@ -16,7 +16,6 @@ export class StellarController {
 
   @Get('balance/:secret')
   async getBalanceBySecret(@Param('secret') secret): Promise<string> {
-    return await this.stellarService.getBalanceBySecret(secret)
+    return await this.stellarService.getBalanceBySecret(secret);
   }
-  
 }

@@ -6,7 +6,7 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
-import { StellarModule } from "./stellar/stellar.module";
+import { StellarModule } from './stellar/stellar.module';
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import { StellarModule } from "./stellar/stellar.module";
     }),
     AuthModule,
     UserModule,
-    StellarModule
+    StellarModule,
   ],
   controllers: [AppController],
   providers: [AppService],

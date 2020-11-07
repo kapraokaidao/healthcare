@@ -4,6 +4,6 @@ import { StellarService } from './stellar.service';
 
 @Module({
   controllers: [StellarController],
-  providers: [StellarService]
+  providers: [StellarService],
 })
 export class StellarModule {}
