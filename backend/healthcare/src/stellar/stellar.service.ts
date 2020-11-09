@@ -13,8 +13,8 @@ export class StellarService {
       const responseJSON = await response.data;
       const res = {
         Secret: pair.secret(),
-        PublicKey: pair.publicKey()
-      }
+        PublicKey: pair.publicKey(),
+      };
       return res;
     } catch (e) {
       return 'ERROR!';
@@ -28,16 +28,16 @@ export class StellarService {
     return account.balances;
   }
 
-  async issueToken(issuingSecret: string, recevingSecret: string, serviceName: string, amount: number) {
+  async issueToken(
+    issuingSecret: string,
+    recevingSecret: string,
+    serviceName: string,
+    amount: number
+  ) {
+    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
-    const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
-
-    const issuingKeys = StellarSdk.Keypair.fromSecret(
-      issuingSecret,
-    );
-    const receivingKeys = StellarSdk.Keypair.fromSecret(
-      recevingSecret,
-    );
+    const issuingKeys = StellarSdk.Keypair.fromSecret(issuingSecret);
+    const receivingKeys = StellarSdk.Keypair.fromSecret(recevingSecret);
 
     const serviceAsset = new StellarSdk.Asset(serviceName, issuingKeys.publicKey());
 
@@ -51,7 +51,7 @@ export class StellarService {
           .addOperation(
             StellarSdk.Operation.changeTrust({
               asset: serviceAsset,
-            }),
+            })
           )
           .setTimeout(100)
           .build();
@@ -71,7 +71,7 @@ export class StellarService {
               destination: receivingKeys.publicKey(),
               asset: serviceAsset,
               amount: amount.toString(),
-            }),
+            })
           )
           .setTimeout(100)
           .build();
@@ -81,7 +81,7 @@ export class StellarService {
       .catch(function (error) {
         return error;
       });
-    
-    return 'Successful'  
+
+    return 'Successful';
   }
 }

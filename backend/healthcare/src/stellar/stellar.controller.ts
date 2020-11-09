@@ -16,16 +16,17 @@ export class StellarController {
   }
 
   @Get('balance/:secret')
-  async getBalanceBySecret(
-    @Param('secret') secret: string
-  ): Promise<string> {
+  async getBalanceBySecret(@Param('secret') secret: string): Promise<string> {
     return await this.stellarService.getBalanceBySecret(secret);
   }
 
   @Post('service')
-  async issueToken(
-    @Body() dto: IssueTokenDto
-  ): Promise<string>{
-    return this.stellarService.issueToken(dto.issueingSecret, dto.receivingSecret, dto.serviceName, dto.amount);
+  async issueToken(@Body() dto: IssueTokenDto): Promise<string> {
+    return this.stellarService.issueToken(
+      dto.issueingSecret,
+      dto.receivingSecret,
+      dto.serviceName,
+      dto.amount
+    );
   }
 }
