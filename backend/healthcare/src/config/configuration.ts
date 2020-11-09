@@ -14,5 +14,5 @@ export default () => ({
   stellar: {
     url: process.env.STELLAR_URL,
     account: process.env.STELLAR_ACCOUNT,
-  }
+  },
 });
