@@ -32,7 +32,7 @@ export class StellarService {
 
   async getBalanceBySecret(secret: string): Promise<BalanceLine[]> {
     const pair = StellarSdk.Keypair.fromSecret(secret);
-    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    const server = new StellarSdk.Server(this.stellarUrl);
     const account = await server.loadAccount(pair.publicKey());
     return account.balances;
   }
@@ -43,7 +43,7 @@ export class StellarService {
     serviceName: string,
     amount: number
   ): Promise<void> {
-    const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+    const server = new StellarSdk.Server(this.stellarUrl);
 
     const issuingKeys = StellarSdk.Keypair.fromSecret(issuingSecret);
     const receivingKeys = StellarSdk.Keypair.fromSecret(receivingSecret);
@@ -52,7 +52,7 @@ export class StellarService {
     try {
       /** begin allowing trust transaction */
       const receiver = await server.loadAccount(receivingKeys.publicKey());
-      let allowTrustTransaction = new StellarSdk.TransactionBuilder(receiver, {
+      const allowTrustTransaction = new StellarSdk.TransactionBuilder(receiver, {
         fee: 100,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
@@ -67,7 +67,7 @@ export class StellarService {
       await server.submitTransaction(allowTrustTransaction);
       /** begin transfer transaction */
       const issuer = await server.loadAccount(issuingKeys.publicKey());
-      let transferTransaction = new StellarSdk.TransactionBuilder(issuer, {
+      const transferTransaction = new StellarSdk.TransactionBuilder(issuer, {
         fee: 100,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
