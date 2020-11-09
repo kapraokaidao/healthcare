@@ -13,3 +13,8 @@ export class IssueTokenDto {
  @ApiProperty ()
  amount: number;
 }
+
+export class CreateAccountResponse {
+ secret: string;
+ publicKey: string;
+}

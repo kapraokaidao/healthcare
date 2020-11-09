@@ -1,34 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import StellarSdk from 'stellar-sdk';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import StellarSdk, { Horizon } from 'stellar-sdk';
 import axios from 'axios';
+import { ConfigService } from "@nestjs/config";
+import BalanceLine = Horizon.BalanceLine;
+import { CreateAccountResponse } from "./stellar.dto";
 
 @Injectable()
 export class StellarService {
-  async createAccount() {
+  private readonly stellarAccount;
+  private readonly stellarUrl;
+
+  constructor(private readonly configService: ConfigService) {
+    this.stellarAccount = this.configService.get<string>('stellar.account');
+    this.stellarUrl = this.configService.get<string>('stellar.url');
+  }
+  async createAccount(): Promise<CreateAccountResponse> {
     const pair = StellarSdk.Keypair.random();
     try {
-      const response = await axios.get(
-        `https://friendbot.stellar.org?addr=${encodeURIComponent(pair.publicKey())}`
+      const { data } = await axios.get(
+        `${this.stellarAccount}?addr=${encodeURIComponent(pair.publicKey())}`
       );
-      const responseJSON = await response.data;
       const res = {
-        Secret: pair.secret(),
-        PublicKey: pair.publicKey()
+        secret: pair.secret(),
+        publicKey: pair.publicKey()
       }
       return res;
     } catch (e) {
-      return 'ERROR!';
+      throw new InternalServerErrorException(e);
     }
   }
 
-  async getBalanceBySecret(secret: string) {
+  async getBalanceBySecret(secret: string): Promise<BalanceLine[]> {
     const pair = StellarSdk.Keypair.fromSecret(secret);
     const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
     const account = await server.loadAccount(pair.publicKey());
     return account.balances;
   }
 
-  async issueToken(issuingSecret: string, recevingSecret: string, serviceName: string, amount: number) {
+  async issueToken(issuingSecret: string, receivingSecret: string, serviceName: string, amount: number): Promise<void> {
 
     const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
 
@@ -36,52 +45,43 @@ export class StellarService {
       issuingSecret,
     );
     const receivingKeys = StellarSdk.Keypair.fromSecret(
-      recevingSecret,
+      receivingSecret,
     );
 
     const serviceAsset = new StellarSdk.Asset(serviceName, issuingKeys.publicKey());
 
-    await server
-      .loadAccount(receivingKeys.publicKey())
-      .then(function (receiver) {
-        const transaction = new StellarSdk.TransactionBuilder(receiver, {
-          fee: 100,
-          networkPassphrase: StellarSdk.Networks.TESTNET,
-        })
-          .addOperation(
-            StellarSdk.Operation.changeTrust({
-              asset: serviceAsset,
-            }),
-          )
-          .setTimeout(100)
-          .build();
-        transaction.sign(receivingKeys);
-        return server.submitTransaction(transaction);
-      })
-      .then(function () {
-        return server.loadAccount(issuingKeys.publicKey());
-      })
-      .then(function (issuer) {
-        const transaction = new StellarSdk.TransactionBuilder(issuer, {
-          fee: 100,
-          networkPassphrase: StellarSdk.Networks.TESTNET,
-        })
-          .addOperation(
-            StellarSdk.Operation.payment({
-              destination: receivingKeys.publicKey(),
-              asset: serviceAsset,
-              amount: amount.toString(),
-            }),
-          )
-          .setTimeout(100)
-          .build();
-        transaction.sign(issuingKeys);
-        return server.submitTransaction(transaction);
-      })
-      .catch(function (error) {
-        return error;
+    try {
+      /** begin allowing trust transaction */
+      const receiver = await server.loadAccount(receivingKeys.publicKey());
+      const allowTrustTransaction = new StellarSdk.TransactionBuilder(receiver, {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
       });
-    
-    return 'Successful'  
+      allowTrustTransaction.addOperation(
+        StellarSdk.Operation.changeTrust({
+          asset: serviceAsset,
+        }),
+      );
+      allowTrustTransaction.sign(receivingKeys);
+      await server.submitTransaction(allowTrustTransaction);
+
+      /** begin transfer transaction */
+      const issuer = await server.loadAccount(issuingKeys.publicKey());
+      const transferTransaction = new StellarSdk.TransactionBuilder(issuer, {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      });
+      transferTransaction.addOperation(
+        StellarSdk.Operation.payment({
+          destination: receivingKeys.publicKey(),
+          asset: serviceAsset,
+          amount: amount.toString(),
+        }),
+      ).setTimeout(100).build();
+      transferTransaction.sign(issuingKeys);
+      await server.submitTransaction(transferTransaction);
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
   }
 }

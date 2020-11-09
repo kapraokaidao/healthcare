@@ -11,4 +11,8 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET,
   },
+  stellar: {
+    url: process.env.STELLAR_URL,
+    account: process.env.STELLAR_ACCOUNT,
+  }
 });
