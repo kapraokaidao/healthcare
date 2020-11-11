@@ -21,43 +21,50 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @Column()
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @Column({ select: false })
   password: string;
 
+  @ApiProperty({ required: true })
   @Column()
   firstname: string;
 
+  @ApiProperty({ required: true })
   @Column()
   surname: string;
 
+  @ApiProperty({ enum: UserRole, required: true, default: '' })
   @Column({ type: 'enum', enum: UserRole, update: false })
   role: UserRole;
 
+  @ApiProperty({ required: true })
   @Column()
   phone: string;
 
-  @OneToOne(() => NHSO)
+  @ApiProperty()
+  @OneToOne(() => NHSO, { onDelete: "CASCADE" })
   nhso: NHSO;
 
-  @OneToOne(() => Hospital)
+  @ApiProperty()
+  @OneToOne(() => Hospital,  { onDelete: "CASCADE" })
   hospital: Hospital;
 
-  @OneToOne(() => Patient)
+  @ApiProperty()
+  @OneToOne(() => Patient, { onDelete: "CASCADE" })
   patient: Patient;
 
-  @CreateDateColumn({ readonly: true })
-  createdAt!: Date;
+  @CreateDateColumn({ readonly: true, name: 'created_date' })
+  createdDate!: Date;
 
-  @UpdateDateColumn({ readonly: true })
-  updatedAt!: Date;
+  @UpdateDateColumn({ readonly: true, name: 'updated_date' })
+  updatedDate!: Date;
 
-  @DeleteDateColumn({ readonly: true })
-  deletedAt!: Date;
+  @DeleteDateColumn({ readonly: true, name: 'deleted_date' })
+  deletedDate!: Date;
 
   @BeforeInsert()
   @BeforeUpdate()
