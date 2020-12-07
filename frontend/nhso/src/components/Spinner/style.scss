@@ -1,0 +1,15 @@
+.wrapper-spinner{
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    position: fixed;
+    top: 0px;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.show-spinner{
+    display: flex;
+}
