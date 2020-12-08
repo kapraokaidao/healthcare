@@ -3,5 +3,15 @@
 @tailwind utilities;
 
 body {
-    background: red;
+    background-image: url("../images/background.png");
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    margin-top: 64px;
 }
