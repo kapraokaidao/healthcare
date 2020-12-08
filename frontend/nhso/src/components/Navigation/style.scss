@@ -1,0 +1,30 @@
+.navigation {
+    background-color: #2196f3;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.menu {
+    position: fixed;
+    background: #ffffff;
+    padding: 20px;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    height: 100%;
+    div {
+        margin-bottom: 10px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        img{
+            margin-right: 16px;
+        }
+    }
+}
