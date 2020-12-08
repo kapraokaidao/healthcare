@@ -7,6 +7,7 @@ import manageToken from './../../images/manage-token.png';
 import manageAccount from './../../images/manage-account.png';
 import kyc from './../../images/KYC.png';
 import account from './../../images/account.png';
+import Button from '@material-ui/core/Button';
 
 const Navigation = observer(() => {
 	const authStore = useContext(AuthStoreContext);
@@ -26,7 +27,9 @@ const Navigation = observer(() => {
 					<div className="flex items-center">
 						<span className="mr-3">xx {authStore.user.firstname}</span>
 						<img src={account} className="h-full mr-3" />
-						<button className="signout-btn">Sign Out</button>
+						<Button variant="contained" color="secondary">
+							Sign Out
+						</Button>
 					</div>
 				</div>
 			</div>

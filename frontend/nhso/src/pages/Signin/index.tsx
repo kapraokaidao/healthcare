@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { SigninType } from '../../stores/AuthStore';
 import { Link, useHistory } from 'react-router-dom';
 import nhso from '../../images/nhso.png';
+import Button from '@material-ui/core/Button';
 import './style.scss';
 
 const initialValue: SigninType = {
@@ -41,9 +42,9 @@ const Signin = observer(() => {
 					<Field name="password" type="password" placeholder="Password" className="mt-4" />
 					<ErrorMessage name="password" />
 
-					<button type="submit" className="">
+					<Button variant="contained" color="primary">
 						Login
-					</button>
+					</Button>
 				</Form>
 			</Formik>
 		</>
