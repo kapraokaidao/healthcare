@@ -1,6 +1,5 @@
 FROM node:12-alpine
 WORKDIR /server
-COPY ./package.json .
-COPY ./dist .
-RUN yarn
-CMD ["node", "main"]
+COPY . .
+RUN yarn install && yarn build
+CMD [ "yarn", "start:prod" ]
