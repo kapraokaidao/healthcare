@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -46,15 +47,18 @@ export class User {
   phone: string;
 
   @ApiProperty()
-  @OneToOne(() => NHSO, { onDelete: "CASCADE" })
+  @OneToOne(() => NHSO)
+  @JoinColumn({ name: 'nhso_id' })
   nhso: NHSO;
 
   @ApiProperty()
-  @OneToOne(() => Hospital,  { onDelete: "CASCADE" })
+  @OneToOne(() => Hospital)
+  @JoinColumn({ name: 'hospital_id' })
   hospital: Hospital;
 
   @ApiProperty()
-  @OneToOne(() => Patient, { onDelete: "CASCADE" })
+  @OneToOne(() => Patient)
+  @JoinColumn({ name: 'patient_id' })
   patient: Patient;
 
   @CreateDateColumn({ readonly: true, name: 'created_date' })

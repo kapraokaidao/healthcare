@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { UserGender } from '../constant/enum/user.enum';
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Patient {
@@ -9,7 +9,7 @@ export class Patient {
   id: number;
 
   @ApiProperty()
-  @Column({ name: "national_id" })
+  @Column({ name: 'national_id' })
   nationalId: string;
 
   @ApiProperty({ enum: UserGender })
@@ -20,7 +20,6 @@ export class Patient {
   @Column('date', { name: 'birth_date' })
   birthDate: Date;
 
-  @OneToOne(() => User, )
-  @JoinColumn({ name: 'user_id' })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 }
