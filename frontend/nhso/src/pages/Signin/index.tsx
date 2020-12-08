@@ -42,7 +42,7 @@ const Signin = observer(() => {
 					<Field name="password" type="password" placeholder="Password" className="mt-4" />
 					<ErrorMessage name="password" />
 
-					<Button variant="contained" color="primary">
+					<Button variant="contained" color="primary" type="submit">
 						Login
 					</Button>
 				</Form>
