@@ -6,6 +6,6 @@ export class NHSO {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, { onDelete: "CASCADE" })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 }

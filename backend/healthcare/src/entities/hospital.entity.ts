@@ -1,6 +1,13 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from './user.entity';
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Hospital {
@@ -15,6 +22,6 @@ export class Hospital {
   @Column()
   name: string;
 
-  @OneToOne(() => User, { onDelete: "CASCADE" })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 }

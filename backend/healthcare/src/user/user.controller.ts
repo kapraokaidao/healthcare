@@ -3,9 +3,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UserId } from '../decorators/user-id.decorator';
 import { User } from '../entities/user.entity';
-import { RolesGuard } from "../guards/roles.guard";
-import { Roles } from "../decorators/roles.decorator";
-import { UserRole } from "../constant/enum/user.enum";
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { UserRole } from '../constant/enum/user.enum';
 
 @ApiBearerAuth()
 @ApiTags('User')

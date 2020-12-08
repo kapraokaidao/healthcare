@@ -4,7 +4,8 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity, JoinColumn,
+  Entity,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -47,17 +48,17 @@ export class User {
 
   @ApiProperty()
   @OneToOne(() => NHSO)
-  @JoinColumn({ name: "nhso_id" })
+  @JoinColumn({ name: 'nhso_id' })
   nhso: NHSO;
 
   @ApiProperty()
   @OneToOne(() => Hospital)
-  @JoinColumn({ name: "hospital_id"})
+  @JoinColumn({ name: 'hospital_id' })
   hospital: Hospital;
 
   @ApiProperty()
   @OneToOne(() => Patient)
-  @JoinColumn({ name: "patient_id" })
+  @JoinColumn({ name: 'patient_id' })
   patient: Patient;
 
   @CreateDateColumn({ readonly: true, name: 'created_date' })
