@@ -24,8 +24,16 @@ export class UserService {
     return this.userRepository.find(conditions);
   }
 
-  async findById(id: number): Promise<User> {
-    return this.userRepository.findOne(id);
+  async findById(id: number, role = false): Promise<User> {
+    const user = await this.userRepository.findOne(id);
+    if (role) {
+      switch (user.role) {
+        case UserRole.NHSO: return this.userRepository.findOne(id, { relations: ['nhso'] })
+        case UserRole.Hospital: return this.userRepository.findOne(id, { relations: ['hospital'] })
+        case UserRole.Patient: return this.userRepository.findOne(id, { relations: ['patient'] })
+      }
+    }
+    return user;
   }
 
   async findOne(conditions): Promise<User> {
@@ -46,30 +54,31 @@ export class UserService {
     const newUser = this.userRepository.create(user);
     switch (user.role) {
       case UserRole.Hospital:
-        const hospital = this.hospitalRepository.create(user.hospital);
+        let hospital = await this.hospitalRepository.findOne(user.hospital);
+        if (!hospital) hospital = this.hospitalRepository.create(user.hospital);
         newUser.hospital = hospital;
         hospital.user = newUser;
-        await entityManager.save(newUser);
         await entityManager.save(hospital);
+        await entityManager.save(newUser);
         return newUser
 
       case UserRole.NHSO:
         const nhso = this.nhsoRepository.create(user.nhso);
         newUser.nhso = nhso;
         nhso.user = newUser;
-        await entityManager.save(newUser);
         await entityManager.save(nhso);
+        await entityManager.save(newUser);
         return newUser
 
       case UserRole.Patient:
         const patient = this.patientRepository.create(user.patient);
         newUser.patient = patient;
         patient.user = newUser;
-        await entityManager.save(newUser);
         await entityManager.save(patient);
+        await entityManager.save(newUser);
         return newUser
 
-      default: throw new BadRequestException("Invalid role")
+      default: throw new BadRequestException("Invalid user's role")
     }
   }
 }

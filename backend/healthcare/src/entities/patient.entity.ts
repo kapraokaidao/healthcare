@@ -20,7 +20,6 @@ export class Patient {
   @Column('date', { name: 'birth_date' })
   birthDate: Date;
 
-  @OneToOne(() => User, )
-  @JoinColumn({ name: 'user_id' })
+  @OneToOne(() => User, { onDelete: "CASCADE" })
   user: User;
 }
