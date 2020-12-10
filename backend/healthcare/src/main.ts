@@ -14,6 +14,7 @@ async function bootstrap() {
   Sentry.init({
     dsn: configService.get<string>('sentry.dsn'),
     enabled: configService.get<boolean>('sentry.enable'),
+    environment: configService.get<string>('node_env'),
   });
 
   app.use(helmet());
