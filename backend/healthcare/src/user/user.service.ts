@@ -25,10 +25,13 @@ export class UserService {
     return this.userRepository.find(conditions);
   }
 
-  async findAll(options?: PaginationOptions): Promise<Pagination<User>> {
+  async findAll(conditions, options: PaginationOptions): Promise<Pagination<User>> {
     const totalCount = await this.userRepository.count();
     const pageCount = Math.ceil(totalCount / options.pageSize);
     const users = await this.userRepository.find({
+      where: {
+        ...conditions,
+      },
       take: options.pageSize,
       skip: (options.page - 1) * options.pageSize,
     });

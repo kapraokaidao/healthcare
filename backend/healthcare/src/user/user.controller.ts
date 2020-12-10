@@ -24,13 +24,16 @@ export class UserController {
   @Get()
   @ApiQuery({ name: 'page', schema: { type: 'integer' }, required: true })
   @ApiQuery({ name: 'pageSize', schema: { type: 'integer' }, required: true })
+  @ApiQuery({ name: 'role', schema: { type: 'string' }, required: false, enum: UserRole })
   async findAll(
     @Query('page') qPage: string,
-    @Query('pageSize') qPageSize: string
+    @Query('pageSize') qPageSize: string,
+    @Query('role') qRole: UserRole
   ): Promise<Pagination<User>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    return this.userService.findAll({ page, pageSize });
+    const conditions = qRole ? { role: qRole } : {};
+    return this.userService.findAll(conditions, { page, pageSize });
   }
 
   @UseGuards(RolesGuard)
