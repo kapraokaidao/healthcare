@@ -9,9 +9,13 @@ import { SentryInterceptor } from './interceptors/sentry.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService: ConfigService = app.get(ConfigService);
+
   Sentry.init({
-    dsn: app.get(ConfigService).get('sentry.dsn'),
+    dsn: configService.get<string>('sentry.dsn'),
+    enabled: configService.get<boolean>('sentry.enable'),
   });
+
   app.use(helmet());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
   app.useGlobalInterceptors(new SentryInterceptor());
@@ -25,6 +29,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(app.get(ConfigService).get('port'));
+  await app.listen(configService.get<number>('port'));
 }
 bootstrap();
