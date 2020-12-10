@@ -43,7 +43,7 @@ export class UserController {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     const conditions = qRole ? { role: qRole } : {};
-    return this.userService.findAll(conditions, { page, pageSize });
+    return this.userService.find(conditions, { page, pageSize });
   }
 
   @Roles(UserRole.NHSO)

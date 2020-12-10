@@ -21,25 +21,20 @@ export class UserService {
     private readonly patientRepository: Repository<Patient>
   ) {}
 
-  async find(conditions = {}): Promise<User[]> {
-    return this.userRepository.find(conditions);
-  }
-
-  async findAll(conditions, options: PaginationOptions): Promise<Pagination<User>> {
-    const totalCount = await this.userRepository.count();
-    const pageCount = Math.ceil(totalCount / options.pageSize);
-    const users = await this.userRepository.find({
+  async find(conditions, pageOptions: PaginationOptions): Promise<Pagination<User>> {
+    const [users, totalCount] = await this.userRepository.findAndCount({
       where: {
         ...conditions,
       },
-      take: options.pageSize,
-      skip: (options.page - 1) * options.pageSize,
+      take: pageOptions.pageSize,
+      skip: (pageOptions.page - 1) * pageOptions.pageSize,
     });
+    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
     return {
       data: users,
       itemCount: users.length,
-      page: options.page,
-      pageSize: options.pageSize,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
       totalCount,
       pageCount,
     };
