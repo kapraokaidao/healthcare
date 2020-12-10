@@ -88,16 +88,17 @@ const useStyles = makeStyles((theme) => ({
 const Navigation = observer(() => {
 	const location = useLocation();
 	const [show, setShow] = useState(true);
+
 	useEffect(() => {
 		if (location.pathname === '/signin') {
 			setShow(false);
 		}
-	}, []);
+	}, [location.pathname]);
 
 	const authStore = useContext(AuthStoreContext);
 	const classes = useStyles();
 	const theme = useTheme();
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 
 	const handleDrawerOpen = () => {
 		setOpen(true);
@@ -106,6 +107,7 @@ const Navigation = observer(() => {
 	const handleDrawerClose = () => {
 		setOpen(false);
 	};
+
 	return (
 		<>
 			{show && (

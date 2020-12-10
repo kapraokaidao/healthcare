@@ -8,41 +8,52 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
+import IconButton from '@material-ui/core/IconButton';
 
-const rows = [{ tokenName: 'Influenza vacine', type: 'Special', quantity: 1000000, own: 900000 }];
+const rows = [{ firstname: 'Thanawat', role: 'Admin' }];
 
-const TokenList = () => {
+const AccountList = () => {
 	return (
 		<>
 			<Grid container spacing={3}>
 				<Grid item xs={3}>
-					<h1>Token List</h1>
+					<h1>Account List</h1>
 				</Grid>
 				<Grid item xs>
-					cc
+					<TextField id="outlined-search" label="Search field" type="search" variant="outlined" />
+				</Grid>
+				<Grid>
+					<div className="height-full center">
+						<IconButton color="primary">
+							<AddIcon fontSize="large" />
+						</IconButton>
+					</div>
 				</Grid>
 			</Grid>
 			<TableContainer component={Paper}>
 				<Table>
 					<TableHead>
 						<TableRow>
-							<TableCell>Token Name</TableCell>
-							<TableCell align="right">Type</TableCell>
-							<TableCell align="right">Quantity</TableCell>
-							<TableCell align="right">Own</TableCell>
+							<TableCell>Firstname</TableCell>
+							<TableCell align="right">Role</TableCell>
 							<TableCell align="right"></TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
 						{rows.map((row) => (
-							<TableRow key={row.tokenName}>
+							<TableRow key={row.firstname}>
 								<TableCell component="th" scope="row">
-									{row.tokenName}
+									{row.firstname}
 								</TableCell>
-								<TableCell align="right">{row.type}</TableCell>
-								<TableCell align="right">{row.quantity}</TableCell>
-								<TableCell align="right">{row.own}</TableCell>
-								<TableCell align="right">button</TableCell>
+								<TableCell align="right">{row.role}</TableCell>
+								<TableCell align="right">
+									<Button variant="contained" color="primary">
+										Detail
+									</Button>
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
@@ -52,4 +63,4 @@ const TokenList = () => {
 	);
 };
 
-export default TokenList;
+export default AccountList;

@@ -34,3 +34,7 @@ body {
 .mr-10 {
     margin-right: 10px;
 }
+
+.height-full {
+    height: 100%;
+}
