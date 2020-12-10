@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { StellarModule } from './stellar/stellar.module';
+import { HealthcareTokenModule } from './healthcare-token/healthcare-token.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { StellarModule } from './stellar/stellar.module';
     AuthModule,
     UserModule,
     StellarModule,
+    HealthcareTokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

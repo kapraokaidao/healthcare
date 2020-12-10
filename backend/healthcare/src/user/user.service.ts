@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
@@ -6,6 +11,8 @@ import { UserRole } from '../constant/enum/user.enum';
 import { Hospital } from '../entities/hospital.entity';
 import { NHSO } from '../entities/nhso.entity';
 import { Patient } from '../entities/patient.entity';
+import { Pagination, PaginationOptions } from '../utils/pagination';
+import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 
 @Injectable()
 export class UserService {
@@ -20,23 +27,46 @@ export class UserService {
     private readonly patientRepository: Repository<Patient>
   ) {}
 
-  async find(conditions = {}): Promise<User[]> {
-    return this.userRepository.find(conditions);
+  async find(conditions, pageOptions: PaginationOptions): Promise<Pagination<User>> {
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      where: {
+        ...conditions,
+      },
+      take: pageOptions.pageSize,
+      skip: (pageOptions.page - 1) * pageOptions.pageSize,
+    });
+    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
+    return {
+      data: users,
+      itemCount: users.length,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalCount,
+      pageCount,
+    };
   }
 
   async findById(id: number, role = false): Promise<User> {
-    const user = await this.userRepository.findOne(id);
-    if (role) {
-      switch (user.role) {
-        case UserRole.NHSO:
-          return this.userRepository.findOne(id, { relations: ['nhso'] });
-        case UserRole.Hospital:
-          return this.userRepository.findOne(id, { relations: ['hospital'] });
-        case UserRole.Patient:
-          return this.userRepository.findOne(id, { relations: ['patient'] });
+    try {
+      const user = await this.userRepository.findOneOrFail(id);
+      if (role) {
+        switch (user.role) {
+          case UserRole.NHSO:
+            return this.userRepository.findOne(id, { relations: ['nhso'] });
+          case UserRole.Hospital:
+            return this.userRepository.findOne(id, { relations: ['hospital'] });
+          case UserRole.Patient:
+            return this.userRepository.findOne(id, { relations: ['patient'] });
+        }
+      }
+      return user;
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new NotFoundException(`User's ID ${id} cannot be found`, e.name);
+      } else {
+        throw new InternalServerErrorException(e.message, e.name);
       }
     }
-    return user;
   }
 
   async findOne(conditions): Promise<User> {
@@ -60,7 +90,7 @@ export class UserService {
     const newUser = this.userRepository.create(user);
     switch (user.role) {
       case UserRole.Hospital:
-        let hospital = await this.hospitalRepository.findOne(user.hospital);
+        let hospital = await this.hospitalRepository.findOne({ hid: user.hospital.hid });
         if (!hospital) {
           hospital = this.hospitalRepository.create(user.hospital);
         }
@@ -71,7 +101,7 @@ export class UserService {
         return newUser;
 
       case UserRole.NHSO:
-        const nhso = this.nhsoRepository.create(user.nhso);
+        const nhso = await this.nhsoRepository.create(user.nhso);
         newUser.nhso = nhso;
         nhso.user = newUser;
         await entityManager.save(nhso);
@@ -95,5 +125,25 @@ export class UserService {
       default:
         throw new BadRequestException("Invalid user's role");
     }
+  }
+
+  async findSoftDeletedUsers(): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .where('u.deletedDate is not null')
+      .withDeleted()
+      .getMany();
+  }
+
+  async hardDelete(id: number): Promise<void> {
+    await this.userRepository.delete(id);
+  }
+
+  async softDelete(id: number): Promise<void> {
+    await this.userRepository.softDelete(id);
+  }
+
+  async restore(id: number): Promise<void> {
+    await this.userRepository.restore(id);
   }
 }
