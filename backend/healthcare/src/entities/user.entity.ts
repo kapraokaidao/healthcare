@@ -67,7 +67,7 @@ export class User {
   @UpdateDateColumn({ readonly: true, name: 'updated_date' })
   updatedDate!: Date;
 
-  @DeleteDateColumn({ readonly: true, name: 'deleted_date' })
+  @DeleteDateColumn({ readonly: false, name: 'deleted_date' })
   deletedDate!: Date;
 
   @BeforeInsert()

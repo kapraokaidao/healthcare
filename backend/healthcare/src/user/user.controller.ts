@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UserId } from '../decorators/user-id.decorator';
@@ -42,5 +51,19 @@ export class UserController {
   async createUser(@UserId() id: number, @Body() user: User): Promise<User> {
     const newUser = await this.userService.create(user);
     return this.userService.findById(newUser.id, true);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.NHSO)
+  @Delete(':id')
+  async deleteUser(@Param('id') id: number): Promise<void> {
+    await this.userService.softDelete(id);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.NHSO)
+  @Post(':id/recover')
+  async recover(@Param('id') id: number): Promise<User> {
+    return this.userService.recover(id);
   }
 }

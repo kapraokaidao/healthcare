@@ -117,4 +117,21 @@ export class UserService {
         throw new BadRequestException("Invalid user's role");
     }
   }
+
+  async softDelete(id: number): Promise<void> {
+    await this.userRepository.softDelete(id);
+  }
+
+  async recover(id: number): Promise<User> {
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .where({ id })
+      .withDeleted()
+      .getOne();
+    if (!user) {
+      throw new BadRequestException('User ID does not exist');
+    }
+    user.deletedDate = null;
+    return this.userRepository.save(user);
+  }
 }
