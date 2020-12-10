@@ -90,7 +90,10 @@ export class UserService {
     const newUser = this.userRepository.create(user);
     switch (user.role) {
       case UserRole.Hospital:
-        const hospital = await this.hospitalRepository.preload(user.hospital);
+        let hospital = await this.hospitalRepository.findOne({ hid: user.hospital.hid });
+        if (!hospital) {
+          hospital = this.hospitalRepository.create(user.hospital);
+        }
         newUser.hospital = hospital;
         hospital.user = newUser;
         await entityManager.save(hospital);
@@ -98,7 +101,7 @@ export class UserService {
         return newUser;
 
       case UserRole.NHSO:
-        const nhso = await this.nhsoRepository.preload(user.nhso);
+        const nhso = await this.nhsoRepository.create(user.nhso);
         newUser.nhso = nhso;
         nhso.user = newUser;
         await entityManager.save(nhso);
