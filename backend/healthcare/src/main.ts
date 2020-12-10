@@ -4,15 +4,17 @@ import * as helmet from 'helmet';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
+import * as Sentry from '@sentry/node';
+import { SentryInterceptor } from './interceptors/sentry.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  Sentry.init({
+    dsn: app.get(ConfigService).get('sentry.dsn'),
+  });
   app.use(helmet());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
-  /**
-   * wildcard origin is not recommended, consider using
-   * app.enableCors({ origin: 'https://your.origin/' })
-   */
+  app.useGlobalInterceptors(new SentryInterceptor());
   app.enableCors();
 
   const options = new DocumentBuilder()
