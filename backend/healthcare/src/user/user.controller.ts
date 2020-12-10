@@ -20,15 +20,16 @@ import { Pagination } from '../utils/pagination';
 @ApiBearerAuth()
 @ApiTags('User')
 @Controller('user')
+@UseGuards(RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
   @Get('me')
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);
   }
 
-  @UseGuards(RolesGuard)
   @Roles(UserRole.NHSO)
   @Get()
   @ApiQuery({ name: 'page', schema: { type: 'integer' }, required: true })
@@ -45,7 +46,6 @@ export class UserController {
     return this.userService.findAll(conditions, { page, pageSize });
   }
 
-  @UseGuards(RolesGuard)
   @Roles(UserRole.NHSO)
   @Post()
   async createUser(@UserId() id: number, @Body() user: User): Promise<User> {
@@ -53,14 +53,24 @@ export class UserController {
     return this.userService.findById(newUser.id, true);
   }
 
-  @UseGuards(RolesGuard)
+  @Roles(UserRole.NHSO)
+  @Get('deleted')
+  async findSoftDeletedUsers(): Promise<User[]> {
+    return this.userService.findSoftDeletedUsers();
+  }
+
   @Roles(UserRole.NHSO)
   @Delete(':id')
-  async deleteUser(@Param('id') id: number): Promise<void> {
+  async softDeleteUser(@Param('id') id: number): Promise<void> {
     await this.userService.softDelete(id);
   }
 
-  @UseGuards(RolesGuard)
+  @Roles(UserRole.NHSO)
+  @Delete(':id/permanent')
+  async hardDeleteUser(@Param('id') id: number): Promise<void> {
+    await this.userService.hardDelete(id);
+  }
+
   @Roles(UserRole.NHSO)
   @Post(':id/recover')
   async recover(@Param('id') id: number): Promise<User> {

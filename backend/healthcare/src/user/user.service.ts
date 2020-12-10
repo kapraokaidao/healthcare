@@ -118,6 +118,18 @@ export class UserService {
     }
   }
 
+  async findSoftDeletedUsers(): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .where('u.deletedDate is not null')
+      .withDeleted()
+      .getMany();
+  }
+
+  async hardDelete(id: number): Promise<void> {
+    await this.userRepository.delete(id);
+  }
+
   async softDelete(id: number): Promise<void> {
     await this.userRepository.softDelete(id);
   }
