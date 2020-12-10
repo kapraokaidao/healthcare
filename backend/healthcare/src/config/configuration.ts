@@ -15,4 +15,7 @@ export default () => ({
     url: process.env.STELLAR_URL,
     account: process.env.STELLAR_ACCOUNT,
   },
+  sentry: {
+    dsn: process.env.SENTRY_DSN,
+  },
 });
