@@ -30,6 +30,12 @@ export class UserController {
     return this.userService.findById(id, true);
   }
 
+  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
+  @Get(':id')
+  async findById(@Param('id') id: number): Promise<User> {
+    return this.userService.findById(id, true);
+  }
+
   @Roles(UserRole.NHSO)
   @Get()
   @ApiQuery({ name: 'page', schema: { type: 'integer' }, required: true })

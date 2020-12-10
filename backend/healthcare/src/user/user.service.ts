@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
@@ -7,6 +12,7 @@ import { Hospital } from '../entities/hospital.entity';
 import { NHSO } from '../entities/nhso.entity';
 import { Patient } from '../entities/patient.entity';
 import { Pagination, PaginationOptions } from '../utils/pagination';
+import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 
 @Injectable()
 export class UserService {
@@ -41,18 +47,26 @@ export class UserService {
   }
 
   async findById(id: number, role = false): Promise<User> {
-    const user = await this.userRepository.findOne(id);
-    if (role) {
-      switch (user.role) {
-        case UserRole.NHSO:
-          return this.userRepository.findOne(id, { relations: ['nhso'] });
-        case UserRole.Hospital:
-          return this.userRepository.findOne(id, { relations: ['hospital'] });
-        case UserRole.Patient:
-          return this.userRepository.findOne(id, { relations: ['patient'] });
+    try {
+      const user = await this.userRepository.findOneOrFail(id);
+      if (role) {
+        switch (user.role) {
+          case UserRole.NHSO:
+            return this.userRepository.findOne(id, { relations: ['nhso'] });
+          case UserRole.Hospital:
+            return this.userRepository.findOne(id, { relations: ['hospital'] });
+          case UserRole.Patient:
+            return this.userRepository.findOne(id, { relations: ['patient'] });
+        }
+      }
+      return user;
+    } catch (e) {
+      if (e instanceof EntityNotFoundError) {
+        throw new NotFoundException(`User's ID ${id} cannot be found`, e.name);
+      } else {
+        throw new InternalServerErrorException(e.message, e.name);
       }
     }
-    return user;
   }
 
   async findOne(conditions): Promise<User> {
