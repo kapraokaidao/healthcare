@@ -6,6 +6,7 @@ import { UserRole } from '../constant/enum/user.enum';
 import { Hospital } from '../entities/hospital.entity';
 import { NHSO } from '../entities/nhso.entity';
 import { Patient } from '../entities/patient.entity';
+import { Pagination, PaginationOptions } from '../utils/pagination';
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,23 @@ export class UserService {
 
   async find(conditions = {}): Promise<User[]> {
     return this.userRepository.find(conditions);
+  }
+
+  async findAll(options?: PaginationOptions): Promise<Pagination<User>> {
+    const totalCount = await this.userRepository.count();
+    const pageCount = Math.ceil(totalCount / options.pageSize);
+    const users = await this.userRepository.find({
+      take: options.pageSize,
+      skip: (options.page - 1) * options.pageSize,
+    });
+    return {
+      data: users,
+      itemCount: users.length,
+      page: options.page,
+      pageSize: options.pageSize,
+      totalCount,
+      pageCount,
+    };
   }
 
   async findById(id: number, role = false): Promise<User> {

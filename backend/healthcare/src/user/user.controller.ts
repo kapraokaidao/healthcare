@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UserId } from '../decorators/user-id.decorator';
 import { User } from '../entities/user.entity';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../constant/enum/user.enum';
+import { Pagination } from '../utils/pagination';
 
 @ApiBearerAuth()
 @ApiTags('User')
@@ -16,6 +17,20 @@ export class UserController {
   @Get('me')
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.NHSO)
+  @Get()
+  @ApiQuery({ name: 'page', schema: { type: 'integer' }, required: true })
+  @ApiQuery({ name: 'pageSize', schema: { type: 'integer' }, required: true })
+  async findAll(
+    @Query('page') qPage: string,
+    @Query('pageSize') qPageSize: string
+  ): Promise<Pagination<User>> {
+    const page = qPage ? parseInt(qPage) : 1;
+    const pageSize = qPageSize ? parseInt(qPageSize) : 10;
+    return this.userService.findAll({ page, pageSize });
   }
 
   @UseGuards(RolesGuard)
