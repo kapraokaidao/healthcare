@@ -72,8 +72,8 @@ export class UserController {
   }
 
   @Roles(UserRole.NHSO)
-  @Post(':id/recover')
-  async recover(@Param('id') id: number): Promise<User> {
-    return this.userService.recover(id);
+  @Post(':id/restore')
+  async restore(@Param('id') id: number): Promise<void> {
+    await this.userService.restore(id);
   }
 }

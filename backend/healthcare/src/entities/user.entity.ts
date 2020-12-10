@@ -61,13 +61,13 @@ export class User {
   @JoinColumn({ name: 'patient_id' })
   patient: Patient;
 
-  @CreateDateColumn({ readonly: true, name: 'created_date' })
+  @CreateDateColumn({ update: false, name: 'created_date' })
   createdDate!: Date;
 
-  @UpdateDateColumn({ readonly: true, name: 'updated_date' })
+  @UpdateDateColumn({ name: 'updated_date' })
   updatedDate!: Date;
 
-  @DeleteDateColumn({ readonly: false, name: 'deleted_date' })
+  @DeleteDateColumn({ name: 'deleted_date' })
   deletedDate!: Date;
 
   @BeforeInsert()
