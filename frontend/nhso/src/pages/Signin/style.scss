@@ -1,29 +1,7 @@
-.signin-image {
+.signin {
+    display: flex;
+    align-items: center;
+    max-width: 510px;
     margin:0 auto;
-}
-
-.signin-form {
-    display:block;
-    margin:0 auto;
-    max-width: 400px;
-}
-
-.signin-form input {
-    width: 100%;
-    display: block;
-    padding: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.36);
-    border-radius: 5px;
-}
-
-.signin-form button {
-    background: #2196F3;
-    border-radius: 4px;
-    width: 232px;
-    font-size: 36px;
-    color: #FFFFFF;
-    padding: 12px;
-    display:block;
-    margin:0 auto;
-    margin-top: 32px;
+    height: 100vh;
 }

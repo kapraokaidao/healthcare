@@ -1,17 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body {
     background-image: url("../images/background.png");
     height: 100%;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
-    margin-top: 64px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mt-15{
+    margin-top: 15px;
+}
+
+.ml-10 {
+    margin-left: 10px;
+}
+
+.mr-10 {
+    margin-right: 10px;
 }
