@@ -16,6 +16,7 @@ import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { Pagination } from "../utils/pagination";
+import { SearchUsersDto } from "./user.dto";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -41,21 +42,15 @@ export class UserController {
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "role", schema: { type: "string" }, required: false, enum: UserRole })
-  @ApiQuery({ name: "firstname", schema: { type: "string" }, required: false })
-  @ApiQuery({ name: "surname", schema: { type: "string" }, required: false })
   async findAll(
     @Query("page") qPage: string,
     @Query("pageSize") qPageSize: string,
-    @Query("role") qRole: UserRole,
-    @Query("firstname") qFirstname: string,
-    @Query("surname") qSurname: string
+    @Query("role") qRole: UserRole
   ): Promise<Pagination<User>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     const conditions = {};
     if (qRole) conditions["role"] = qRole;
-    if (qFirstname) conditions["firstname"] = qFirstname;
-    if (qSurname) conditions["surname"] = qSurname;
     return this.userService.find(conditions, { page, pageSize });
   }
 
@@ -64,6 +59,14 @@ export class UserController {
   async createUser(@UserId() id: number, @Body() user: User): Promise<User> {
     const newUser = await this.userService.create(user);
     return this.userService.findById(newUser.id, true);
+  }
+
+  @Roles(UserRole.NHSO)
+  @Post("search")
+  async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
+    const page = dto.page ? dto.page : 1;
+    const pageSize = dto.pageSize ? dto.pageSize : 10;
+    return this.userService.search(dto.user, { page, pageSize });
   }
 
   @Roles(UserRole.NHSO)

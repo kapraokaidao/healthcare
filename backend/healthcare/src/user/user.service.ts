@@ -28,26 +28,15 @@ export class UserService {
   ) {}
 
   async find(
-    conditions: Partial<User>,
+    { role }: Partial<User>,
     pageOptions: PaginationOptions
   ): Promise<Pagination<User>> {
-    const { role, firstname, surname } = conditions;
     let query = this.userRepository
       .createQueryBuilder("u")
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (role) {
       query = query.andWhere("u.role = :role", { role });
-    }
-    if (firstname) {
-      query = query.andWhere("u.firstname like :firstname", {
-        firstname: `%${firstname}%`,
-      });
-    }
-    if (surname) {
-      query = query.andWhere("u.surname like :surname", {
-        surname: `%${surname}%`,
-      });
     }
     const [users, totalCount] = await query.getManyAndCount();
     const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
@@ -140,6 +129,59 @@ export class UserService {
       default:
         throw new BadRequestException("Invalid user's role");
     }
+  }
+
+  async search(
+    user: Partial<User>,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder("u")
+      .leftJoinAndSelect("u.nhso", "n")
+      .leftJoinAndSelect("u.hospital", "h")
+      .leftJoinAndSelect("u.patient", "p")
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
+    if (user.role) {
+      query = query.andWhere("u.role = :role", { role: user.role });
+    }
+    if (user.username) {
+      query = query.andWhere("u.username like :username", {
+        username: `%${user.username}%`,
+      });
+    }
+    if (user.firstname) {
+      query = query.andWhere("u.firstname like :firstname", {
+        firstname: `%${user.firstname}%`,
+      });
+    }
+    if (user.surname) {
+      query = query.andWhere("u.surname like :surname", {
+        surname: `%${user.surname}%`,
+      });
+    }
+    if (user.phone) {
+      query = query.andWhere("u.phone like :phone", {
+        phone: `%${user.phone}%`,
+      });
+    }
+    if (user.patient) {
+      if (user.patient.nationalId) {
+        query = query.andWhere("p.nationalId like :nationalId", {
+          nationalId: `%${user.patient.nationalId}%`,
+        });
+      }
+    }
+    const [users, totalCount] = await query.getManyAndCount();
+    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
+    return {
+      data: users,
+      itemCount: users.length,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalCount,
+      pageCount,
+    };
   }
 
   async findSoftDeletedUsers(): Promise<User[]> {
