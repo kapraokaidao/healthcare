@@ -7,10 +7,12 @@ import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
-import { KeyboardDatePicker } from '@material-ui/pickers';
+import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import DateFnsUtils from '@date-io/date-fns';
+import { delay } from 'lodash';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -24,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
 
 const GenerateToken = observer(() => {
     const classes = useStyles();
+    const [type, setType] = React.useState('Normal');
     const [state, setState] = React.useState({
         name: '',
         type: '',
@@ -33,6 +36,12 @@ const GenerateToken = observer(() => {
         detail: '',
         transfer: false,
     });
+
+    const handleTypeChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
+        setType(event.target.value)
+        console.log(event.target.value)
+        setTimeout(() => {  console.log(type); }, 2000);
+      };
 
     const handleDateChange = () => {
         setState(state)
@@ -69,16 +78,16 @@ const GenerateToken = observer(() => {
                             <FormControl className={classes.formControl}>
                                 <InputLabel htmlFor="type-native-helper">Type</InputLabel>
                                 <NativeSelect
-                                value={state.type}
+                                value={type}
+                                onChange={handleTypeChange}
                                 variant="outlined"
                                 inputProps={{
                                     name: 'type',
                                     id: 'type-native-helper',
                                 }}
                                 >
-                                <option aria-label="None" value="" />
-                                <option value={'admin'}>Admin</option>
-                                <option value={'hospital'}>Hospital</option>
+                                <option value={'Normal'}>Normal</option>
+                                <option value={'Special'}>Special</option>
                                 </NativeSelect>
                             </FormControl>
                         </Grid>
@@ -92,6 +101,7 @@ const GenerateToken = observer(() => {
                                 <InputLabel htmlFor="rule-native-helper">Rule</InputLabel>
                                 <NativeSelect
                                 value={state.rule}
+                                onChange={handleTypeChange}
                                 variant="outlined"
                                 inputProps={{
                                     name: 'rule',
@@ -118,19 +128,21 @@ const GenerateToken = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                        <KeyboardDatePicker
-                        disableToolbar
-                        variant="inline"
-                        format="MM/dd/yyyy"
-                        margin="normal"
-                        id="date-picker-inline"
-                        label="Date picker inline"
-                        value={state.expired}
-                        onChange={handleDateChange}
-                        KeyboardButtonProps={{
-                            'aria-label': 'change date',
-                        }}
-                        />
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <KeyboardDatePicker
+                                    disableToolbar
+                                    variant="inline"
+                                    format="MM/dd/yyyy"
+                                    margin="normal"
+                                    id="date-picker-inline"
+                                    label="Date picker inline"
+                                    value={state.expired}
+                                    onChange={handleDateChange}
+                                    KeyboardButtonProps={{
+                                        'aria-label': 'change date',
+                                    }}
+                                />
+                            </MuiPickersUtilsProvider>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -160,13 +172,20 @@ const GenerateToken = observer(() => {
                         </Grid>
                     </Grid>
                 </div>
-                <div className="right mt-15">
-                    <Button variant="contained" color="primary" size="large">
-						Login
-					</Button>
-                    <Button variant="contained" color="primary" size="large">
-						Login
-					</Button>
+                <div className="mt-15">
+                    <Grid container spacing={2}>
+                        <Grid item xs={8}></Grid>
+                        <Grid item xs={2}>
+                            <Button color="primary" size="large">
+                                Cancel
+                            </Button>
+                        </Grid>
+                        <Grid item xs={2}>
+                            <Button variant="contained" color="primary" size="large">
+                                Generate
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </div>
             </div>
         </>
