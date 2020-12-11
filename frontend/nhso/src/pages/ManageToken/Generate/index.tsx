@@ -8,6 +8,9 @@ import NativeSelect from '@material-ui/core/NativeSelect';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import { KeyboardDatePicker } from '@material-ui/pickers';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -34,6 +37,10 @@ const GenerateToken = observer(() => {
     const handleDateChange = () => {
         setState(state)
       };
+
+    const handleTransferChange = () => {
+        setState(state)
+    };
 
     return (
         <>
@@ -133,7 +140,33 @@ const GenerateToken = observer(() => {
                         <Grid item xs={6}>
                             <TextField id="outlined-token-detail-input" label="Detail" variant="outlined" fullWidth/>
                         </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left">
+                                Transfer after generating
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <FormControlLabel
+                            control={
+                            <Checkbox
+                                checked={state.transfer}
+                                onChange={handleTransferChange}
+                                name="checkedB"
+                                color="primary"
+                            />
+                            }
+                            label="Yes"
+                        />
+                        </Grid>
                     </Grid>
+                </div>
+                <div className="right mt-15">
+                    <Button variant="contained" color="primary" size="large">
+						Login
+					</Button>
+                    <Button variant="contained" color="primary" size="large">
+						Login
+					</Button>
                 </div>
             </div>
         </>
