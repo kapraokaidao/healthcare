@@ -3,16 +3,16 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
-import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
-import { UserRole } from '../constant/enum/user.enum';
-import { Hospital } from '../entities/hospital.entity';
-import { NHSO } from '../entities/nhso.entity';
-import { Patient } from '../entities/patient.entity';
-import { Pagination, PaginationOptions } from '../utils/pagination';
-import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "../entities/user.entity";
+import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
+import { UserRole } from "../constant/enum/user.enum";
+import { Hospital } from "../entities/hospital.entity";
+import { NHSO } from "../entities/nhso.entity";
+import { Patient } from "../entities/patient.entity";
+import { Pagination, PaginationOptions } from "../utils/pagination";
+import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 
 @Injectable()
 export class UserService {
@@ -33,19 +33,19 @@ export class UserService {
   ): Promise<Pagination<User>> {
     const { role, firstname, surname } = conditions;
     let query = this.userRepository
-      .createQueryBuilder('u')
+      .createQueryBuilder("u")
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (role) {
-      query = query.andWhere('u.role = :role', { role });
+      query = query.andWhere("u.role = :role", { role });
     }
     if (firstname) {
-      query = query.andWhere('u.firstname like :firstname', {
+      query = query.andWhere("u.firstname like :firstname", {
         firstname: `%${firstname}%`,
       });
     }
     if (surname) {
-      query = query.andWhere('u.surname like :surname', {
+      query = query.andWhere("u.surname like :surname", {
         surname: `%${surname}%`,
       });
     }
@@ -67,11 +67,11 @@ export class UserService {
       if (role) {
         switch (user.role) {
           case UserRole.NHSO:
-            return this.userRepository.findOne(id, { relations: ['nhso'] });
+            return this.userRepository.findOne(id, { relations: ["nhso"] });
           case UserRole.Hospital:
-            return this.userRepository.findOne(id, { relations: ['hospital'] });
+            return this.userRepository.findOne(id, { relations: ["hospital"] });
           case UserRole.Patient:
-            return this.userRepository.findOne(id, { relations: ['patient'] });
+            return this.userRepository.findOne(id, { relations: ["patient"] });
         }
       }
       return user;
@@ -90,9 +90,9 @@ export class UserService {
 
   async findByUsername(username: string, password?: boolean): Promise<User> {
     const query = this.userRepository.createQueryBuilder();
-    query.where('username = :username', { username });
+    query.where("username = :username", { username });
     if (password) {
-      query.addSelect('password', 'User_password');
+      query.addSelect("password", "User_password");
     }
     return query.getOne();
   }
@@ -144,8 +144,8 @@ export class UserService {
 
   async findSoftDeletedUsers(): Promise<User[]> {
     return this.userRepository
-      .createQueryBuilder('u')
-      .where('u.deletedDate is not null')
+      .createQueryBuilder("u")
+      .where("u.deletedDate is not null")
       .withDeleted()
       .getMany();
   }

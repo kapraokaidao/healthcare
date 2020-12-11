@@ -9,13 +9,13 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
-import { hashSync } from 'bcryptjs';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../constant/enum/user.enum';
-import { NHSO } from './nhso.entity';
-import { Hospital } from './hospital.entity';
-import { Patient } from './patient.entity';
+} from "typeorm";
+import { hashSync } from "bcryptjs";
+import { ApiProperty } from "@nestjs/swagger";
+import { UserRole } from "../constant/enum/user.enum";
+import { NHSO } from "./nhso.entity";
+import { Hospital } from "./hospital.entity";
+import { Patient } from "./patient.entity";
 
 @Entity()
 export class User {
@@ -38,8 +38,8 @@ export class User {
   @Column()
   surname: string;
 
-  @ApiProperty({ enum: UserRole, required: true, default: '' })
-  @Column({ type: 'enum', enum: UserRole, update: false })
+  @ApiProperty({ enum: UserRole, required: true, default: "" })
+  @Column({ type: "enum", enum: UserRole, update: false })
   role: UserRole;
 
   @ApiProperty({ required: true })
@@ -48,26 +48,26 @@ export class User {
 
   @ApiProperty()
   @OneToOne(() => NHSO)
-  @JoinColumn({ name: 'nhso_id' })
+  @JoinColumn({ name: "nhso_id" })
   nhso: NHSO;
 
   @ApiProperty()
   @OneToOne(() => Hospital)
-  @JoinColumn({ name: 'hospital_id' })
+  @JoinColumn({ name: "hospital_id" })
   hospital: Hospital;
 
   @ApiProperty()
   @OneToOne(() => Patient)
-  @JoinColumn({ name: 'patient_id' })
+  @JoinColumn({ name: "patient_id" })
   patient: Patient;
 
-  @CreateDateColumn({ update: false, name: 'created_date' })
+  @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;
 
-  @UpdateDateColumn({ name: 'updated_date' })
+  @UpdateDateColumn({ name: "updated_date" })
   updatedDate!: Date;
 
-  @DeleteDateColumn({ name: 'deleted_date' })
+  @DeleteDateColumn({ name: "deleted_date" })
   deletedDate!: Date;
 
   @BeforeInsert()

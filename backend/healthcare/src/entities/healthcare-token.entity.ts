@@ -5,8 +5,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+} from "typeorm";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity()
 export class HealthcareToken {
@@ -22,11 +22,11 @@ export class HealthcareToken {
   assetName: string;
 
   @ApiProperty()
-  @Column('boolean')
+  @Column("boolean")
   isActive: boolean;
 
   @ApiProperty()
-  @Column('int')
+  @Column("int")
   quantity: number;
 
   @ApiProperty()
@@ -37,12 +37,12 @@ export class HealthcareToken {
   @Column()
   receivingPublicLey: string;
 
-  @CreateDateColumn({ update: false, name: 'created_date' })
+  @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;
 
-  @UpdateDateColumn({ name: 'updated_date' })
+  @UpdateDateColumn({ name: "updated_date" })
   updatedDate: Date;
 
-  @DeleteDateColumn({ name: 'deleted_date' })
+  @DeleteDateColumn({ name: "deleted_date" })
   deletedDate: Date;
 }
