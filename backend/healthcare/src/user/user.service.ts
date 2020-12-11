@@ -27,14 +27,29 @@ export class UserService {
     private readonly patientRepository: Repository<Patient>
   ) {}
 
-  async find(conditions, pageOptions: PaginationOptions): Promise<Pagination<User>> {
-    const [users, totalCount] = await this.userRepository.findAndCount({
-      where: {
-        ...conditions,
-      },
-      take: pageOptions.pageSize,
-      skip: (pageOptions.page - 1) * pageOptions.pageSize,
-    });
+  async find(
+    conditions: Partial<User>,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<User>> {
+    const { role, firstname, surname } = conditions;
+    let query = this.userRepository
+      .createQueryBuilder('u')
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
+    if (role) {
+      query = query.andWhere('u.role = :role', { role });
+    }
+    if (firstname) {
+      query = query.andWhere('u.firstname like :firstname', {
+        firstname: `%${firstname}%`,
+      });
+    }
+    if (surname) {
+      query = query.andWhere('u.surname like :surname', {
+        surname: `%${surname}%`,
+      });
+    }
+    const [users, totalCount] = await query.getManyAndCount();
     const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
     return {
       data: users,

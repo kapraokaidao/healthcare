@@ -41,14 +41,21 @@ export class UserController {
   @ApiQuery({ name: 'page', schema: { type: 'integer' }, required: true })
   @ApiQuery({ name: 'pageSize', schema: { type: 'integer' }, required: true })
   @ApiQuery({ name: 'role', schema: { type: 'string' }, required: false, enum: UserRole })
+  @ApiQuery({ name: 'firstname', schema: { type: 'string' }, required: false })
+  @ApiQuery({ name: 'surname', schema: { type: 'string' }, required: false })
   async findAll(
     @Query('page') qPage: string,
     @Query('pageSize') qPageSize: string,
-    @Query('role') qRole: UserRole
+    @Query('role') qRole: UserRole,
+    @Query('firstname') qFirstname: string,
+    @Query('surname') qSurname: string
   ): Promise<Pagination<User>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    const conditions = qRole ? { role: qRole } : {};
+    const conditions = {};
+    if (qRole) conditions['role'] = qRole;
+    if (qFirstname) conditions['firstname'] = qFirstname;
+    if (qSurname) conditions['surname'] = qSurname;
     return this.userService.find(conditions, { page, pageSize });
   }
 
