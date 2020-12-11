@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Query,
@@ -62,6 +63,7 @@ export class UserController {
   }
 
   @Roles(UserRole.NHSO)
+  @HttpCode(200)
   @Post("search")
   async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
     const page = dto.page ? dto.page : 1;
