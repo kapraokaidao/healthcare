@@ -21,5 +21,6 @@ export class Patient {
   birthDate: Date;
 
   @OneToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn()
   user: User;
 }

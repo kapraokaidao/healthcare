@@ -7,5 +7,6 @@ export class NHSO {
   id: number;
 
   @OneToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn()
   user: User;
 }

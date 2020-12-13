@@ -23,5 +23,6 @@ export class Hospital {
   name: string;
 
   @OneToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn()
   user: User;
 }

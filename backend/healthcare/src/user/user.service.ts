@@ -100,16 +100,16 @@ export class UserService {
         }
         newUser.hospital = hospital;
         hospital.user = newUser;
-        await entityManager.save(hospital);
         await entityManager.save(newUser);
+        await entityManager.save(hospital);
         return newUser;
 
       case UserRole.NHSO:
         const nhso = await this.nhsoRepository.create(user.nhso);
         newUser.nhso = nhso;
         nhso.user = newUser;
-        await entityManager.save(nhso);
         await entityManager.save(newUser);
+        await entityManager.save(nhso);
         return newUser;
 
       case UserRole.Patient:
@@ -122,8 +122,8 @@ export class UserService {
         patient = this.patientRepository.create(user.patient);
         newUser.patient = patient;
         patient.user = newUser;
-        await entityManager.save(patient);
         await entityManager.save(newUser);
+        await entityManager.save(patient);
         return newUser;
 
       default:
