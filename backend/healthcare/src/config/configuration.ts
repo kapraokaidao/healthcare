@@ -17,6 +17,6 @@ export default () => ({
   },
   sentry: {
     dsn: process.env.SENTRY_DSN,
-    enable: process.env.SENTRY_ENABLE === 'true',
+    enable: process.env.SENTRY_ENABLE === "true",
   },
 });

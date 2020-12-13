@@ -1,9 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import StellarSdk, { Horizon } from 'stellar-sdk';
-import axios from 'axios';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import StellarSdk, { Horizon } from "stellar-sdk";
+import axios from "axios";
+import { ConfigService } from "@nestjs/config";
 import BalanceLine = Horizon.BalanceLine;
-import { CreateAccountResponse } from './stellar.dto';
+import { CreateAccountResponse } from "./stellar.dto";
 
 @Injectable()
 export class StellarService {
@@ -11,8 +11,8 @@ export class StellarService {
   private readonly stellarUrl;
 
   constructor(private readonly configService: ConfigService) {
-    this.stellarAccount = this.configService.get<string>('stellar.account');
-    this.stellarUrl = this.configService.get<string>('stellar.url');
+    this.stellarAccount = this.configService.get<string>("stellar.account");
+    this.stellarUrl = this.configService.get<string>("stellar.url");
   }
   async createAccount(): Promise<CreateAccountResponse> {
     const pair = StellarSdk.Keypair.random();

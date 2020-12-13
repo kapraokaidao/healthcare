@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { HealthcareToken } from '../entities/healthcare-token.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Pagination, PaginationOptions } from '../utils/pagination';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { HealthcareToken } from "../entities/healthcare-token.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Pagination, PaginationOptions } from "../utils/pagination";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -15,7 +15,7 @@ export class HealthcareTokenService {
     conditions,
     pageOptions: PaginationOptions
   ): Promise<Pagination<HealthcareToken>> {
-    const t = await this.healthcareTokenRepository.createQueryBuilder('ht');
+    const t = await this.healthcareTokenRepository.createQueryBuilder("ht");
     const [tokens, totalCount] = await this.healthcareTokenRepository.findAndCount({
       where: {
         ...conditions,

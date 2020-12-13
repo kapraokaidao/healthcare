@@ -3,52 +3,55 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Query,
   UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { UserService } from './user.service';
-import { UserId } from '../decorators/user-id.decorator';
-import { User } from '../entities/user.entity';
-import { RolesGuard } from '../guards/roles.guard';
-import { Roles } from '../decorators/roles.decorator';
-import { UserRole } from '../constant/enum/user.enum';
-import { Pagination } from '../utils/pagination';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { UserService } from "./user.service";
+import { UserId } from "../decorators/user-id.decorator";
+import { User } from "../entities/user.entity";
+import { RolesGuard } from "../guards/roles.guard";
+import { Roles } from "../decorators/roles.decorator";
+import { UserRole } from "../constant/enum/user.enum";
+import { Pagination } from "../utils/pagination";
+import { SearchUsersDto } from "./user.dto";
 
 @ApiBearerAuth()
-@ApiTags('User')
-@Controller('user')
+@ApiTags("User")
+@Controller("user")
 @UseGuards(RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
-  @Get('me')
+  @Get("me")
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);
   }
 
   @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
-  @Get(':id')
-  async findById(@Param('id') id: number): Promise<User> {
+  @Get(":id")
+  async findById(@Param("id") id: number): Promise<User> {
     return this.userService.findById(id, true);
   }
 
   @Roles(UserRole.NHSO)
   @Get()
-  @ApiQuery({ name: 'page', schema: { type: 'integer' }, required: true })
-  @ApiQuery({ name: 'pageSize', schema: { type: 'integer' }, required: true })
-  @ApiQuery({ name: 'role', schema: { type: 'string' }, required: false, enum: UserRole })
+  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "role", schema: { type: "string" }, required: false, enum: UserRole })
   async findAll(
-    @Query('page') qPage: string,
-    @Query('pageSize') qPageSize: string,
-    @Query('role') qRole: UserRole
+    @Query("page") qPage: string,
+    @Query("pageSize") qPageSize: string,
+    @Query("role") qRole: UserRole
   ): Promise<Pagination<User>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    const conditions = qRole ? { role: qRole } : {};
+    const conditions = {};
+    if (qRole) conditions["role"] = qRole;
     return this.userService.find(conditions, { page, pageSize });
   }
 
@@ -60,26 +63,35 @@ export class UserController {
   }
 
   @Roles(UserRole.NHSO)
-  @Get('deleted')
+  @HttpCode(200)
+  @Post("search")
+  async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
+    const page = dto.page ? dto.page : 1;
+    const pageSize = dto.pageSize ? dto.pageSize : 10;
+    return this.userService.search(dto.user, { page, pageSize });
+  }
+
+  @Roles(UserRole.NHSO)
+  @Get("deleted")
   async findSoftDeletedUsers(): Promise<User[]> {
     return this.userService.findSoftDeletedUsers();
   }
 
   @Roles(UserRole.NHSO)
-  @Delete(':id')
-  async softDeleteUser(@Param('id') id: number): Promise<void> {
+  @Delete(":id")
+  async softDeleteUser(@Param("id") id: number): Promise<void> {
     await this.userService.softDelete(id);
   }
 
   @Roles(UserRole.NHSO)
-  @Delete(':id/permanent')
-  async hardDeleteUser(@Param('id') id: number): Promise<void> {
+  @Delete(":id/permanent")
+  async hardDeleteUser(@Param("id") id: number): Promise<void> {
     await this.userService.hardDelete(id);
   }
 
   @Roles(UserRole.NHSO)
-  @Post(':id/restore')
-  async restore(@Param('id') id: number): Promise<void> {
+  @Post(":id/restore")
+  async restore(@Param("id") id: number): Promise<void> {
     await this.userService.restore(id);
   }
 }
