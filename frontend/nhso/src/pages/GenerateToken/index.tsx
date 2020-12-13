@@ -12,7 +12,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from '@date-io/date-fns';
-import { delay } from 'lodash';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
