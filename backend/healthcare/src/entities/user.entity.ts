@@ -51,18 +51,15 @@ export class User {
   address: string;
 
   @ApiProperty()
-  @OneToOne(() => NHSO, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "nhso_id" })
+  @OneToOne(() => NHSO, nhso => nhso.user)
   nhso: NHSO;
 
   @ApiProperty()
-  @OneToOne(() => Hospital, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "hospital_id" })
+  @OneToOne(() => Hospital, hospital => hospital.user)
   hospital: Hospital;
 
   @ApiProperty()
-  @OneToOne(() => Patient, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "patient_id" })
+  @OneToOne(() => Patient, patient => patient.user)
   patient: Patient;
 
   @CreateDateColumn({ update: false, name: "created_date" })
@@ -78,7 +75,6 @@ export class User {
   @BeforeUpdate()
   private hashPassword() {
     if (this.password && this.password.slice(0,7) !== '$2a$10$') {
-      console.log('hashing', this.password);
       this.password = hashSync(this.password);
     }
   }

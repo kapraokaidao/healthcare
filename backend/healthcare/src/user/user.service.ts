@@ -33,6 +33,9 @@ export class UserService {
   ): Promise<Pagination<User>> {
     let query = this.userRepository
       .createQueryBuilder("u")
+      .leftJoinAndSelect("u.nhso", "n")
+      .leftJoinAndSelect("u.hospital", "h")
+      .leftJoinAndSelect("u.patient", "p")
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (role) {
@@ -98,17 +101,13 @@ export class UserService {
         if (!hospital) {
           hospital = this.hospitalRepository.create(user.hospital);
         }
-        newUser.hospital = hospital;
         hospital.user = newUser;
-        await entityManager.save(newUser);
         await entityManager.save(hospital);
         return newUser;
 
       case UserRole.NHSO:
         const nhso = await this.nhsoRepository.create(user.nhso);
-        newUser.nhso = nhso;
         nhso.user = newUser;
-        await entityManager.save(newUser);
         await entityManager.save(nhso);
         return newUser;
 
@@ -120,9 +119,7 @@ export class UserService {
           throw new BadRequestException("Duplicate Patient's National ID");
         }
         patient = this.patientRepository.create(user.patient);
-        newUser.patient = patient;
         patient.user = newUser;
-        await entityManager.save(newUser);
         await entityManager.save(patient);
         return newUser;
 

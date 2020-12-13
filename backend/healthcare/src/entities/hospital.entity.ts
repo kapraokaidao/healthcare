@@ -22,7 +22,7 @@ export class Hospital {
   @Column()
   name: string;
 
-  @OneToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn()
+  @OneToOne(() => User, { onDelete: "CASCADE", cascade: true })
+  @JoinColumn({ name: "user_id" })
   user: User;
 }
