@@ -174,6 +174,13 @@ export class UserService {
         });
       }
     }
+    if (user.hospital) {
+      if (user.hospital.hid) {
+        query = query.andWhere("h.hid like :hid", {
+          hid: `%${user.hospital.hid}%`,
+        });
+      }
+    }
     const [users, totalCount] = await query.getManyAndCount();
     const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
     return {
