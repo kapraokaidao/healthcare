@@ -162,6 +162,11 @@ export class UserService {
         phone: `%${user.phone}%`,
       });
     }
+    if (user.address) {
+      query = query.andWhere("u.address like :address", {
+        address: `%${user.address}%`,
+      });
+    }
     if (user.patient) {
       if (user.patient.nationalId) {
         query = query.andWhere("p.nationalId like :nationalId", {
