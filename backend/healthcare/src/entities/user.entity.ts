@@ -9,13 +9,13 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
-import { hashSync } from 'bcryptjs';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../constant/enum/user.enum';
-import { NHSO } from './nhso.entity';
-import { Hospital } from './hospital.entity';
-import { Patient } from './patient.entity';
+} from "typeorm";
+import { hashSync } from "bcryptjs";
+import { ApiProperty } from "@nestjs/swagger";
+import { UserRole } from "../constant/enum/user.enum";
+import { NHSO } from "./nhso.entity";
+import { Hospital } from "./hospital.entity";
+import { Patient } from "./patient.entity";
 
 @Entity()
 export class User {
@@ -38,8 +38,8 @@ export class User {
   @Column()
   surname: string;
 
-  @ApiProperty({ enum: UserRole, required: true, default: '' })
-  @Column({ type: 'enum', enum: UserRole, update: false })
+  @ApiProperty({ enum: UserRole, required: true, default: "" })
+  @Column({ type: "enum", enum: UserRole, update: false })
   role: UserRole;
 
   @ApiProperty({ required: true })
@@ -47,33 +47,34 @@ export class User {
   phone: string;
 
   @ApiProperty()
-  @OneToOne(() => NHSO)
-  @JoinColumn({ name: 'nhso_id' })
+  @Column()
+  address: string;
+
+  @ApiProperty()
+  @OneToOne(() => NHSO, nhso => nhso.user)
   nhso: NHSO;
 
   @ApiProperty()
-  @OneToOne(() => Hospital)
-  @JoinColumn({ name: 'hospital_id' })
+  @OneToOne(() => Hospital, hospital => hospital.user)
   hospital: Hospital;
 
   @ApiProperty()
-  @OneToOne(() => Patient)
-  @JoinColumn({ name: 'patient_id' })
+  @OneToOne(() => Patient, patient => patient.user)
   patient: Patient;
 
-  @CreateDateColumn({ update: false, name: 'created_date' })
+  @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;
 
-  @UpdateDateColumn({ name: 'updated_date' })
+  @UpdateDateColumn({ name: "updated_date" })
   updatedDate!: Date;
 
-  @DeleteDateColumn({ name: 'deleted_date' })
+  @DeleteDateColumn({ name: "deleted_date" })
   deletedDate!: Date;
 
   @BeforeInsert()
   @BeforeUpdate()
   private hashPassword() {
-    if (this.password) {
+    if (this.password && this.password.slice(0,7) !== '$2a$10$') {
       this.password = hashSync(this.password);
     }
   }

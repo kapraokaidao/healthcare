@@ -3,16 +3,16 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
-import { EntityManager, Repository, Transaction, TransactionManager } from 'typeorm';
-import { UserRole } from '../constant/enum/user.enum';
-import { Hospital } from '../entities/hospital.entity';
-import { NHSO } from '../entities/nhso.entity';
-import { Patient } from '../entities/patient.entity';
-import { Pagination, PaginationOptions } from '../utils/pagination';
-import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "../entities/user.entity";
+import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
+import { UserRole } from "../constant/enum/user.enum";
+import { Hospital } from "../entities/hospital.entity";
+import { NHSO } from "../entities/nhso.entity";
+import { Patient } from "../entities/patient.entity";
+import { Pagination, PaginationOptions } from "../utils/pagination";
+import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 
 @Injectable()
 export class UserService {
@@ -27,14 +27,21 @@ export class UserService {
     private readonly patientRepository: Repository<Patient>
   ) {}
 
-  async find(conditions, pageOptions: PaginationOptions): Promise<Pagination<User>> {
-    const [users, totalCount] = await this.userRepository.findAndCount({
-      where: {
-        ...conditions,
-      },
-      take: pageOptions.pageSize,
-      skip: (pageOptions.page - 1) * pageOptions.pageSize,
-    });
+  async find(
+    { role }: Partial<User>,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder("u")
+      .leftJoinAndSelect("u.nhso", "n")
+      .leftJoinAndSelect("u.hospital", "h")
+      .leftJoinAndSelect("u.patient", "p")
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
+    if (role) {
+      query = query.andWhere("u.role = :role", { role });
+    }
+    const [users, totalCount] = await query.getManyAndCount();
     const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
     return {
       data: users,
@@ -52,11 +59,11 @@ export class UserService {
       if (role) {
         switch (user.role) {
           case UserRole.NHSO:
-            return this.userRepository.findOne(id, { relations: ['nhso'] });
+            return this.userRepository.findOne(id, { relations: ["nhso"] });
           case UserRole.Hospital:
-            return this.userRepository.findOne(id, { relations: ['hospital'] });
+            return this.userRepository.findOne(id, { relations: ["hospital"] });
           case UserRole.Patient:
-            return this.userRepository.findOne(id, { relations: ['patient'] });
+            return this.userRepository.findOne(id, { relations: ["patient"] });
         }
       }
       return user;
@@ -75,9 +82,9 @@ export class UserService {
 
   async findByUsername(username: string, password?: boolean): Promise<User> {
     const query = this.userRepository.createQueryBuilder();
-    query.where('username = :username', { username });
+    query.where("username = :username", { username });
     if (password) {
-      query.addSelect('password', 'User_password');
+      query.addSelect("password", "User_password");
     }
     return query.getOne();
   }
@@ -94,18 +101,14 @@ export class UserService {
         if (!hospital) {
           hospital = this.hospitalRepository.create(user.hospital);
         }
-        newUser.hospital = hospital;
         hospital.user = newUser;
         await entityManager.save(hospital);
-        await entityManager.save(newUser);
         return newUser;
 
       case UserRole.NHSO:
         const nhso = await this.nhsoRepository.create(user.nhso);
-        newUser.nhso = nhso;
         nhso.user = newUser;
         await entityManager.save(nhso);
-        await entityManager.save(newUser);
         return newUser;
 
       case UserRole.Patient:
@@ -116,10 +119,8 @@ export class UserService {
           throw new BadRequestException("Duplicate Patient's National ID");
         }
         patient = this.patientRepository.create(user.patient);
-        newUser.patient = patient;
         patient.user = newUser;
         await entityManager.save(patient);
-        await entityManager.save(newUser);
         return newUser;
 
       default:
@@ -127,10 +128,63 @@ export class UserService {
     }
   }
 
+  async search(
+    user: Partial<User>,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder("u")
+      .leftJoinAndSelect("u.nhso", "n")
+      .leftJoinAndSelect("u.hospital", "h")
+      .leftJoinAndSelect("u.patient", "p")
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
+    if (user.role) {
+      query = query.andWhere("u.role = :role", { role: user.role });
+    }
+    if (user.username) {
+      query = query.andWhere("u.username like :username", {
+        username: `%${user.username}%`,
+      });
+    }
+    if (user.firstname) {
+      query = query.andWhere("u.firstname like :firstname", {
+        firstname: `%${user.firstname}%`,
+      });
+    }
+    if (user.surname) {
+      query = query.andWhere("u.surname like :surname", {
+        surname: `%${user.surname}%`,
+      });
+    }
+    if (user.phone) {
+      query = query.andWhere("u.phone like :phone", {
+        phone: `%${user.phone}%`,
+      });
+    }
+    if (user.patient) {
+      if (user.patient.nationalId) {
+        query = query.andWhere("p.nationalId like :nationalId", {
+          nationalId: `%${user.patient.nationalId}%`,
+        });
+      }
+    }
+    const [users, totalCount] = await query.getManyAndCount();
+    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
+    return {
+      data: users,
+      itemCount: users.length,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalCount,
+      pageCount,
+    };
+  }
+
   async findSoftDeletedUsers(): Promise<User[]> {
     return this.userRepository
-      .createQueryBuilder('u')
-      .where('u.deletedDate is not null')
+      .createQueryBuilder("u")
+      .where("u.deletedDate is not null")
       .withDeleted()
       .getMany();
   }
