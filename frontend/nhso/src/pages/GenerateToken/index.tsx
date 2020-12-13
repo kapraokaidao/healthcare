@@ -7,12 +7,10 @@ import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
-import DateFnsUtils from '@date-io/date-fns';
-import { TokenClass } from 'typescript';
+import Input from '@material-ui/core/Input';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -35,9 +33,6 @@ const GenerateToken = observer(() => {
         detail: '',
         transfer: true,
     });
-    const handleDateChange = (date: any) => {
-        setToken({...token, ["expired"]: date});
-    };
     const handleCheckChange = (event: { target: { checked: any; }; }) => {
         setToken({...token, ["transfer"]: event.target.checked})
     };
@@ -136,21 +131,10 @@ const GenerateToken = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <KeyboardDatePicker
-                                    disableToolbar
-                                    variant="inline"
-                                    format="MM/dd/yyyy"
-                                    margin="normal"
-                                    id="date-picker-inline"
-                                    label="Date picker inline"
-                                    value={token.expired}
-                                    onChange={handleDateChange}
-                                    KeyboardButtonProps={{
-                                        'aria-label': 'change date',
-                                    }}
-                                />
-                            </MuiPickersUtilsProvider>
+                            <Input
+								type="date"
+								onChange={handleInputChange("expired")}
+							/>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">

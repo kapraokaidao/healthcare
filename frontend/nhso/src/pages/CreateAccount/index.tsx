@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -8,6 +8,9 @@ import NativeSelect from '@material-ui/core/NativeSelect';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import Button from '@material-ui/core/Button';
+import { Hospital, Role, UserCreate } from '../../types';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -19,23 +22,44 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-const CreateAccount = observer(() => {
+const CreateAccount = () => {
     const classes = useStyles();
-    const [account, setAccount] = React.useState({
-        role:"Admin",
+    const history = useHistory();
+    const [role, setRole] = useState<Role>("NHSO")
+    const [hospital, setHospital] = useState<Hospital>({
+        name:"",
+        hid:0
+    });
+    const [account, setAccount] = React.useState<UserCreate>({
+        role:"NHSO",
         firstname:"",
         surname:"",
         address:"",
         phone:"",
         username:"",
-        password:"",
-        confirm:""
+        password:""
     });
     
-    const createAccount = () => {
-        console.log(account);
-    };
 
+    const createAccount = async() => {
+        const sendAccount = account
+        if (role == "Hospital"){
+            sendAccount.hospital = {
+                name:hospital.name,
+                hid:hospital.hid
+            }
+        }
+        await axios.post('/user',sendAccount)
+        history.push('/account-list')
+    };
+    const handleRoleChange = (event: { target: { value: string }; }) => {
+        const newRole = event.target.value as Role
+        setRole(newRole);
+        setAccount({...account, ["role"]: newRole});
+    }
+    const handleHospitalChange = (props: any)=>(event: { target: { value: any; }; }) => {
+        setHospital({...hospital, [props]:event.target.value});
+    };
     const handleInputChange = (props: any)=>(event: { target: { value: any; }; }) => {
         setAccount({...account, [props]:event.target.value});
     };
@@ -60,18 +84,53 @@ const CreateAccount = observer(() => {
                                 <InputLabel htmlFor="role-native-helper">Role</InputLabel>
                                 <NativeSelect
                                     value={account.role}
-                                    onChange={handleInputChange("role")}
+                                    onChange={handleRoleChange}
                                     variant="outlined"
                                     inputProps={{
                                         name: 'type',
                                         id: 'role-native-helper',
                                     }}
                                     >
-                                    <option value={'Admin'}>Admin</option>
+                                    <option value={'NHSO'}>NHSO</option>
                                     <option value={'Hospital'}>Hospital</option>
                                 </NativeSelect>
                             </FormControl>
                         </Grid>
+                        {role === 'Hospital' && (
+                            <>
+                                <Grid item xs={4} container alignItems="flex-end">
+                                    <Typography variant="h5" gutterBottom align="left">
+                                        Hospital Name
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={8}>
+                                    <TextField 
+                                        id="outlined-firstname-input" 
+                                        label="Hospital Name" 
+                                        variant="outlined"
+                                        value={hospital.name}
+                                        onChange={handleHospitalChange("name")}
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={4} container alignItems="flex-end">
+                                    <Typography variant="h5" gutterBottom align="left">
+                                        Hospital ID
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={8}>
+                                    <TextField 
+                                        id="outlined-firstname-input" 
+                                        label="Hospital ID" 
+                                        variant="outlined"
+                                        value={hospital.hid}
+                                        onChange={handleHospitalChange("hid")}
+                                        fullWidth
+                                    />
+                                </Grid>
+                            </>
+                        )}
+
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
                                 Firstname
@@ -172,8 +231,8 @@ const CreateAccount = observer(() => {
                                 id="outlined-confirm-password-input" 
                                 label="Confirm Password" 
                                 variant="outlined" 
-                                value={account.confirm}
-                                onChange={handleInputChange("confirm")}
+                                //value={account.confirm}
+                                //onChange={handleInputChange("confirm")}
                                 fullWidth
                             />
                         </Grid>
@@ -197,5 +256,5 @@ const CreateAccount = observer(() => {
             </div>
         </>
     );
-});
+};
 export default CreateAccount;
