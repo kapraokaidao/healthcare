@@ -12,6 +12,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from '@date-io/date-fns';
+import { TokenClass } from 'typescript';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -25,29 +26,26 @@ const useStyles = makeStyles((theme) => ({
 
 const GenerateToken = observer(() => {
     const classes = useStyles();
-    const [type, setType] = React.useState('Normal');
-    const [state, setState] = React.useState({
+    const [token, setToken] = React.useState({
         name: '',
-        type: '',
-        rule: [],
+        type: 'Normal',
+        rule: "",
         quantity: '',
-        expired: '',
+        expired: Date(),
         detail: '',
-        transfer: false,
+        transfer: true,
     });
-
-    const handleTypeChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-        setType(event.target.value)
-        console.log(event.target.value)
-        setTimeout(() => {  console.log(type); }, 2000);
-      };
-
-    const handleDateChange = () => {
-        setState(state)
-      };
-
-    const handleTransferChange = () => {
-        setState(state)
+    const handleDateChange = (date: any) => {
+        setToken({...token, ["expired"]: date});
+    };
+    const handleCheckChange = (event: { target: { checked: any; }; }) => {
+        setToken({...token, ["transfer"]: event.target.checked})
+    };
+    const handleInputChange = (props: any)=>(event: { target: { value: any; }; }) => {
+        setToken({...token, [props]:event.target.value});
+    };
+    const generateToken = () => {
+        console.log(token)
     };
 
     return (
@@ -66,7 +64,14 @@ const GenerateToken = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField id="outlined-token-name-input" label="Name" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-token-name-input" 
+                                label="Name" 
+                                variant="outlined"
+                                value={token.name}
+                                onChange={handleInputChange("name")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -77,16 +82,15 @@ const GenerateToken = observer(() => {
                             <FormControl className={classes.formControl}>
                                 <InputLabel htmlFor="type-native-helper">Type</InputLabel>
                                 <NativeSelect
-                                value={type}
-                                onChange={handleTypeChange}
-                                variant="outlined"
-                                inputProps={{
-                                    name: 'type',
-                                    id: 'type-native-helper',
-                                }}
-                                >
-                                <option value={'Normal'}>Normal</option>
-                                <option value={'Special'}>Special</option>
+                                    value={token.type}
+                                    onChange={handleInputChange("type")}
+                                    variant="outlined"
+                                    inputProps={{
+                                        name: 'type',
+                                        id: 'type-native-helper',
+                                    }}>
+                                    <option value={'Normal'}>Normal</option>
+                                    <option value={'Special'}>Special</option>
                                 </NativeSelect>
                             </FormControl>
                         </Grid>
@@ -99,17 +103,15 @@ const GenerateToken = observer(() => {
                             <FormControl className={classes.formControl}>
                                 <InputLabel htmlFor="rule-native-helper">Rule</InputLabel>
                                 <NativeSelect
-                                value={state.rule}
-                                onChange={handleTypeChange}
-                                variant="outlined"
-                                inputProps={{
-                                    name: 'rule',
-                                    id: 'rule-native-helper',
-                                }}
-                                >
-                                <option aria-label="None" value="" />
-                                <option value={'admin'}>Admin</option>
-                                <option value={'hospital'}>Hospital</option>
+                                    value={token.rule}
+                                    onChange={handleInputChange("rule")}
+                                    variant="outlined"
+                                    inputProps={{
+                                        name: 'rule',
+                                        id: 'rule-native-helper',
+                                    }}>
+                                    <option value={'admin'}>Admin</option>
+                                    <option value={'hospital'}>Hospital</option>
                                 </NativeSelect>
                             </FormControl>
                         </Grid>
@@ -119,7 +121,14 @@ const GenerateToken = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField id="outlined-token-quantity-input" label="Quantity" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-token-quantity-input" 
+                                label="Quantity" 
+                                variant="outlined" 
+                                value={token.quantity}
+                                onChange={handleInputChange("quantity")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -135,7 +144,7 @@ const GenerateToken = observer(() => {
                                     margin="normal"
                                     id="date-picker-inline"
                                     label="Date picker inline"
-                                    value={state.expired}
+                                    value={token.expired}
                                     onChange={handleDateChange}
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
@@ -149,7 +158,14 @@ const GenerateToken = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField id="outlined-token-detail-input" label="Detail" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-token-detail-input" 
+                                label="Detail" 
+                                variant="outlined" 
+                                value={token.detail}
+                                onChange={handleInputChange("detail")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -160,10 +176,11 @@ const GenerateToken = observer(() => {
                         <FormControlLabel
                             control={
                             <Checkbox
-                                checked={state.transfer}
-                                onChange={handleTransferChange}
+                                checked={token.transfer}
+                                onChange={handleCheckChange}
                                 name="checkedB"
                                 color="primary"
+                                inputProps={{ 'aria-label': 'primary checkbox' }}
                             />
                             }
                             label="Yes"
@@ -180,7 +197,7 @@ const GenerateToken = observer(() => {
                             </Button>
                         </Grid>
                         <Grid item xs={2}>
-                            <Button variant="contained" color="primary" size="large">
+                            <Button onClick={generateToken} variant="contained" color="primary" size="large">
                                 Generate
                             </Button>
                         </Grid>

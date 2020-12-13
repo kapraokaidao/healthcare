@@ -21,24 +21,24 @@ const useStyles = makeStyles((theme) => ({
 
 const CreateAccount = observer(() => {
     const classes = useStyles();
-    const [role, setRole] = React.useState('Admin');
-    const [state, setState] = React.useState({
-        name: '',
-        type: '',
-        rule: [],
-        quantity: '',
-        expired: '',
-        detail: '',
-        transfer: false,
+    const [account, setAccount] = React.useState({
+        role:"Admin",
+        firstname:"",
+        surname:"",
+        address:"",
+        phone:"",
+        username:"",
+        password:"",
+        confirm:""
     });
+    
+    const createAccount = () => {
+        console.log(account);
+    };
 
-    const handleRoleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-        setRole(event.target.value)
-      };
-
-    const handleDateChange = () => {
-        setState(state)
-      };
+    const handleInputChange = (props: any)=>(event: { target: { value: any; }; }) => {
+        setAccount({...account, [props]:event.target.value});
+    };
 
     return (
         <>
@@ -59,16 +59,16 @@ const CreateAccount = observer(() => {
                             <FormControl className={classes.formControl}>
                                 <InputLabel htmlFor="role-native-helper">Role</InputLabel>
                                 <NativeSelect
-                                value={role}
-                                onChange={handleRoleChange}
-                                variant="outlined"
-                                inputProps={{
-                                    name: 'type',
-                                    id: 'role-native-helper',
-                                }}
-                                >
-                                <option value={'Admin'}>Admin</option>
-                                <option value={'Hospital'}>Hospital</option>
+                                    value={account.role}
+                                    onChange={handleInputChange("role")}
+                                    variant="outlined"
+                                    inputProps={{
+                                        name: 'type',
+                                        id: 'role-native-helper',
+                                    }}
+                                    >
+                                    <option value={'Admin'}>Admin</option>
+                                    <option value={'Hospital'}>Hospital</option>
                                 </NativeSelect>
                             </FormControl>
                         </Grid>
@@ -78,7 +78,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-firstname-input" label="Firstname" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-firstname-input" 
+                                label="Firstname" 
+                                variant="outlined"
+                                value={account.firstname}
+                                onChange={handleInputChange("firstname")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -86,7 +93,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-surname-input" label="Surname" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-surname-input" 
+                                label="Surname" 
+                                variant="outlined"
+                                value={account.surname}
+                                onChange={handleInputChange("surname")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -94,7 +108,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-address-input" label="Address" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-address-input" 
+                                label="Address" 
+                                variant="outlined" 
+                                value={account.address}
+                                onChange={handleInputChange("address")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -102,7 +123,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-phone-input" label="Phone Number" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-phone-input" 
+                                label="Phone Number" 
+                                variant="outlined" 
+                                value={account.phone}
+                                onChange={handleInputChange("phone")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -110,7 +138,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-username-input" label="Username" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-username-input" 
+                                label="Username" 
+                                variant="outlined" 
+                                value={account.username}
+                                onChange={handleInputChange("username")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -118,7 +153,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-password-input" label="Password" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-password-input" 
+                                label="Password" 
+                                variant="outlined" 
+                                value={account.password}
+                                onChange={handleInputChange("password")}
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -126,7 +168,14 @@ const CreateAccount = observer(() => {
                             </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                            <TextField id="outlined-confirm-password-input" label="Confirm Password" variant="outlined" fullWidth/>
+                            <TextField 
+                                id="outlined-confirm-password-input" 
+                                label="Confirm Password" 
+                                variant="outlined" 
+                                value={account.confirm}
+                                onChange={handleInputChange("confirm")}
+                                fullWidth
+                            />
                         </Grid>
                     </Grid>
                 </div>
@@ -139,7 +188,7 @@ const CreateAccount = observer(() => {
                             </Button>
                         </Grid>
                         <Grid item xs={2}>
-                            <Button variant="contained" color="primary" size="large">
+                            <Button onClick={createAccount} variant="contained" color="primary" size="large">
                                 Create
                             </Button>
                         </Grid>
