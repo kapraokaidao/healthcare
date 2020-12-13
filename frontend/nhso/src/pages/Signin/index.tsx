@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { AuthStoreContext } from '../../stores';
 import { observer } from 'mobx-react-lite';
 import { SigninType } from '../../stores/AuthStore';
@@ -15,7 +15,14 @@ const initialValue: SigninType = {
 
 const Signin = observer(() => {
 	const authStore = useContext(AuthStoreContext);
+	const [username, setUsername] = useState('');
+	const [password, setPassword] = useState('');
 	const [history] = useState(useHistory());
+
+	const signin = useCallback(async () => {
+		const res = await authStore.signin({ username, password });
+		if (res) history.push('/home');
+	}, [history, username, password]);
 
 	return (
 		<>
@@ -25,7 +32,13 @@ const Signin = observer(() => {
 						<img src={nhso} />
 					</div>
 					<div className="mt-15">
-						<TextField id="outlined-username-input" label="Username" variant="outlined" fullWidth />
+						<TextField
+							id="outlined-username-input"
+							label="Username"
+							variant="outlined"
+							onChange={(e) => setUsername(e.target.value)}
+							fullWidth
+						/>
 					</div>
 					<div className="mt-15">
 						<TextField
@@ -33,11 +46,12 @@ const Signin = observer(() => {
 							label="Password"
 							type="password"
 							variant="outlined"
+							onChange={(e) => setPassword(e.target.value)}
 							fullWidth
 						/>
 					</div>
 					<div className="center mt-15">
-						<Button variant="contained" color="primary" size="large">
+						<Button variant="contained" onClick={signin} color="primary" size="large">
 							Login
 						</Button>
 					</div>

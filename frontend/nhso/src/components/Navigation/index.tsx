@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthStoreContext } from '../../stores';
 import { observer } from 'mobx-react-lite';
 import clsx from 'clsx';
@@ -22,7 +22,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -87,26 +87,27 @@ const useStyles = makeStyles((theme) => ({
 
 const Navigation = observer(() => {
 	const location = useLocation();
+	const [history] = useState(useHistory());
+	const authStore = useContext(AuthStoreContext);
 	const [show, setShow] = useState(true);
-
 	useEffect(() => {
 		if (location.pathname === '/signin') {
 			setShow(false);
 		}
 	}, [location.pathname]);
-
-	const authStore = useContext(AuthStoreContext);
 	const classes = useStyles();
 	const theme = useTheme();
 	const [open, setOpen] = useState(false);
-
 	const handleDrawerOpen = () => {
 		setOpen(true);
 	};
-
 	const handleDrawerClose = () => {
 		setOpen(false);
 	};
+	const signout = useCallback(async () => {
+		const res = await authStore.signout();
+		if (res) history.push('/signin');
+	}, [authStore]);
 
 	return (
 		<>
@@ -134,7 +135,7 @@ const Navigation = observer(() => {
 							<div className="center">
 								<span>Username</span>
 								<AccountCircle fontSize="large" className="ml-10 mr-10" />
-								<Button variant="contained" color="secondary">
+								<Button onClick={signout} variant="contained" color="secondary">
 									Sign Out
 								</Button>
 							</div>
