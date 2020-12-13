@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import { DataGrid, ColDef, ValueFormatterParams } from '@material-ui/data-grid';
-import { FilterUser, Role, Sex, User } from '../../types';
+import { FilterUser, Role, Gender, User } from '../../types';
 import axios from 'axios';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -207,7 +207,7 @@ const AccountList = () => {
 											const user = filterUser;
 											if (!user.patient) user.patient = {};
 											if (e.target.value !== '') {
-												user.patient.gender = e.target.value as Sex;
+												user.patient.gender = e.target.value as Gender;
 											} else {
 												delete user.patient.gender;
 											}

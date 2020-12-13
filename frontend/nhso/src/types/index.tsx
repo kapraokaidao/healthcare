@@ -1,4 +1,4 @@
-export type Sex = 'Male' | 'Female';
+export type Gender = 'Male' | 'Female';
 
 export type Role = 'NHSO' | 'Patient' | 'Hospital';
 
@@ -13,9 +13,22 @@ export type NHSO = {
 
 export type Patient = {
 	nationalId: string;
-	gender: Sex;
+	gender: Gender;
 	birthDate: Date;
 };
+
+export type UserCreate = {
+	username: string;
+	password: string;
+	firstname: string;
+	surname: string;
+	role: Role;
+	phone: string;
+	address: string;
+	nhso?: NHSO;
+	hospital?: Hospital;
+	patient?: Patient;
+}
 
 export type User = {
 	id: number;
@@ -47,7 +60,7 @@ export type FilterUser = {
 	};
 	patient?: {
 		nationalId?: string;
-		gender?: Sex;
+		gender?: Gender;
 		birthDate?: Date;
 	};
 };
