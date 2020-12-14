@@ -30,6 +30,20 @@ export type UserCreate = {
 	patient?: Patient;
 }
 
+export type TokenGenerate = {
+	name: string;
+	assetName: string;
+	isActive: boolean;
+	quantity: number;
+	issuingPublicKey: string;
+	receivingPublicLey: string;
+}
+
+export type KYCUser = {
+	approve: boolean
+	mistake: string;
+}
+
 export type User = {
 	id: number;
 	username: string;

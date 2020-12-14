@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 
 const CreateAccount = () => {
     const classes = useStyles();
-    const history = useHistory();
+    const [history] = useState(useHistory());
     const [checkPassword,setCheckPassword] = useState("")
     const [role, setRole] = useState<Role>("NHSO")
     const [confirm, setConfirm] = useState(false);
@@ -47,29 +47,29 @@ const CreateAccount = () => {
     
     const createAccount = async() => {
         const sendAccount = account
-        if (role == "Hospital"){
+        if (role === "Hospital"){
             sendAccount.hospital = {
                 name:hospital.name,
                 hid:hospital.hid
             }
         }
-        if (account.password == checkPassword){
+        if (account.password === checkPassword){
             await axios.post('/user',sendAccount)
             history.push('/account-list')
         }
     };
-    const handleRoleChange = (event: { target: { value: string }; }) => {
+    const handleRoleChange = (props: string)=>(event: { target: { value: string }; }) => {
         const newRole = event.target.value as Role
         setRole(newRole);
-        setAccount({...account, ["role"]: newRole});
+        setAccount({...account, [props]: newRole});
     }
-    const handleHospitalChange = (props: any)=>(event: { target: { value: any; }; }) => {
+    const handleHospitalChange = (props: string)=>(event: { target: { value: any; }; }) => {
         setHospital({...hospital, [props]:event.target.value});
     };
-    const handleInputChange = (props: any)=>(event: { target: { value: any; }; }) => {
+    const handleInputChange = (props: string)=>(event: { target: { value: any; }; }) => {
         setAccount({...account, [props]:event.target.value});
     };
-    const handleCheckPasswordChange = (event: { target: { value: any; }; }) => {
+    const handleCheckPasswordChange = (event: { target: { value: string; }; }) => {
         setCheckPassword(event.target.value);
     };
     function cancelCreateAccount(){
@@ -96,7 +96,7 @@ const CreateAccount = () => {
                                 <InputLabel htmlFor="role-native-helper">Role</InputLabel>
                                 <NativeSelect
                                     value={account.role}
-                                    onChange={handleRoleChange}
+                                    onChange={handleRoleChange("Role")}
                                     variant="outlined"
                                     inputProps={{
                                         name: 'type',
