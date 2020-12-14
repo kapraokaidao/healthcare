@@ -89,7 +89,6 @@ export class UserService {
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
-      console.log("with ready");
       query = query.andWhere("patient.nationalIdImage is not null");
       query = query.andWhere("patient.selfieImage is not null");
     }
