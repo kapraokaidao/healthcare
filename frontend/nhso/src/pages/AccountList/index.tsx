@@ -15,6 +15,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import './style.scss';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
+import { useHistory } from 'react-router-dom';
 
 const AccountList = () => {
 	const [users, setUsers] = useState<User[]>([]);
@@ -47,6 +48,10 @@ const AccountList = () => {
 			setConfirm(false);
 		}
 	}, []);
+	const [history] = useState(useHistory());
+	const createAccount = () => {
+		history.push('/create-account');
+	}
 
 	const columns: ColDef[] = useMemo(() => {
 		return [
@@ -100,7 +105,7 @@ const AccountList = () => {
 				</Grid>
 				<Grid>
 					<div className="height-full center">
-						<IconButton color="primary">
+						<IconButton onClick={createAccount} color="primary">
 							<AddIcon fontSize="large" />
 						</IconButton>
 					</div>
