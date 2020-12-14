@@ -85,6 +85,7 @@ export class UserService {
     let query = this.userRepository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.patient", "patient")
+      .where("user.role = :role", { role: UserRole.Patient })
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
