@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
@@ -11,6 +10,10 @@ import Button from '@material-ui/core/Button';
 import { Hospital, Role, UserCreate } from '../../types';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -25,7 +28,9 @@ const useStyles = makeStyles((theme) => ({
 const CreateAccount = () => {
     const classes = useStyles();
     const history = useHistory();
+    const [checkPassword,setCheckPassword] = useState("")
     const [role, setRole] = useState<Role>("NHSO")
+    const [confirm, setConfirm] = useState(false);
     const [hospital, setHospital] = useState<Hospital>({
         name:"",
         hid:0
@@ -40,7 +45,6 @@ const CreateAccount = () => {
         password:""
     });
     
-
     const createAccount = async() => {
         const sendAccount = account
         if (role == "Hospital"){
@@ -49,8 +53,10 @@ const CreateAccount = () => {
                 hid:hospital.hid
             }
         }
-        await axios.post('/user',sendAccount)
-        history.push('/account-list')
+        if (account.password == checkPassword){
+            await axios.post('/user',sendAccount)
+            history.push('/account-list')
+        }
     };
     const handleRoleChange = (event: { target: { value: string }; }) => {
         const newRole = event.target.value as Role
@@ -63,6 +69,12 @@ const CreateAccount = () => {
     const handleInputChange = (props: any)=>(event: { target: { value: any; }; }) => {
         setAccount({...account, [props]:event.target.value});
     };
+    const handleCheckPasswordChange = (event: { target: { value: any; }; }) => {
+        setCheckPassword(event.target.value);
+    };
+    function cancelCreateAccount(){
+        history.push('/account-list')
+    }
 
     return (
         <>
@@ -231,8 +243,8 @@ const CreateAccount = () => {
                                 id="outlined-confirm-password-input" 
                                 label="Confirm Password" 
                                 variant="outlined" 
-                                //value={account.confirm}
-                                //onChange={handleInputChange("confirm")}
+                                value={checkPassword}
+                                onChange={handleCheckPasswordChange}
                                 fullWidth
                             />
                         </Grid>
@@ -242,18 +254,52 @@ const CreateAccount = () => {
                     <Grid container spacing={0}>
                         <Grid item xs={8}></Grid>
                         <Grid item xs={2}>
-                            <Button color="primary" size="large">
+                            <Button onClick={cancelCreateAccount} color="primary" size="large">
                                 Cancel
                             </Button>
                         </Grid>
                         <Grid item xs={2}>
-                            <Button onClick={createAccount} variant="contained" color="primary" size="large">
+                            <Button 
+                                onClick={() => {
+                                    setConfirm(true);
+                                }} 
+                                variant="contained" 
+                                color="primary" 
+                                size="large"
+                            >
                                 Create
                             </Button>
                         </Grid>
                     </Grid>
                 </div>
             </div>
+            <Dialog
+				open={confirm}
+				keepMounted
+				onClose={() => {
+					setConfirm(false);
+				}}
+			>
+				<DialogContent>
+					<DialogContentText>
+						<h1>Confirm to create user?</h1>
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button
+						onClick={() => {
+							setConfirm(false);
+						}}
+						variant="contained"
+						color="primary"
+					>
+						NO
+					</Button>
+					<Button onClick={createAccount} variant="contained" color="secondary">
+						YES
+					</Button>
+				</DialogActions>
+			</Dialog>
         </>
     );
 };
