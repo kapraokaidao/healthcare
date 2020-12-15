@@ -7,9 +7,11 @@ import {
   Param,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserId } from "../decorators/user-id.decorator";
 import { User } from "../entities/user.entity";
@@ -17,24 +19,24 @@ import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { Pagination } from "../utils/pagination";
-import { SearchUsersDto } from "./user.dto";
+import { KycImageType, SearchUsersDto } from "./user.dto";
+import { FileUploadDto } from "../config/file.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { S3Service } from "../s3/s3.service";
 
 @ApiBearerAuth()
 @ApiTags("User")
 @Controller("user")
 @UseGuards(RolesGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly s3Service: S3Service
+  ) {}
 
   @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
   @Get("me")
   async me(@UserId() id: number): Promise<User> {
-    return this.userService.findById(id, true);
-  }
-
-  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
-  @Get(":id")
-  async findById(@Param("id") id: number): Promise<User> {
     return this.userService.findById(id, true);
   }
 
@@ -63,11 +65,29 @@ export class UserController {
   }
 
   @Roles(UserRole.NHSO)
+  @Get("kyc")
+  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "approved", schema: { type: "string" }, required: false })
+  @ApiQuery({ name: "ready", schema: { type: "string" }, required: false })
+  async find(
+    @Query("page") qPage: string,
+    @Query("pageSize") qPageSize: string,
+    @Query("approved") approved: string,
+    @Query("ready") qReady: string
+  ): Promise<Pagination<User>> {
+    const page = qPage ? parseInt(qPage) : 1;
+    const pageSize = qPageSize ? parseInt(qPageSize) : 10;
+    const ready = qReady && qReady === "true";
+    return this.userService.findKyc(approved, ready, { page, pageSize });
+  }
+
+  @Roles(UserRole.NHSO)
   @HttpCode(200)
   @Post("search")
   async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
-    const page = dto.page ? dto.page : 1;
-    const pageSize = dto.pageSize ? dto.pageSize : 10;
+    const page = dto.page !== null ? dto.page : 1;
+    const pageSize = dto.pageSize !== null ? dto.pageSize : 10;
     return this.userService.search(dto.user, { page, pageSize });
   }
 
@@ -75,6 +95,12 @@ export class UserController {
   @Get("deleted")
   async findSoftDeletedUsers(): Promise<User[]> {
     return this.userService.findSoftDeletedUsers();
+  }
+
+  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
+  @Get(":id")
+  async findById(@Param("id") id: number): Promise<User> {
+    return this.userService.findById(id, true);
   }
 
   @Roles(UserRole.NHSO)
@@ -93,5 +119,27 @@ export class UserController {
   @Post(":id/restore")
   async restore(@Param("id") id: number): Promise<void> {
     await this.userService.restore(id);
+  }
+
+  @Roles(UserRole.Patient)
+  @Post("/upload/national-id")
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({ type: FileUploadDto })
+  @UseInterceptors(FileInterceptor("image"))
+  async uploadNationalIdImage(@UserId() id: number, @UploadedFile() image) {
+    const path = `user_${id}/kyc/national-id.jpg`;
+    const imageUrl = await this.s3Service.uploadImage(image, path);
+    await this.userService.updateImage(id, imageUrl, KycImageType.NationalId);
+  }
+
+  @Roles(UserRole.Patient)
+  @Post("/upload/selfie")
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({ type: FileUploadDto })
+  @UseInterceptors(FileInterceptor("image"))
+  async uploadSelfieImage(@UserId() id: number, @UploadedFile() image) {
+    const path = `user_${id}/kyc/selfie.jpg`;
+    const imageUrl = await this.s3Service.uploadImage(image, path);
+    await this.userService.updateImage(id, imageUrl, KycImageType.Selfie);
   }
 }

@@ -245,7 +245,7 @@ const AccountList = () => {
 					{filterRole === 'Hospital' && (
 						<table>
 							<tr>
-								<td>Hospital Id</td>
+								<td>Hospital ID</td>
 								<td>
 									<Input
 										placeholder="optional"
@@ -267,25 +267,6 @@ const AccountList = () => {
 											const user = filterUser;
 											if (!user.hospital) user.hospital = {};
 											user.hospital.name = e.target.value;
-											setFilterUser(user);
-										}}
-									/>
-								</td>
-							</tr>
-						</table>
-					)}
-
-					{filterRole === 'NHSO' && (
-						<table>
-							<tr>
-								<td>Id</td>
-								<td>
-									<Input
-										placeholder="optional"
-										onChange={(e) => {
-											const user = filterUser;
-											if (!user.nhso) user.nhso = {};
-											user.nhso.id = Number(e.target.value);
 											setFilterUser(user);
 										}}
 									/>
