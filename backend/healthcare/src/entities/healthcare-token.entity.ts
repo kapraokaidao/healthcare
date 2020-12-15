@@ -35,7 +35,7 @@ export class HealthcareToken {
 
   @ApiProperty()
   @Column()
-  receivingPublicLey: string;
+  receivingPublicKey: string;
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;
