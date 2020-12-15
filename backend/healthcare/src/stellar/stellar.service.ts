@@ -9,11 +9,16 @@ import { CreateAccountResponse } from "./stellar.dto";
 export class StellarService {
   private readonly stellarAccount;
   private readonly stellarUrl;
+  private readonly stellarIssuingSecret;
+  private readonly stellarReceivingSecret;
 
   constructor(private readonly configService: ConfigService) {
     this.stellarAccount = this.configService.get<string>("stellar.account");
     this.stellarUrl = this.configService.get<string>("stellar.url");
+    this.stellarIssuingSecret = this.configService.get<string>("stellar.issuingSecret");
+    this.stellarReceivingSecret = this.configService.get<string>("stellar.receivingSecret");
   }
+
   async createAccount(): Promise<CreateAccountResponse> {
     const pair = StellarSdk.Keypair.random();
     try {
@@ -38,17 +43,15 @@ export class StellarService {
   }
 
   async issueToken(
-    issuingSecret: string,
-    receivingSecret: string,
-    serviceName: string,
+    name: string,
     amount: number
-  ): Promise<void> {
+  ): Promise<{issuingPublicKey: string, receivingPublicKey: string}> {
     const server = new StellarSdk.Server(this.stellarUrl);
 
-    const issuingKeys = StellarSdk.Keypair.fromSecret(issuingSecret);
-    const receivingKeys = StellarSdk.Keypair.fromSecret(receivingSecret);
+    const issuingKeys = StellarSdk.Keypair.fromSecret(this.stellarIssuingSecret);
+    const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
 
-    const serviceAsset = new StellarSdk.Asset(serviceName, issuingKeys.publicKey());
+    const serviceAsset = new StellarSdk.Asset(name, issuingKeys.publicKey());
     try {
       /** begin allowing trust transaction */
       const receiver = await server.loadAccount(receivingKeys.publicKey());
@@ -82,6 +85,10 @@ export class StellarService {
         .build();
       transferTransaction.sign(issuingKeys);
       await server.submitTransaction(transferTransaction);
+      return {
+        issuingPublicKey: issuingKeys.publicKey(), 
+        receivingPublicKey: receivingKeys.publicKey()
+      }
     } catch (e) {
       throw e;
     }
