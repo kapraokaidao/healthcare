@@ -14,10 +14,12 @@ import { Patient } from "../entities/patient.entity";
 import { Pagination, PaginationOptions } from "../utils/pagination";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 import { KycImageType } from "./user.dto";
+import { S3Service } from "../s3/s3.service";
 
 @Injectable()
 export class UserService {
   constructor(
+    private readonly s3Service: S3Service,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Hospital)
@@ -106,6 +108,30 @@ export class UserService {
       totalCount,
       pageCount,
     };
+  }
+
+  async approveKyc(id: number): Promise<void> {
+    const user = await this.userRepository.findOne(id);
+    if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
+      throw new BadRequestException("User has missing kyc image(s)")
+    }
+    user.patient.approved = true;
+    await this.patientRepository.save(user.patient);
+  }
+
+  async rejectKyc(id: number): Promise<void> {
+    const user = await this.userRepository.findOne(id);
+    if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
+      throw new BadRequestException("User has missing kyc image(s)")
+    }
+    user.patient.approved = false;
+    user.patient.selfieImage = null;
+    user.patient.nationalIdImage = null;
+    const selfiePath = `user_${id}/kyc/selfie.jpg`;
+    const nationalIdPath = `user_${id}/kyc/national-id.jpg`;
+    await this.s3Service.deleteImage(selfiePath);
+    await this.s3Service.deleteImage(nationalIdPath);
+    await this.patientRepository.save(user.patient);
   }
 
   async findByUsername(username: string, password?: boolean): Promise<User> {
