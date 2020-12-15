@@ -11,3 +11,8 @@ export class SearchUsersDto {
   @ApiProperty()
   user: Partial<User>;
 }
+
+export enum KycImageType {
+  NationalId = "nationalIdImage",
+  Selfie = "selfieImage",
+}

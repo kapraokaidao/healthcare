@@ -13,6 +13,7 @@ import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
 import { Pagination, PaginationOptions } from "../utils/pagination";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
+import { KycImageType } from "./user.dto";
 
 @Injectable()
 export class UserService {
@@ -76,8 +77,35 @@ export class UserService {
     }
   }
 
-  async findOne(conditions): Promise<User> {
-    return this.userRepository.findOne(conditions);
+  async findKyc(
+    approved: string,
+    ready: boolean,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.patient", "patient")
+      .where("user.role = :role", { role: UserRole.Patient })
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
+    if (ready) {
+      query = query.andWhere("patient.nationalIdImage is not null");
+      query = query.andWhere("patient.selfieImage is not null");
+    }
+    if (approved) {
+      const bool = approved === "true";
+      query = query.andWhere("patient.approved = :approved", { approved: bool });
+    }
+    const [users, totalCount] = await query.getManyAndCount();
+    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
+    return {
+      data: users,
+      itemCount: users.length,
+      page: pageOptions.page,
+      pageSize: pageOptions.pageSize,
+      totalCount,
+      pageCount,
+    };
   }
 
   async findByUsername(username: string, password?: boolean): Promise<User> {
@@ -191,6 +219,16 @@ export class UserService {
       totalCount,
       pageCount,
     };
+  }
+
+  async updateImage(
+    userId: number,
+    imageUrl: string,
+    imageType: KycImageType
+  ): Promise<void> {
+    const user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+    user.patient[imageType] = imageUrl;
+    await this.patientRepository.save(user.patient);
   }
 
   async findSoftDeletedUsers(): Promise<User[]> {
