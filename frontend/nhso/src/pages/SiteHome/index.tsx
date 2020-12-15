@@ -1,20 +1,19 @@
-import React from 'react';
-import { observer } from 'mobx-react-lite';
+import React, { useEffect, useState } from 'react';
 import nhso from '../../images/nhso.png';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
+import axios from 'axios';
+import { User } from '../../types';
 
-const SiteHome = observer(() =>  {
-	const [user, setUser] = React.useState({
-		username:'nhso',
-		firstname:'Thanadol',
-		surname:'Rungjitwaranon',
-		address:'home',
-		phone:'08x-xxx-xxxx',
-		role:'admin'
-    });
-	
+const SiteHome = () => {
+	const [user, setUser] = useState<User>();
+	useEffect(() => {
+		axios.get(`/user/me`).then(({ data }) => {
+			setUser(data);
+		});
+	}, []);
+
 	return (
 		<>
 			<div className="sitehome">
@@ -24,23 +23,20 @@ const SiteHome = observer(() =>  {
 					</div>
 					<div className="mt-15">
 						<Typography variant="h2" gutterBottom align="center">
-							Username : {user.username}
+							{user?.username}
 						</Typography>
 					</div>
 					<div className="mt-15">
-						<Box border={1} width={800} height={350}>
-							<Typography variant="h3" gutterBottom align="center">
-								Info
-							</Typography>
+						<Box border={1} padding={2}>
 							<Grid container spacing={2}>
 								<Grid item xs={3} container alignItems="flex-end">
 									<Typography variant="h5" gutterBottom align="left">
-										Firstname
+										First name
 									</Typography>
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user.firstname}
+										{user?.firstname}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
@@ -50,7 +46,7 @@ const SiteHome = observer(() =>  {
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user.surname}
+										{user?.surname}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
@@ -60,7 +56,7 @@ const SiteHome = observer(() =>  {
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user.address}
+										{user?.address}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
@@ -70,7 +66,7 @@ const SiteHome = observer(() =>  {
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user.phone}
+										{user?.phone}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
@@ -80,7 +76,7 @@ const SiteHome = observer(() =>  {
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user.role}
+										{user?.role}
 									</Typography>
 								</Grid>
 							</Grid>
@@ -90,6 +86,6 @@ const SiteHome = observer(() =>  {
 			</div>
 		</>
 	);
-});
+};
 
 export default SiteHome;
