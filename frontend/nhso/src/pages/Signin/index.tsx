@@ -21,7 +21,7 @@ const Signin = observer(() => {
 
 	const signin = useCallback(async () => {
 		const res = await authStore.signin({ username, password });
-		if (res) history.push('/home');
+		if (res) history.push('/');
 	}, [history, username, password]);
 
 	return (

@@ -15,6 +15,9 @@ export type Patient = {
 	nationalId: string;
 	gender: Gender;
 	birthDate: Date;
+	approved: boolean;
+	nationalIdImage: string;
+	selfieImage: string;
 };
 
 export type UserCreate = {
@@ -28,7 +31,7 @@ export type UserCreate = {
 	nhso?: NHSO;
 	hospital?: Hospital;
 	patient?: Patient;
-}
+};
 
 export type User = {
 	id: number;
