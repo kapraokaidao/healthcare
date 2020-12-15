@@ -37,6 +37,7 @@ const GenerateToken = observer(() => {
         gender: Array(String()),
         tokenPerPerson: Number(),
         quantity: String(),
+        activated: Date(),
         expired: Date(),
         detail: String(),
         transfer: true,
@@ -187,6 +188,18 @@ const GenerateToken = observer(() => {
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
+                                Activated date
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Input
+								type="date"
+                                onChange={handleInputChange("activated")}
+                                required
+							/>
+                        </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left">
                                 Expired date
                             </Typography>
                         </Grid>
@@ -214,7 +227,7 @@ const GenerateToken = observer(() => {
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
-                                Transfer after generating
+                                Transfer after generate
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
