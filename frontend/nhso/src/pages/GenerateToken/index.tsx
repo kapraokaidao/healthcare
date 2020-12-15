@@ -30,12 +30,15 @@ const useStyles = makeStyles((theme) => ({
 const GenerateToken = observer(() => {
     const classes = useStyles();
     const [token, setToken] = React.useState({
-        name: '',
-        type: 'Normal',
-        rule: "",
-        quantity: '',
+        name: String(),
+        type: "Normal",
+        ageMin: Number(),
+        ageMax: Number(),
+        gender: Array(String()),
+        tokenPerPerson: Number(),
+        quantity: String(),
         expired: Date(),
-        detail: '',
+        detail: String(),
         transfer: true,
     });
     const [confirm, setConfirm] = useState(false);
@@ -76,6 +79,7 @@ const GenerateToken = observer(() => {
                                 variant="outlined"
                                 value={token.name}
                                 onChange={handleInputChange("name")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -91,6 +95,7 @@ const GenerateToken = observer(() => {
                                     value={token.type}
                                     onChange={handleInputChange("type")}
                                     variant="outlined"
+                                    required
                                     inputProps={{
                                         name: 'type',
                                         id: 'type-native-helper',
@@ -101,25 +106,68 @@ const GenerateToken = observer(() => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
-                            <Typography variant="h5" gutterBottom align="left" display="inline">
-                                Rule
+                            <Typography variant="h5" gutterBottom align="left">
+                                Age range
                             </Typography>
                         </Grid>
-                        <Grid item xs={8}>
+                        <Grid item xs={3}>
+                            <TextField 
+                                id="outlined-token-detail-input" 
+                                label="min age" 
+                                variant="outlined" 
+                                value={token.ageMin}
+                                onChange={handleInputChange("ageMin")}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextField 
+                                id="outlined-token-detail-input" 
+                                label="max age" 
+                                variant="outlined" 
+                                value={token.ageMax}
+                                onChange={handleInputChange("ageMax")}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left" display="inline">
+                                Gender transfer
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
                             <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="rule-native-helper">Rule</InputLabel>
+                                <InputLabel htmlFor="gender-native-helper">Gender transfer</InputLabel>
                                 <NativeSelect
-                                    value={token.rule}
-                                    onChange={handleInputChange("rule")}
+                                    value={token.gender}
+                                    onChange={handleInputChange("gender")}
                                     variant="outlined"
+                                    required
                                     inputProps={{
-                                        name: 'rule',
-                                        id: 'rule-native-helper',
+                                        name: 'gender',
+                                        id: 'gender-native-helper',
                                     }}>
-                                    <option value={'admin'}>Admin</option>
-                                    <option value={'hospital'}>Hospital</option>
+                                    <option value={['male','female']}>All</option>
+                                    <option value={['male']}>Male</option>
+                                    <option value={['female']}>Female</option>
                                 </NativeSelect>
                             </FormControl>
+                        </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left">
+                                Token per person
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField 
+                                id="outlined-token-per-person-input" 
+                                label="Token per person" 
+                                variant="outlined" 
+                                value={token.tokenPerPerson}
+                                onChange={handleInputChange("tokenPerPerson")}
+                                required
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -133,6 +181,7 @@ const GenerateToken = observer(() => {
                                 variant="outlined" 
                                 value={token.quantity}
                                 onChange={handleInputChange("quantity")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -144,7 +193,8 @@ const GenerateToken = observer(() => {
                         <Grid item xs={6}>
                             <Input
 								type="date"
-								onChange={handleInputChange("expired")}
+                                onChange={handleInputChange("expired")}
+                                required
 							/>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
@@ -175,6 +225,7 @@ const GenerateToken = observer(() => {
                                 onChange={handleCheckChange("tranfer")}
                                 name="checkedB"
                                 color="primary"
+                                required
                                 inputProps={{ 'aria-label': 'primary checkbox' }}
                             />
                             }

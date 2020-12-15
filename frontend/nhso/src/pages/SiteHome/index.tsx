@@ -21,7 +21,7 @@ const SiteHome = () =>  {
 			<div className="sitehome">
 				<div>
 					<div className="center">
-						<img src={nhso} />
+						<img src={nhso} alt="icon"/>
 					</div>
 					<div className="mt-15">
 						<Typography variant="h2" gutterBottom align="center">

@@ -28,12 +28,12 @@ const useStyles = makeStyles((theme) => ({
 const CreateAccount = () => {
     const classes = useStyles();
     const [history] = useState(useHistory());
-    const [checkPassword,setCheckPassword] = useState("")
+    const [checkPassword,setCheckPassword] = useState<string>("")
     const [role, setRole] = useState<Role>("NHSO")
-    const [confirm, setConfirm] = useState(false);
+    const [confirm, setConfirm] = useState<boolean>(false);
     const [hospital, setHospital] = useState<Hospital>({
-        name:"",
-        hid:0
+        name:String(),
+        hid:Number()
     });
     const [account, setAccount] = React.useState<UserCreate>({
         role:"NHSO",
@@ -63,10 +63,10 @@ const CreateAccount = () => {
         setRole(newRole);
         setAccount({...account, [props]: newRole});
     }
-    const handleHospitalChange = (props: string)=>(event: { target: { value: any; }; }) => {
+    const handleHospitalChange = (props: string)=>(event: { target: { value: string|number; }; }) => {
         setHospital({...hospital, [props]:event.target.value});
     };
-    const handleInputChange = (props: string)=>(event: { target: { value: any; }; }) => {
+    const handleInputChange = (props: string)=>(event: { target: { value: string; }; }) => {
         setAccount({...account, [props]:event.target.value});
     };
     const handleCheckPasswordChange = (event: { target: { value: string; }; }) => {
@@ -122,6 +122,7 @@ const CreateAccount = () => {
                                         variant="outlined"
                                         value={hospital.name}
                                         onChange={handleHospitalChange("name")}
+                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -137,6 +138,7 @@ const CreateAccount = () => {
                                         variant="outlined"
                                         value={hospital.hid}
                                         onChange={handleHospitalChange("hid")}
+                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -155,6 +157,7 @@ const CreateAccount = () => {
                                 variant="outlined"
                                 value={account.firstname}
                                 onChange={handleInputChange("firstname")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -170,6 +173,7 @@ const CreateAccount = () => {
                                 variant="outlined"
                                 value={account.surname}
                                 onChange={handleInputChange("surname")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -185,6 +189,7 @@ const CreateAccount = () => {
                                 variant="outlined" 
                                 value={account.address}
                                 onChange={handleInputChange("address")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -200,6 +205,7 @@ const CreateAccount = () => {
                                 variant="outlined" 
                                 value={account.phone}
                                 onChange={handleInputChange("phone")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -215,6 +221,7 @@ const CreateAccount = () => {
                                 variant="outlined" 
                                 value={account.username}
                                 onChange={handleInputChange("username")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -230,6 +237,7 @@ const CreateAccount = () => {
                                 variant="outlined" 
                                 value={account.password}
                                 onChange={handleInputChange("password")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -240,11 +248,13 @@ const CreateAccount = () => {
                         </Grid>
                         <Grid item xs={8}>
                             <TextField 
+                                error={checkPassword !== account.password}
                                 id="outlined-confirm-password-input" 
                                 label="Confirm Password" 
                                 variant="outlined" 
                                 value={checkPassword}
                                 onChange={handleCheckPasswordChange}
+                                required
                                 fullWidth
                             />
                         </Grid>
