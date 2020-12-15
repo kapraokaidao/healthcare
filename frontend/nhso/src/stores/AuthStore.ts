@@ -18,13 +18,11 @@ export type SigninType = {
 };
 
 type UserMe = {
-	data: {
-		username: string;
-		firstname: string;
-		surname: string;
-		role: string;
-		phone: string;
-	};
+	username: string;
+	firstname: string;
+	surname: string;
+	role: string;
+	phone: string;
 };
 
 class AuthStore {

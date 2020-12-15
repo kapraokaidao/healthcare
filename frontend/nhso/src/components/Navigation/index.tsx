@@ -133,7 +133,7 @@ const Navigation = observer(() => {
 								Home
 							</Typography>
 							<div className="center">
-								<span>Username</span>
+								<span>{authStore.user?.username}</span>
 								<AccountCircle fontSize="large" className="ml-10 mr-10" />
 								<Button onClick={signout} variant="contained" color="secondary">
 									Sign Out
@@ -157,25 +157,45 @@ const Navigation = observer(() => {
 						</div>
 						<Divider />
 						<List>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/');
+								}}
+							>
 								<ListItemIcon>
 									<AccountCircleIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Home" />
 							</ListItem>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/manage-token');
+								}}
+							>
 								<ListItemIcon>
 									<AccountBalanceWalletIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Manage Token" />
 							</ListItem>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/manage-account');
+								}}
+							>
 								<ListItemIcon>
 									<SupervisorAccountIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Manage Account" />
 							</ListItem>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/kyc');
+								}}
+							>
 								<ListItemIcon>
 									<CameraAltIcon fontSize="large" />
 								</ListItemIcon>
