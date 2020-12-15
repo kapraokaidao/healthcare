@@ -6,13 +6,15 @@ import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination";
+import { HealthcareTokenDto } from "./healthcare-token.dto";
+import { StellarService } from "src/stellar/stellar.service";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
 @Controller("healthcare-token")
 @UseGuards(RolesGuard)
 export class HealthcareTokenController {
-  constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
+  constructor(private readonly healthcareTokenService: HealthcareTokenService, private readonly stellarService: StellarService) {}
 
   @Get()
   @Roles(UserRole.NHSO)
@@ -29,7 +31,12 @@ export class HealthcareTokenController {
 
   @Post()
   @Roles(UserRole.NHSO)
-  async createToken(@Body() dto: HealthcareToken): Promise<HealthcareToken> {
+  async createToken(@Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
+    const public_keys = await this.stellarService.issueToken(dto.name, dto.totalToken);
+    dto = {
+      ...dto,
+      ...public_keys
+    }
     return this.healthcareTokenService.createToken(dto);
   }
 }

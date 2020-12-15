@@ -1,14 +1,16 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
+import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Pagination, PaginationOptions } from "../utils/pagination";
 
 @Injectable()
 export class HealthcareTokenService {
+
   constructor(
     @InjectRepository(HealthcareToken)
-    private readonly healthcareTokenRepository: Repository<HealthcareToken>
+    private readonly healthcareTokenRepository: Repository<HealthcareToken>,
   ) {}
 
   async find(
@@ -34,12 +36,16 @@ export class HealthcareTokenService {
     };
   }
 
-  async createToken(dto: HealthcareToken): Promise<HealthcareToken> {
+  async createToken(dto: HealthcareTokenDto): Promise<HealthcareToken> {
     const existedToken = await this.healthcareTokenRepository.findOne({ name: dto.name });
     if (existedToken) {
       throw new BadRequestException(`Token name '${dto.name} is already existed'`);
     }
+
     const newToken = await this.healthcareTokenRepository.create(dto);
+    const startTime = new Date(dto.startTime);
+    newToken.startBirthdate = dto.endAge ? new Date(startTime.getFullYear() - dto.endAge, 0, 1): null;
+    newToken.endBirthdate = dto.startAge ? new Date(startTime.getFullYear() - dto.startAge, 11, 31): null;
     return this.healthcareTokenRepository.save(newToken);
   }
 }
