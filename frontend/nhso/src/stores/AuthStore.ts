@@ -74,7 +74,6 @@ class AuthStore {
 
 	async signout() {
 		this.clearAccessToken();
-		await axios.post('/auth/logout');
 		return true;
 	}
 
