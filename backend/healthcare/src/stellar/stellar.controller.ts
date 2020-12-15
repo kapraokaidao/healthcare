@@ -25,6 +25,8 @@ export class StellarController {
   @Post("service")
   async issueToken(@Body() dto: IssueTokenDto): Promise<{issuingPublicKey: string, receivingPublicKey: string}> {
     return this.stellarService.issueToken(
+      dto.issueingSecret,
+      dto.receivingSecret,
       dto.serviceName,
       dto.amount
     );

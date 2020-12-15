@@ -9,14 +9,10 @@ import { CreateAccountResponse } from "./stellar.dto";
 export class StellarService {
   private readonly stellarAccount;
   private readonly stellarUrl;
-  private readonly stellarIssuingSecret;
-  private readonly stellarReceivingSecret;
 
   constructor(private readonly configService: ConfigService) {
     this.stellarAccount = this.configService.get<string>("stellar.account");
     this.stellarUrl = this.configService.get<string>("stellar.url");
-    this.stellarIssuingSecret = this.configService.get<string>("stellar.issuingSecret");
-    this.stellarReceivingSecret = this.configService.get<string>("stellar.receivingSecret");
   }
 
   async createAccount(): Promise<CreateAccountResponse> {
@@ -43,13 +39,15 @@ export class StellarService {
   }
 
   async issueToken(
+    issuingSecret: string,
+    receivingSecret: string,
     name: string,
     amount: number
   ): Promise<{issuingPublicKey: string, receivingPublicKey: string}> {
     const server = new StellarSdk.Server(this.stellarUrl);
 
-    const issuingKeys = StellarSdk.Keypair.fromSecret(this.stellarIssuingSecret);
-    const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
+    const issuingKeys = StellarSdk.Keypair.fromSecret(issuingSecret);
+    const receivingKeys = StellarSdk.Keypair.fromSecret(receivingSecret);
 
     const serviceAsset = new StellarSdk.Asset(name, issuingKeys.publicKey());
     try {
