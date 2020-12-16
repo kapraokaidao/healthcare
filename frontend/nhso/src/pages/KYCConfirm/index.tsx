@@ -31,11 +31,15 @@ const KYCConfirm = (props: Props) => {
 	}, [history]);
 
 	const approve = useCallback(() => {
-		console.log('approve', userId);
+		axios.post(`/user/${userId}/kyc/approve`).then(() => {
+			history.push('/kyc');
+		});
 	}, [userId]);
 
 	const reject = useCallback(() => {
-		console.log('reject', userId);
+		axios.post(`/user/${userId}/kyc/reject`).then(() => {
+			history.push('/kyc');
+		});
 	}, [userId]);
 
 	return (
@@ -128,7 +132,7 @@ const KYCConfirm = (props: Props) => {
 						</Typography>
 					</Grid>
 					<Grid item xs={8}>
-						<img className="photo" src={user?.patient?.nationalIdImage} />
+						<img src={user?.patient?.nationalIdImage} />
 					</Grid>
 					<Grid item xs={4} container alignItems="flex-end">
 						<Typography variant="h5" gutterBottom align="left">
@@ -136,7 +140,7 @@ const KYCConfirm = (props: Props) => {
 						</Typography>
 					</Grid>
 					<Grid item xs={8}>
-						<img className="photo" src={user?.patient?.selfieImage} />
+						<img src={user?.patient?.selfieImage} />
 					</Grid>
 				</Grid>
 				<div className="mt-15">

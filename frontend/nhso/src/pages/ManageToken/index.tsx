@@ -13,10 +13,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import './style.scss';
+import { useHistory } from 'react-router-dom';
 
 const ManageToken = () => {
 	const [users, setUsers] = useState<User[]>([]);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [history] = useState(useHistory());
 	useEffect(() => {
 		// axios
 		// 	.post('/user/search', {
@@ -84,7 +86,12 @@ const ManageToken = () => {
 				</Grid>
 				<Grid>
 					<div className="height-full center">
-						<IconButton color="primary">
+						<IconButton
+							color="primary"
+							onClick={() => {
+								history.push('/generate-token');
+							}}
+						>
 							<AddIcon fontSize="large" />
 						</IconButton>
 					</div>

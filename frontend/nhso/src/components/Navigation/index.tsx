@@ -182,7 +182,7 @@ const Navigation = observer(() => {
 							<ListItem
 								button
 								onClick={() => {
-									history.push('/manage-account');
+									history.push('/account-list');
 								}}
 							>
 								<ListItemIcon>

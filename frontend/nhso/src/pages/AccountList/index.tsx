@@ -15,10 +15,12 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import './style.scss';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
+import { useHistory } from 'react-router-dom';
 
 const AccountList = () => {
 	const [users, setUsers] = useState<User[]>([]);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [history] = useState(useHistory());
 	useEffect(() => {
 		axios
 			.post('/user/search', {
@@ -100,7 +102,12 @@ const AccountList = () => {
 				</Grid>
 				<Grid>
 					<div className="height-full center">
-						<IconButton color="primary">
+						<IconButton
+							color="primary"
+							onClick={() => {
+								history.push('/create-account');
+							}}
+						>
 							<AddIcon fontSize="large" />
 						</IconButton>
 					</div>
@@ -310,7 +317,7 @@ const AccountList = () => {
 							</tr>
 							<tr>
 								<td>Address</td>
-								<td>xx</td>
+								<td>{selectedUser?.address}</td>
 							</tr>
 							<tr>
 								<td>Phone</td>
