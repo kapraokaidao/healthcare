@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { StellarService } from "./stellar.service";
 import { PublicAPI } from "../decorators/public-api.decorator";
 import { ApiTags } from "@nestjs/swagger";
-import { CreateAccountResponse, IssueTokenDto } from "./stellar.dto";
+import { CreateAccountResponse, IssueTokenDto, transferTokenDto } from "./stellar.dto";
 import { Horizon } from "stellar-sdk";
 import BalanceLine = Horizon.BalanceLine;
 
@@ -28,6 +28,17 @@ export class StellarController {
       dto.issueingSecret,
       dto.receivingSecret,
       dto.serviceName,
+      dto.amount
+    );
+  }
+
+  @Post("transfer")
+  async transferToken(@Body() dto: transferTokenDto): Promise<void> {
+    return this.stellarService.transferToken(
+      dto.sourceSecret,
+      dto.destinationSecret,
+      dto.name,
+      dto.issuerPublicKey,
       dto.amount
     );
   }
