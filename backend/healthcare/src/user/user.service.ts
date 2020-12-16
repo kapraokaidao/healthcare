@@ -15,6 +15,7 @@ import { Pagination, PaginationOptions } from "../utils/pagination";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 import { KycImageType } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
+import { Roles } from "src/decorators/roles.decorator";
 
 @Injectable()
 export class UserService {
@@ -111,7 +112,7 @@ export class UserService {
   }
 
   async approveKyc(id: number): Promise<void> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.findById(id, true);
     if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
       throw new BadRequestException("User has missing kyc image(s)")
     }
@@ -120,7 +121,7 @@ export class UserService {
   }
 
   async rejectKyc(id: number): Promise<void> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.findById(id, true);
     if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
       throw new BadRequestException("User has missing kyc image(s)")
     }
