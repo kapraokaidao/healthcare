@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Param,Query, UseGuards, BadRequestException } from "@nestjs/common";
 import { RolesGuard } from "../guards/roles.guard";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
@@ -40,11 +40,21 @@ export class HealthcareTokenController {
   @Post()
   @Roles(UserRole.NHSO)
   async createToken(@Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
+    const isExisted = await this.healthcareTokenService.isExisted(dto);
+    if(isExisted){
+      throw new BadRequestException(`Token name '${dto.name} is already existed'`);
+    }
     const public_keys = await this.stellarService.issueToken(this.stellarIssuingSecret, this.stellarReceivingSecret, dto.name, dto.totalToken);
     dto = {
       ...dto,
       ...public_keys
     }
     return this.healthcareTokenService.createToken(dto);
+  }
+
+  @Put('deactivate/:id')
+  @Roles(UserRole.NHSO)
+  async deactivateToken(@Param("id") id: number): Promise<HealthcareToken> {
+    return this.healthcareTokenService.deactivateToken(id);
   }
 }

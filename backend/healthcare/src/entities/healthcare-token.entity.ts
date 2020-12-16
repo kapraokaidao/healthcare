@@ -20,7 +20,7 @@ export class HealthcareToken {
   name: string;
 
   @ApiProperty()
-  @Column({ name: "token_type" })
+  @Column({ name: "token_type", type: "enum", enum: TokenType })
   token_type: TokenType;
 
   @ApiProperty()
@@ -56,15 +56,15 @@ export class HealthcareToken {
   endTime: Date;
 
   @ApiProperty()
-  @Column({ name: "start_birthdate", nullable: true, default: null })
+  @Column("date", { name: "start_birthdate", nullable: true, default: null })
   startBirthdate: Date;
 
   @ApiProperty()
-  @Column({ name: "end_birthdate", nullable: true, default: null })
+  @Column("date", { name: "end_birthdate", nullable: true, default: null })
   endBirthdate: Date;
 
   @ApiProperty()
-  @Column({ nullable: true, default: null })
+  @Column({type: "enum", enum: UserGender, nullable: true })
   gender: UserGender;
 
   @ApiProperty()
