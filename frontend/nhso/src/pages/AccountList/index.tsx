@@ -48,7 +48,7 @@ const AccountList = () => {
 			setUsers(data);
 			setConfirm(false);
 		}
-	}, []);
+	}, [selectedUser]);
 
 	const columns: ColDef[] = useMemo(() => {
 		return [
