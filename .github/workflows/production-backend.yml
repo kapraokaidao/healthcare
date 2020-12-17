@@ -1,10 +1,7 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Production-Backend-CI
 
 # Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: 
       - master
@@ -15,12 +12,27 @@ on:
       - master
     paths: 
       - 'backend/healthcare/**'
+  workflow_dispatch:
+    inputs:
+      triggerrer:
+        description: 'Triggerrer name'
+        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  triggerrer-name:
+    name: Echo triggerrer name
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo "Triggered by ${{ github.event }}"
+        
   test:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/healthcare
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -28,8 +40,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12'
-      - name: CD to backend
-        run: cd backend/healthcare
       - name: Install dependencies
         run: yarn install
       - name: Run test
