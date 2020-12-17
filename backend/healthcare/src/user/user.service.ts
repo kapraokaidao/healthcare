@@ -114,7 +114,7 @@ export class UserService {
   async approveKyc(id: number): Promise<void> {
     const user = await this.findById(id, true);
     if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
-      throw new BadRequestException("User has missing kyc image(s)")
+      throw new BadRequestException("User has missing kyc image(s)");
     }
     user.patient.approved = true;
     await this.patientRepository.save(user.patient);
@@ -123,7 +123,7 @@ export class UserService {
   async rejectKyc(id: number): Promise<void> {
     const user = await this.findById(id, true);
     if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
-      throw new BadRequestException("User has missing kyc image(s)")
+      throw new BadRequestException("User has missing kyc image(s)");
     }
     user.patient.approved = false;
     user.patient.selfieImage = null;
