@@ -37,7 +37,7 @@ export class HealthcareTokenController {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     const conditions = {};
-    if(typeof qIsActive !== "undefined") conditions['isActive'] = qIsActive==='true';
+    if(qIsActive) conditions['isActive'] = qIsActive==='true';
     return this.healthcareTokenService.find(conditions, { page, pageSize });
   }
 
