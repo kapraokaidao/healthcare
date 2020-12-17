@@ -28,13 +28,17 @@ export class HealthcareTokenController {
   @Roles(UserRole.NHSO)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "isActive", schema: { type: "boolean" }, enum: ['true','false'], required: false })
   async findAllToken(
     @Query("page") qPage: string,
-    @Query("pageSize") qPageSize: string
+    @Query("pageSize") qPageSize: string,
+    @Query("isActive") qIsActive: string
   ): Promise<Pagination<HealthcareToken>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    return this.healthcareTokenService.find({}, { page, pageSize });
+    const conditions = {};
+    if(typeof qIsActive !== "undefined") conditions['isActive'] = qIsActive==='true';
+    return this.healthcareTokenService.find(conditions, { page, pageSize });
   }
 
   @Post()
