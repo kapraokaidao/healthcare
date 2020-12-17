@@ -13,20 +13,9 @@ on:
     paths: 
       - 'backend/healthcare/**'
   workflow_dispatch:
-    inputs:
-      triggerrer:
-        description: 'Triggerrer name'
-        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  triggerrer-name:
-    name: Echo triggerrer name
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-        echo "Triggered by ${{ github.event }}"
-        
   test:
     name: Test
     runs-on: ubuntu-latest
