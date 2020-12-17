@@ -28,6 +28,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12'
+      - name: CD to backend
+        run: cd backend/healthcare
       - name: Install dependencies
         run: yarn install
       - name: Run test
