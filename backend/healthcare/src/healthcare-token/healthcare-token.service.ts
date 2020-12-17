@@ -7,10 +7,9 @@ import { Pagination, PaginationOptions } from "../utils/pagination";
 
 @Injectable()
 export class HealthcareTokenService {
-
   constructor(
     @InjectRepository(HealthcareToken)
-    private readonly healthcareTokenRepository: Repository<HealthcareToken>,
+    private readonly healthcareTokenRepository: Repository<HealthcareToken>
   ) {}
 
   async find(
@@ -39,14 +38,18 @@ export class HealthcareTokenService {
   async createToken(dto: HealthcareTokenDto): Promise<HealthcareToken> {
     const newToken = await this.healthcareTokenRepository.create(dto);
     const startTime = new Date(dto.startTime);
-    newToken.startBirthdate = dto.endAge ? new Date(startTime.getFullYear() - dto.endAge, 0, 1, 7): null;
-    newToken.endBirthdate = dto.startAge ? new Date(startTime.getFullYear() - dto.startAge, 11, 31, 7): null;
+    newToken.startBirthdate = dto.endAge
+      ? new Date(startTime.getFullYear() - dto.endAge, 0, 1, 7)
+      : null;
+    newToken.endBirthdate = dto.startAge
+      ? new Date(startTime.getFullYear() - dto.startAge, 11, 31, 7)
+      : null;
     return this.healthcareTokenRepository.save(newToken);
   }
 
   async deactivateToken(id: number): Promise<HealthcareToken> {
     const token = await this.healthcareTokenRepository.findOne(id);
-    if(!token){
+    if (!token) {
       throw new BadRequestException(`Token id '${id} is not found'`);
     }
     token.isActive = false;

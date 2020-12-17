@@ -43,7 +43,7 @@ export class StellarService {
     receivingSecret: string,
     name: string,
     amount: number
-  ): Promise<{issuingPublicKey: string, receivingPublicKey: string}> {
+  ): Promise<{ issuingPublicKey: string; receivingPublicKey: string }> {
     const server = new StellarSdk.Server(this.stellarUrl);
 
     const issuingKeys = StellarSdk.Keypair.fromSecret(issuingSecret);
@@ -84,9 +84,9 @@ export class StellarService {
       transferTransaction.sign(issuingKeys);
       await server.submitTransaction(transferTransaction);
       return {
-        issuingPublicKey: issuingKeys.publicKey(), 
-        receivingPublicKey: receivingKeys.publicKey()
-      }
+        issuingPublicKey: issuingKeys.publicKey(),
+        receivingPublicKey: receivingKeys.publicKey(),
+      };
     } catch (e) {
       throw e;
     }
@@ -106,7 +106,7 @@ export class StellarService {
 
     const serviceAsset = new StellarSdk.Asset(name, issuerPublicKey);
 
-    try{
+    try {
       /** begin allowing trust transaction */
       const receiver = await server.loadAccount(destinationKeys.publicKey());
       const allowTrustTransaction = new StellarSdk.TransactionBuilder(receiver, {
@@ -139,7 +139,7 @@ export class StellarService {
         .build();
       transferTransaction.sign(sourceKeys);
       await server.submitTransaction(transferTransaction);
-    } catch(e) {
+    } catch (e) {
       throw e;
     }
   }

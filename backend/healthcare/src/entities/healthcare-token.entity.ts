@@ -36,7 +36,7 @@ export class HealthcareToken {
   remainingToken: number;
 
   @ApiProperty()
-  @Column("boolean", { name: "is_active" , default: true })
+  @Column("boolean", { name: "is_active", default: true })
   isActive: boolean;
 
   @ApiProperty()
@@ -64,7 +64,7 @@ export class HealthcareToken {
   endBirthdate: Date;
 
   @ApiProperty()
-  @Column({type: "enum", enum: UserGender, nullable: true })
+  @Column({ type: "enum", enum: UserGender, nullable: true })
   gender: UserGender;
 
   @ApiProperty()
