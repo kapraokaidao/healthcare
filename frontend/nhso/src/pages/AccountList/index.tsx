@@ -20,6 +20,7 @@ import { useHistory } from 'react-router-dom';
 const AccountList = () => {
 	const [users, setUsers] = useState<User[]>([]);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [history] = useState(useHistory());
 	useEffect(() => {
 		axios
 			.post('/user/search', {
@@ -47,11 +48,7 @@ const AccountList = () => {
 			setUsers(data);
 			setConfirm(false);
 		}
-	}, []);
-	const [history] = useState(useHistory());
-	const createAccount = () => {
-		history.push('/create-account');
-	}
+	}, [selectedUser]);
 
 	const columns: ColDef[] = useMemo(() => {
 		return [
@@ -105,7 +102,12 @@ const AccountList = () => {
 				</Grid>
 				<Grid>
 					<div className="height-full center">
-						<IconButton onClick={createAccount} color="primary">
+						<IconButton
+							color="primary"
+							onClick={() => {
+								history.push('/create-account');
+							}}
+						>
 							<AddIcon fontSize="large" />
 						</IconButton>
 					</div>
@@ -315,7 +317,7 @@ const AccountList = () => {
 							</tr>
 							<tr>
 								<td>Address</td>
-								<td>xx</td>
+								<td>{selectedUser?.address}</td>
 							</tr>
 							<tr>
 								<td>Phone</td>

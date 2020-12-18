@@ -18,14 +18,14 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 
 const useStyles = makeStyles((theme) => ({
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
-  }));
+	formControl: {
+		margin: theme.spacing(1),
+		minWidth: 120,
+	},
+	selectEmpty: {
+		marginTop: theme.spacing(2),
+	},
+}));
 
 const GenerateToken = observer(() => {
     const classes = useStyles();
@@ -58,11 +58,11 @@ const GenerateToken = observer(() => {
         //history.push('/token-list')
     }
 
-    return (
-        <>
-            <div className="sitehome">
-                <div className="mt-15">
-                    <Typography variant="h2" gutterBottom align="left">
+	return (
+		<>
+			<div className="sitehome">
+				<div className="mt-15">
+					<Typography variant="h2" gutterBottom align="left">
 						Generate Token
 					</Typography>
                 </div>

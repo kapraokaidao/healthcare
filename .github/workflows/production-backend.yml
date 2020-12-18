@@ -1,0 +1,35 @@
+name: Production-Backend-CI
+
+# Controls when the action will run. 
+on:
+  push:
+    branches: 
+      - master
+    paths: 
+      - 'backend/healthcare/**'
+  pull_request:
+    branches: 
+      - master
+    paths: 
+      - 'backend/healthcare/**'
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/healthcare
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup nodejs
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Install dependencies
+        run: yarn install
+      - name: Run test
+        run: yarn test

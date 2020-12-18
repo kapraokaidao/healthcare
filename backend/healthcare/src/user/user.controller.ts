@@ -121,6 +121,18 @@ export class UserController {
     await this.userService.restore(id);
   }
 
+  @Roles(UserRole.NHSO)
+  @Post(":id/kyc/approve")
+  async approve(@Param("id") id: number): Promise<void> {
+    await this.userService.approveKyc(id);
+  }
+
+  @Roles(UserRole.NHSO)
+  @Post(":id/kyc/reject")
+  async reject(@Param("id") id: number): Promise<void> {
+    await this.userService.rejectKyc(id);
+  }
+
   @Roles(UserRole.Patient)
   @Post("/upload/national-id")
   @ApiConsumes("multipart/form-data")

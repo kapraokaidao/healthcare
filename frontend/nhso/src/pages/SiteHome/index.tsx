@@ -6,14 +6,12 @@ import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 import { User } from '../../types';
 
-const SiteHome = () =>  {
+const SiteHome = () => {
 	const [user, setUser] = useState<User>();
-	const getUsers = async () => {
-		const loginUser = await axios.get('/user/me');
-		setUser(loginUser.data as User);
-	   };
 	useEffect(() => {
-		getUsers();
+		axios.get(`/user/me`).then(({ data }) => {
+			setUser(data);
+		});
 	}, []);
 
 	return (
@@ -25,18 +23,15 @@ const SiteHome = () =>  {
 					</div>
 					<div className="mt-15">
 						<Typography variant="h2" gutterBottom align="center">
-							Username : {user?.username}
+							{user?.username}
 						</Typography>
 					</div>
 					<div className="mt-15">
-						<Box border={1} width={800} height={350}>
-							<Typography variant="h3" gutterBottom align="center">
-								Info
-							</Typography>
+						<Box border={1} padding={2}>
 							<Grid container spacing={2}>
 								<Grid item xs={3} container alignItems="flex-end">
 									<Typography variant="h5" gutterBottom align="left">
-										Firstname
+										First name
 									</Typography>
 								</Grid>
 								<Grid item xs={8}>
