@@ -89,7 +89,7 @@ const ManageToken = () => {
 						<IconButton
 							color="primary"
 							onClick={() => {
-								history.push('/generate-token');
+								history.push('/token/create');
 							}}
 						>
 							<AddIcon fontSize="large" />

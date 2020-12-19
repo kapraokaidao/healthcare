@@ -105,7 +105,7 @@ const AccountList = () => {
 						<IconButton
 							color="primary"
 							onClick={() => {
-								history.push('/create-account');
+								history.push('/account/create');
 							}}
 						>
 							<AddIcon fontSize="large" />

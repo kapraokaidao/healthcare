@@ -2,6 +2,8 @@ export type Gender = 'Male' | 'Female';
 
 export type Role = 'NHSO' | 'Patient' | 'Hospital';
 
+export type Token = 'General' | 'Special';
+
 export type Hospital = {
 	hid: number;
 	name: string;
