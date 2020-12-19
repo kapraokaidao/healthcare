@@ -18,3 +18,20 @@ export class CreateAccountResponse {
   secret: string;
   publicKey: string;
 }
+
+export class transferTokenDto {
+  @ApiProperty()
+  sourceSecret: string;
+
+  @ApiProperty()
+  destinationSecret: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  issuerPublicKey: string;
+
+  @ApiProperty()
+  amount: number;
+}

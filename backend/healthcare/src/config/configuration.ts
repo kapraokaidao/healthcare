@@ -23,6 +23,8 @@ export default () => ({
   stellar: {
     url: process.env.STELLAR_URL,
     account: process.env.STELLAR_ACCOUNT,
+    issuingSecret: process.env.STELLAR_ISSUING_SECRET,
+    receivingSecret: process.env.STELLAR_RECEIVING_SECRET,
   },
   sentry: {
     dsn: process.env.SENTRY_DSN,

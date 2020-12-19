@@ -7,6 +7,8 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
+import { UserGender } from "../constant/enum/user.enum";
+import { TokenType } from "../constant/enum/token.enum";
 
 @Entity()
 export class HealthcareToken {
@@ -18,24 +20,56 @@ export class HealthcareToken {
   name: string;
 
   @ApiProperty()
-  @Column()
-  assetName: string;
+  @Column({ name: "token_type", type: "enum", enum: TokenType })
+  tokenType: TokenType;
 
   @ApiProperty()
-  @Column("boolean")
+  @Column({ nullable: true })
+  description: string;
+
+  @ApiProperty()
+  @Column("int", { name: "total_token" })
+  totalToken: number;
+
+  @ApiProperty()
+  @Column("int", { name: "remaining_token" })
+  remainingToken: number;
+
+  @ApiProperty()
+  @Column("boolean", { name: "is_active", default: true })
   isActive: boolean;
 
   @ApiProperty()
-  @Column("int")
-  quantity: number;
-
-  @ApiProperty()
-  @Column()
+  @Column({ name: "issuing_public_key" })
   issuingPublicKey: string;
 
   @ApiProperty()
-  @Column()
-  receivingPublicLey: string;
+  @Column({ name: "receiving_public_key" })
+  receivingPublicKey: string;
+
+  @ApiProperty()
+  @Column("date", { name: "start_date", nullable: true, default: null })
+  startDate: Date;
+
+  @ApiProperty()
+  @Column("date", { name: "end_date", nullable: true, default: null })
+  endDate: Date;
+
+  @ApiProperty()
+  @Column({ name: "start_age", nullable: true, default: null })
+  startAge: number;
+
+  @ApiProperty()
+  @Column( { name: "end_age", nullable: true, default: null })
+  endAge: number;
+
+  @ApiProperty()
+  @Column({ type: "enum", enum: UserGender, nullable: true })
+  gender: UserGender;
+
+  @ApiProperty()
+  @Column("int", { name: "token_per_person" })
+  tokenPerPerson: number;
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;
