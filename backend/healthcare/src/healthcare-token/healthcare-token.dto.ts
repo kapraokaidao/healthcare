@@ -16,10 +16,10 @@ export class HealthcareTokenDto {
   totalToken: number;
 
   @ApiProperty()
-  startTime: Date;
+  startDate: Date;
 
   @ApiProperty()
-  endTime: Date;
+  endDate: Date;
 
   @ApiProperty()
   startAge: number;

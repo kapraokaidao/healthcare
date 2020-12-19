@@ -37,7 +37,7 @@ export class HealthcareTokenService {
 
   async createToken(dto: HealthcareTokenDto): Promise<HealthcareToken> {
     const newToken = await this.healthcareTokenRepository.create(dto);
-    const startTime = new Date(dto.startTime);
+    const startTime = new Date(dto.startDate);
     newToken.startBirthdate = dto.endAge
       ? new Date(startTime.getFullYear() - dto.endAge, 0, 1, 7)
       : null;

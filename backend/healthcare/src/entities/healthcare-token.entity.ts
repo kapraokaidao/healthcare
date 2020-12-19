@@ -48,12 +48,12 @@ export class HealthcareToken {
   receivingPublicKey: string;
 
   @ApiProperty()
-  @Column({ name: "start_time", nullable: true, default: null })
-  startTime: Date;
+  @Column("date", { name: "start_date", nullable: true, default: null })
+  startDate: Date;
 
   @ApiProperty()
-  @Column({ name: "end_time", nullable: true, default: null })
-  endTime: Date;
+  @Column("date", { name: "end_date", nullable: true, default: null })
+  endDate: Date;
 
   @ApiProperty()
   @Column("date", { name: "start_birthdate", nullable: true, default: null })
