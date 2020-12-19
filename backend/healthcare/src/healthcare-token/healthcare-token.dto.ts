@@ -32,8 +32,4 @@ export class HealthcareTokenDto {
 
   @ApiProperty()
   tokenPerPerson: number;
-
-  issuingPublicKey: string;
-
-  receivingPublicKey: string;
 }

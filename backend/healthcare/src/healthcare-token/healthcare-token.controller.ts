@@ -7,7 +7,6 @@ import {
   Param,
   Query,
   UseGuards,
-  BadRequestException,
 } from "@nestjs/common";
 import { RolesGuard } from "../guards/roles.guard";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -17,8 +16,6 @@ import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination";
 import { HealthcareTokenDto } from "./healthcare-token.dto";
-import { StellarService } from "src/stellar/stellar.service";
-import { ConfigService } from "@nestjs/config";
 import { TokenType } from "src/constant/enum/token.enum";
 
 @ApiBearerAuth()
@@ -26,19 +23,10 @@ import { TokenType } from "src/constant/enum/token.enum";
 @Controller("healthcare-token")
 @UseGuards(RolesGuard)
 export class HealthcareTokenController {
-  private readonly stellarIssuingSecret;
-  private readonly stellarReceivingSecret;
 
   constructor(
     private readonly healthcareTokenService: HealthcareTokenService,
-    private readonly stellarService: StellarService,
-    private readonly configService: ConfigService
-  ) {
-    this.stellarIssuingSecret = this.configService.get<string>("stellar.issuingSecret");
-    this.stellarReceivingSecret = this.configService.get<string>(
-      "stellar.receivingSecret"
-    );
-  }
+  ) {}
 
   @Get()
   @Roles(UserRole.NHSO)
@@ -73,20 +61,6 @@ export class HealthcareTokenController {
   @Post()
   @Roles(UserRole.NHSO)
   async createToken(@Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
-    const isExisted = await this.healthcareTokenService.isExisted(dto);
-    if (isExisted) {
-      throw new BadRequestException(`Token name '${dto.name} is already existed'`);
-    }
-    const public_keys = await this.stellarService.issueToken(
-      this.stellarIssuingSecret,
-      this.stellarReceivingSecret,
-      dto.name,
-      dto.totalToken
-    );
-    dto = {
-      ...dto,
-      ...public_keys,
-    };
     return this.healthcareTokenService.createToken(dto);
   }
 
