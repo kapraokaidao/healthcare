@@ -21,7 +21,7 @@ export class HealthcareToken {
 
   @ApiProperty()
   @Column({ name: "token_type", type: "enum", enum: TokenType })
-  token_type: TokenType;
+  tokenType: TokenType;
 
   @ApiProperty()
   @Column({ nullable: true })

@@ -7,7 +7,7 @@ export class HealthcareTokenDto {
   name: string;
 
   @ApiProperty()
-  token_type: TokenType;
+  tokenType: TokenType;
 
   @ApiProperty()
   description: string;
