@@ -8,6 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import { hashSync } from "bcryptjs";
 import { ApiProperty } from "@nestjs/swagger";
@@ -15,6 +16,7 @@ import { UserRole } from "../constant/enum/user.enum";
 import { NHSO } from "./nhso.entity";
 import { Hospital } from "./hospital.entity";
 import { Patient } from "./patient.entity";
+import { Keypair } from "./keypair.entity";
 
 @Entity()
 export class User {
@@ -60,6 +62,10 @@ export class User {
   @ApiProperty()
   @OneToOne(() => Patient, (patient) => patient.user)
   patient: Patient;
+
+  @ApiProperty()
+  @OneToMany(() => Keypair, (keyPair) => keyPair.user)
+  keypairs: Keypair[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;
