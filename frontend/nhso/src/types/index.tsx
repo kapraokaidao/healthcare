@@ -49,23 +49,3 @@ export type User = {
 	patient: Patient | null;
 	createdDate: Date;
 };
-
-export type FilterUser = {
-	firstname?: string;
-	surname?: string;
-	role: Role;
-	phone?: string;
-	address?: string;
-	nhso?: {
-		id?: number;
-	};
-	hospital?: {
-		name?: string;
-		hid?: number;
-	};
-	patient?: {
-		nationalId?: string;
-		gender?: Gender;
-		birthDate?: Date;
-	};
-};

@@ -55,7 +55,8 @@ const CreateToken = () => {
 	const handleInputChange = (props: any) => (event: { target: { value: any } }) => {
 		setToken({ ...token, [props]: event.target.value });
 	};
-	const generateToken = async () => {
+	const generateToken = async (e: any) => {
+		e.preventDefault();
 		const data: PostToken = {
 			name: token.name,
 			tokenType: token.tokenType,
@@ -70,9 +71,7 @@ const CreateToken = () => {
 			data.startAge = ageRange[0];
 			data.endAge = ageRange[1];
 		}
-
-		const res = await axios.post('/healthcare-token', data);
-		console.log(res);
+		await axios.post('/healthcare-token', data);
 		history.push('/token');
 	};
 
@@ -82,170 +81,181 @@ const CreateToken = () => {
 				<div className="mt-15">
 					<h1>Create Token</h1>
 				</div>
-				<div className="mt-15">
-					<table className="table">
-						<tr>
-							<td>Name</td>
-							<td></td>
-							<td>
-								<TextField
-									label="Name"
-									variant="outlined"
-									value={token.name}
-									onChange={handleInputChange('name')}
-									fullWidth
-								/>
-							</td>
-						</tr>
-						<tr>
-							<td>Type</td>
-							<td></td>
-							<td>
-								<Select
-									value={token.tokenType}
-									onChange={handleInputChange('tokenType')}
-									variant="outlined"
-								>
-									<MenuItem value={'General'}>General</MenuItem>
-									<MenuItem value={'Special'}>Special</MenuItem>
-								</Select>
-							</td>
-						</tr>
-						<tr>
-							<td>Start date</td>
-							<td>
-								<Checkbox
-									checked={checkBox.startDate}
-									name="startDate"
-									color="primary"
-									onChange={handleCheckBoxChange}
-								/>
-							</td>
-							<td>
-								{checkBox.startDate && (
-									<Input
-										type="date"
-										value={token.startDate}
-										onChange={handleInputChange('startDate')}
-									/>
-								)}
-							</td>
-						</tr>
-						<tr>
-							<td>End date</td>
-							<td>
-								<Checkbox
-									checked={checkBox.endDate}
-									name="endDate"
-									color="primary"
-									onChange={handleCheckBoxChange}
-								/>
-							</td>
-							<td>
-								{checkBox.endDate && (
-									<Input type="date" value={token.endDate} onChange={handleInputChange('endDate')} />
-								)}
-							</td>
-						</tr>
-						<tr>
-							<td>Age Range</td>
-							<td>
-								<Checkbox
-									checked={checkBox.ageRange}
-									name="ageRange"
-									color="primary"
-									onChange={handleCheckBoxChange}
-								/>
-							</td>
-							<td>
-								{checkBox.ageRange && (
-									<Slider
-										value={ageRange}
-										onChange={handleAgeRangeChange}
-										valueLabelDisplay="auto"
-										aria-labelledby="range-slider"
-									/>
-								)}
-							</td>
-						</tr>
-						<tr>
-							<td>Gender</td>
-							<td>
-								<Checkbox
-									checked={checkBox.gender}
-									name="gender"
-									color="primary"
-									onChange={handleCheckBoxChange}
-								/>
-							</td>
-							<td>
-								{checkBox.gender && (
-									<Select
-										value={token.gender}
-										onChange={handleInputChange('gender')}
+				<form onSubmit={generateToken}>
+					<div className="mt-15">
+						<table className="table">
+							<tr>
+								<td>Name</td>
+								<td></td>
+								<td>
+									<TextField
+										label="Name"
 										variant="outlined"
+										value={token.name}
+										onChange={handleInputChange('name')}
+										fullWidth
+										required
+									/>
+								</td>
+							</tr>
+							<tr>
+								<td>Type</td>
+								<td></td>
+								<td>
+									<Select
+										value={token.tokenType}
+										onChange={handleInputChange('tokenType')}
+										variant="outlined"
+										required
 									>
-										<MenuItem value={'Male'}>Male</MenuItem>
-										<MenuItem value={'Female'}>Female</MenuItem>
+										<MenuItem value={'General'}>General</MenuItem>
+										<MenuItem value={'Special'}>Special</MenuItem>
 									</Select>
-								)}
-							</td>
-						</tr>
-						<tr>
-							<td>Total Token</td>
-							<td></td>
-							<td>
-								<TextField
-									label="Total Token"
-									variant="outlined"
-									value={token.totalToken}
-									onChange={handleInputChange('totalToken')}
-									fullWidth
-								/>
-							</td>
-						</tr>
-						<tr>
-							<td>Token/Person</td>
-							<td></td>
-							<td>
-								<TextField
-									label="Token/Person"
-									variant="outlined"
-									value={token.tokenPerPerson}
-									onChange={handleInputChange('tokenPerPerson')}
-									fullWidth
-								/>
-							</td>
-						</tr>
-						<tr>
-							<td>Description</td>
-							<td></td>
-							<td>
-								<TextField
-									label="Description"
-									variant="outlined"
-									value={token.description}
-									onChange={handleInputChange('description')}
-									fullWidth
-								/>
-							</td>
-						</tr>
-					</table>
-				</div>
-				<div className="mt-15 align-right">
-					<Button
-						color="primary"
-						size="large"
-						onClick={() => {
-							history.push('/token');
-						}}
-					>
-						Cancel
-					</Button>
-					<Button onClick={generateToken} variant="contained" color="primary" size="large">
-						Generate
-					</Button>
-				</div>
+								</td>
+							</tr>
+							<tr>
+								<td>Start date</td>
+								<td>
+									<Checkbox
+										checked={checkBox.startDate}
+										name="startDate"
+										color="primary"
+										onChange={handleCheckBoxChange}
+									/>
+								</td>
+								<td>
+									{checkBox.startDate && (
+										<Input
+											type="date"
+											value={token.startDate}
+											onChange={handleInputChange('startDate')}
+										/>
+									)}
+								</td>
+							</tr>
+							<tr>
+								<td>End date</td>
+								<td>
+									<Checkbox
+										checked={checkBox.endDate}
+										name="endDate"
+										color="primary"
+										onChange={handleCheckBoxChange}
+									/>
+								</td>
+								<td>
+									{checkBox.endDate && (
+										<Input
+											type="date"
+											value={token.endDate}
+											onChange={handleInputChange('endDate')}
+										/>
+									)}
+								</td>
+							</tr>
+							<tr>
+								<td>Age Range</td>
+								<td>
+									<Checkbox
+										checked={checkBox.ageRange}
+										name="ageRange"
+										color="primary"
+										onChange={handleCheckBoxChange}
+									/>
+								</td>
+								<td>
+									{checkBox.ageRange && (
+										<Slider
+											value={ageRange}
+											onChange={handleAgeRangeChange}
+											valueLabelDisplay="auto"
+											aria-labelledby="range-slider"
+										/>
+									)}
+								</td>
+							</tr>
+							<tr>
+								<td>Gender</td>
+								<td>
+									<Checkbox
+										checked={checkBox.gender}
+										name="gender"
+										color="primary"
+										onChange={handleCheckBoxChange}
+									/>
+								</td>
+								<td>
+									{checkBox.gender && (
+										<Select
+											value={token.gender}
+											onChange={handleInputChange('gender')}
+											variant="outlined"
+										>
+											<MenuItem value={'Male'}>Male</MenuItem>
+											<MenuItem value={'Female'}>Female</MenuItem>
+										</Select>
+									)}
+								</td>
+							</tr>
+							<tr>
+								<td>Total Token</td>
+								<td></td>
+								<td>
+									<TextField
+										label="Total Token"
+										variant="outlined"
+										value={token.totalToken}
+										onChange={handleInputChange('totalToken')}
+										fullWidth
+										required
+									/>
+								</td>
+							</tr>
+							<tr>
+								<td>Token/Person</td>
+								<td></td>
+								<td>
+									<TextField
+										label="Token/Person"
+										variant="outlined"
+										value={token.tokenPerPerson}
+										onChange={handleInputChange('tokenPerPerson')}
+										fullWidth
+										required
+									/>
+								</td>
+							</tr>
+							<tr>
+								<td>Description</td>
+								<td></td>
+								<td>
+									<TextField
+										label="Description"
+										variant="outlined"
+										value={token.description}
+										onChange={handleInputChange('description')}
+										fullWidth
+										required
+									/>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div className="mt-15 align-right">
+						<Button
+							color="primary"
+							size="large"
+							onClick={() => {
+								history.push('/token');
+							}}
+						>
+							Cancel
+						</Button>
+						<Button type="submit" variant="contained" color="primary" size="large">
+							Generate
+						</Button>
+					</div>
+				</form>
 			</div>
 		</>
 	);

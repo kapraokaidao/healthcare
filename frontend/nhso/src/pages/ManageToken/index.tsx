@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import { DataGrid, ColDef, ValueFormatterParams } from '@material-ui/data-grid';
-import { FilterUser, Role, Gender, User } from '../../types';
+import { Role, Gender, User } from '../../types';
 import axios from 'axios';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
