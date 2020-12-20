@@ -26,7 +26,7 @@ export type UserCreate = {
 	username: string;
 	password: string;
 	firstname: string;
-	surname: string;
+	lastname: string;
 	role: Role;
 	phone: string;
 	address: string;
@@ -40,7 +40,7 @@ export type User = {
 	username: string;
 	password: string;
 	firstname: string;
-	surname: string;
+	lastname: string;
 	role: Role;
 	phone: string;
 	address: string;

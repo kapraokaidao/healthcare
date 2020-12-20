@@ -37,7 +37,7 @@ const CreateAccount = () => {
 	const [account, setAccount] = React.useState<UserCreate>({
 		role: 'NHSO',
 		firstname: '',
-		surname: '',
+		lastname: '',
 		address: '',
 		phone: '',
 		username: '',
@@ -151,16 +151,16 @@ const CreateAccount = () => {
 						</Grid>
 						<Grid item xs={4} container alignItems="flex-end">
 							<Typography variant="h5" gutterBottom align="left">
-								Surname
+								Last Name
 							</Typography>
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
-								id="outlined-surname-input"
-								label="Surname"
+								id="outlined-lastname-input"
+								label="Last Name"
 								variant="outlined"
-								value={account.surname}
-								onChange={handleInputChange('surname')}
+								value={account.lastname}
+								onChange={handleInputChange('lastname')}
 								fullWidth
 							/>
 						</Grid>

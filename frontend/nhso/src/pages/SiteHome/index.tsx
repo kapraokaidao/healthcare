@@ -44,12 +44,12 @@ const SiteHome = observer(() => {
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
 									<Typography variant="h5" gutterBottom align="left">
-										Surname
+										Last Name
 									</Typography>
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{authStore.user?.surname}
+										{authStore.user?.lastname}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
