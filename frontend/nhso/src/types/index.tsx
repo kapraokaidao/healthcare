@@ -49,3 +49,29 @@ export type User = {
 	patient: Patient | null;
 	createdDate: Date;
 };
+
+export type TokenCreate = {
+	name: string;
+	tokenType: Token;
+	description: string;
+	totalToken: number;
+	tokenPerPerson: number;
+	startDate?: string;
+	endDate?: string;
+	startAge?: number;
+	endAge?: number;
+	gender?: Gender;
+};
+
+export type TokenDetail = TokenCreate & {
+	id: number;
+	remainingToken: number;
+	isActive: boolean;
+	issuingPublicKey: boolean;
+	receivingPublicKey: boolean;
+	startDate: Date;
+	endDate: Date;
+	startAge: number;
+	endAge: number;
+	gender: Gender;
+};

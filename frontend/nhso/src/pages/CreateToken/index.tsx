@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import Slider from '@material-ui/core/Slider';
 import dayjs from 'dayjs';
-import { Gender, Token } from '../../types';
+import { TokenCreate } from '../../types';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -12,23 +12,10 @@ import axios from 'axios';
 import './style.scss';
 import { useHistory } from 'react-router-dom';
 
-type PostToken = {
-	name: string;
-	tokenType: Token;
-	description: string;
-	totalToken: number;
-	tokenPerPerson: number;
-	startDate?: string;
-	endDate?: string;
-	startAge?: number;
-	endAge?: number;
-	gender?: Gender;
-};
-
 const CreateToken = () => {
 	const [history] = useState(useHistory());
 	const [ageRange, setAgeRange] = useState<number[]>([3, 80]);
-	const [token, setToken] = useState<PostToken>({
+	const [token, setToken] = useState<TokenCreate>({
 		name: '',
 		tokenType: 'General',
 		description: 'This token is generated for ...',
@@ -57,7 +44,7 @@ const CreateToken = () => {
 	};
 	const generateToken = async (e: any) => {
 		e.preventDefault();
-		const data: PostToken = {
+		const data: TokenCreate = {
 			name: token.name,
 			tokenType: token.tokenType,
 			description: token.description,
@@ -170,6 +157,8 @@ const CreateToken = () => {
 											onChange={handleAgeRangeChange}
 											valueLabelDisplay="auto"
 											aria-labelledby="range-slider"
+											min={0}
+											max={200}
 										/>
 									)}
 								</td>
