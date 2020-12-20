@@ -7,7 +7,6 @@ import {
   Param,
   Query,
   UseGuards,
-  BadRequestException,
 } from "@nestjs/common";
 import { RolesGuard } from "../guards/roles.guard";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -17,27 +16,17 @@ import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination";
 import { HealthcareTokenDto } from "./healthcare-token.dto";
-import { StellarService } from "src/stellar/stellar.service";
-import { ConfigService } from "@nestjs/config";
+import { TokenType } from "src/constant/enum/token.enum";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
 @Controller("healthcare-token")
 @UseGuards(RolesGuard)
 export class HealthcareTokenController {
-  private readonly stellarIssuingSecret;
-  private readonly stellarReceivingSecret;
 
   constructor(
     private readonly healthcareTokenService: HealthcareTokenService,
-    private readonly stellarService: StellarService,
-    private readonly configService: ConfigService
-  ) {
-    this.stellarIssuingSecret = this.configService.get<string>("stellar.issuingSecret");
-    this.stellarReceivingSecret = this.configService.get<string>(
-      "stellar.receivingSecret"
-    );
-  }
+  ) {}
 
   @Get()
   @Roles(UserRole.NHSO)
@@ -45,39 +34,33 @@ export class HealthcareTokenController {
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @ApiQuery({
     name: "isActive",
-    schema: { type: "boolean" },
+    schema: { type: "string" },
     enum: ["true", "false"],
+    required: false,
+  })
+  @ApiQuery({
+    name: "tokenType",
+    schema: { type: "string" },
+    enum: TokenType,
     required: false,
   })
   async findAllToken(
     @Query("page") qPage: string,
     @Query("pageSize") qPageSize: string,
-    @Query("isActive") qIsActive: string
+    @Query("isActive") qIsActive: string,
+    @Query("tokenType") qTokenType: string
   ): Promise<Pagination<HealthcareToken>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     const conditions = {};
     if (qIsActive) conditions["isActive"] = qIsActive === "true";
+    if (qTokenType) conditions["tokenType"] = qTokenType;
     return this.healthcareTokenService.find(conditions, { page, pageSize });
   }
 
   @Post()
   @Roles(UserRole.NHSO)
   async createToken(@Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
-    const isExisted = await this.healthcareTokenService.isExisted(dto);
-    if (isExisted) {
-      throw new BadRequestException(`Token name '${dto.name} is already existed'`);
-    }
-    const public_keys = await this.stellarService.issueToken(
-      this.stellarIssuingSecret,
-      this.stellarReceivingSecret,
-      dto.name,
-      dto.totalToken
-    );
-    dto = {
-      ...dto,
-      ...public_keys,
-    };
     return this.healthcareTokenService.createToken(dto);
   }
 

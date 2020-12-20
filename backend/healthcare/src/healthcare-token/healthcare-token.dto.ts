@@ -7,7 +7,7 @@ export class HealthcareTokenDto {
   name: string;
 
   @ApiProperty()
-  token_type: TokenType;
+  tokenType: TokenType;
 
   @ApiProperty()
   description: string;
@@ -16,10 +16,10 @@ export class HealthcareTokenDto {
   totalToken: number;
 
   @ApiProperty()
-  startTime: Date;
+  startDate: Date;
 
   @ApiProperty()
-  endTime: Date;
+  endDate: Date;
 
   @ApiProperty()
   startAge: number;
@@ -32,8 +32,4 @@ export class HealthcareTokenDto {
 
   @ApiProperty()
   tokenPerPerson: number;
-
-  issuingPublicKey: string;
-
-  receivingPublicKey: string;
 }
