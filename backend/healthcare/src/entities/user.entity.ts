@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity, JoinColumn, ManyToOne,
+  Entity,
+  JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -55,7 +57,7 @@ export class User {
 
   @ApiProperty()
   @ManyToOne(() => Hospital, (hospital) => hospital.users)
-  @JoinColumn({ name: "hospital_id" })
+  @JoinColumn({ name: "hospital_code9" })
   hospital: Hospital;
 
   @ApiProperty()

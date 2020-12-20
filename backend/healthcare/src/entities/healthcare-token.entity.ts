@@ -60,7 +60,7 @@ export class HealthcareToken {
   startAge: number;
 
   @ApiProperty()
-  @Column( { name: "end_age", nullable: true, default: null })
+  @Column({ name: "end_age", nullable: true, default: null })
   endAge: number;
 
   @ApiProperty()
