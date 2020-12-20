@@ -3,7 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
-import { Role, Gender, User, TokenDetail, Token } from '../../types';
+import { TokenDetail, Token } from '../../types';
 import axios from 'axios';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -12,7 +12,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import './style.scss';
 import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
 import { useHistory } from 'react-router-dom';
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
@@ -106,7 +105,6 @@ const ManageToken = () => {
 							}
 							setFilterTokens(tmp);
 						}}
-						variant="outlined"
 						defaultValue={'None'}
 						required
 					>
@@ -129,7 +127,6 @@ const ManageToken = () => {
 							}
 							setFilterTokens(tmp);
 						}}
-						variant="outlined"
 						defaultValue={'None'}
 						required
 					>

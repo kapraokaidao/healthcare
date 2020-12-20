@@ -15,7 +15,7 @@ const Routes = () => {
 	const { setPath } = useContext(PathContext);
 	useEffect(() => {
 		setPath(location.pathname);
-	}, [location.pathname]);
+	}, [setPath, location.pathname]);
 
 	return (
 		<div className="container">

@@ -51,7 +51,11 @@ const AccountList = () => {
 	const [filterUser, setFilterUser] = useState<FilterUser>({});
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [history] = useState(useHistory());
+	const [open, setOpen] = useState(false);
+	const [confirm, setConfirm] = useState(false);
+	const [fetchData, setFetchData] = useState(false);
 	useEffect(() => {
+		console.log(filterUser);
 		axios
 			.post('/user/search', {
 				page,
@@ -63,11 +67,9 @@ const AccountList = () => {
 				setPage(data.page);
 				setPageCount(data.pageCount);
 			});
-	}, [page, filterUser]);
-	const [open, setOpen] = useState(false);
-	const [confirm, setConfirm] = useState(false);
+	}, [page, filterUser, fetchData]);
 
-	const viewDetail = useCallback((user: User) => {
+	const viewUserDetail = useCallback((user: User) => {
 		setSelectedUser(user);
 		setOpen(true);
 	}, []);
@@ -75,28 +77,10 @@ const AccountList = () => {
 	const deleteUser = useCallback(async () => {
 		if (selectedUser) {
 			await axios.delete(`/user/${selectedUser.id}`);
-			const { data } = await axios.post('/user/search', {
-				page,
-				pageSize: 20,
-				user: {},
-			});
-			setUsers(data.data);
-			setPage(data.page);
-			setPageCount(data.pageCount);
+			setFetchData(!fetchData);
 			setConfirm(false);
 		}
 	}, [selectedUser, page]);
-
-	const handleFilterUesrs = useCallback(async () => {
-		const { data } = await axios.post('/user/search', {
-			page,
-			pageSize: 20,
-			user: filterUser,
-		});
-		setUsers(data.data);
-		setPage(data.page);
-		setPageCount(data.pageCount);
-	}, [filterUser, page]);
 
 	const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
 		setPage(value);
@@ -291,7 +275,14 @@ const AccountList = () => {
 					)}
 				</Grid>
 				<Grid item xs={1}>
-					<Button onClick={handleFilterUesrs} variant="contained" color="primary" size="small">
+					<Button
+						onClick={() => {
+							setFetchData(!fetchData);
+						}}
+						variant="contained"
+						color="primary"
+						size="small"
+					>
 						Filter
 					</Button>
 				</Grid>
@@ -321,7 +312,7 @@ const AccountList = () => {
 									<TableCell>
 										<Button
 											onClick={() => {
-												viewDetail(user);
+												viewUserDetail(user);
 											}}
 											variant="contained"
 											color="primary"
