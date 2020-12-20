@@ -21,7 +21,7 @@ const Routes = () => {
 	return (
 		<div className="container">
 			<Switch>
-				<Route exact path="/" component={SiteHome} />
+				<Route exact path="/" component={(props: any) => <RequireAuth {...props} Component={SiteHome} />} />
 				<Route exact path="/signin" component={Signin} />
 				<Route
 					exact

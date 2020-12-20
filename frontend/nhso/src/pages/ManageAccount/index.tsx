@@ -26,7 +26,7 @@ type CustomRole = Role | 'None';
 
 type FilterUser = {
 	firstname?: string;
-	surname?: string;
+	lastname?: string;
 	role?: Role;
 	phone?: string;
 	address?: string;
@@ -149,13 +149,13 @@ const ManageAccount = () => {
 								</td>
 							</tr>
 							<tr>
-								<td>Surname</td>
+								<td>Last Name</td>
 								<td>
 									<Input
 										placeholder="optional"
 										onChange={(e) => {
 											const user = filterUser;
-											user.surname = e.target.value;
+											user.lastname = e.target.value;
 											setFilterUser(user);
 										}}
 									/>
@@ -298,7 +298,7 @@ const ManageAccount = () => {
 					<TableHead>
 						<TableRow>
 							<TableCell>First Name</TableCell>
-							<TableCell>Surname</TableCell>
+							<TableCell>Last Name</TableCell>
 							<TableCell>Role</TableCell>
 							<TableCell>Phone</TableCell>
 							<TableCell>Address</TableCell>
@@ -310,7 +310,7 @@ const ManageAccount = () => {
 							return (
 								<TableRow>
 									<TableCell>{user.firstname}</TableCell>
-									<TableCell>{user.surname}</TableCell>
+									<TableCell>{user.lastname}</TableCell>
 									<TableCell>{user.role}</TableCell>
 									<TableCell>{user.phone}</TableCell>
 									<TableCell>{user.address}</TableCell>
@@ -366,8 +366,8 @@ const ManageAccount = () => {
 								<td>{selectedUser?.firstname}</td>
 							</tr>
 							<tr>
-								<td>Surname</td>
-								<td>{selectedUser?.surname}</td>
+								<td>Last Name</td>
+								<td>{selectedUser?.lastname}</td>
 							</tr>
 							<tr>
 								<td>Gender</td>

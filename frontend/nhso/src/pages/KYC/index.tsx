@@ -65,7 +65,7 @@ const KYC = () => {
 						<TableRow>
 							<TableCell>National Id</TableCell>
 							<TableCell>Firstname</TableCell>
-							<TableCell>Surname</TableCell>
+							<TableCell>Last Name</TableCell>
 							<TableCell>Gender</TableCell>
 							<TableCell></TableCell>
 						</TableRow>
@@ -76,7 +76,7 @@ const KYC = () => {
 								<TableRow>
 									<TableCell>{user.patient?.nationalId}</TableCell>
 									<TableCell>{user.firstname}</TableCell>
-									<TableCell>{user.surname}</TableCell>
+									<TableCell>{user.lastname}</TableCell>
 									<TableCell>{user.patient?.gender}</TableCell>
 									<TableCell>
 										<Button
