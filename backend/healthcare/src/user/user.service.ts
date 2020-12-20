@@ -207,9 +207,9 @@ export class UserService {
         firstname: `%${user.firstname}%`,
       });
     }
-    if (user.surname) {
+    if (user.lastname) {
       query = query.andWhere("u.surname like :surname", {
-        surname: `%${user.surname}%`,
+        surname: `%${user.lastname}%`,
       });
     }
     if (user.phone) {
@@ -223,6 +223,16 @@ export class UserService {
       });
     }
     if (user.patient) {
+      if (user.patient.nationalId) {
+        query = query.andWhere("p.nationalId like :nationalId", {
+          nationalId: `%${user.patient.nationalId}%`,
+        });
+      }
+      if (user.patient.nationalId) {
+        query = query.andWhere("p.nationalId like :nationalId", {
+          nationalId: `%${user.patient.nationalId}%`,
+        });
+      }
       if (user.patient.nationalId) {
         query = query.andWhere("p.nationalId like :nationalId", {
           nationalId: `%${user.patient.nationalId}%`,
