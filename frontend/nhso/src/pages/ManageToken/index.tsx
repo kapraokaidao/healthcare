@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
@@ -20,6 +20,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import Pagination from '@material-ui/lab/Pagination';
 import MenuItem from '@material-ui/core/MenuItem';
+import { TitleContext } from '../../App';
 
 type FilterToken = {
 	isActive?: boolean;
@@ -27,6 +28,10 @@ type FilterToken = {
 };
 
 const ManageToken = () => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Manage Token');
+	}, [setTitle]);
 	const [pageCount, setPageCount] = useState(1);
 	const [page, setPage] = useState(1);
 	const [tokens, setTokens] = useState<TokenDetail[]>([]);
@@ -74,7 +79,7 @@ const ManageToken = () => {
 		<>
 			<Grid container spacing={3}>
 				<Grid item xs>
-					<h1>Token List</h1>
+					<h1>Manage Token</h1>
 				</Grid>
 				<Grid>
 					<div className="height-full center">

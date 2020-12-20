@@ -23,7 +23,7 @@ import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
 import { useHistory, useLocation } from 'react-router-dom';
-import { PathContext } from '../../App';
+import { PathContext, TitleContext } from '../../App';
 
 const drawerWidth = 240;
 
@@ -89,6 +89,7 @@ const useStyles = makeStyles((theme) => ({
 const Navigation = observer(() => {
 	const [history] = useState(useHistory());
 	const authStore = useContext(AuthStoreContext);
+	const { title } = useContext(TitleContext);
 	const { path } = useContext(PathContext);
 	const [show, setShow] = useState(true);
 	useEffect(() => {
@@ -133,7 +134,7 @@ const Navigation = observer(() => {
 								<MenuIcon />
 							</IconButton>
 							<Typography variant="h6" className={classes.title}>
-								Home
+								{title}
 							</Typography>
 							<div className="center">
 								<span>{authStore.user?.username}</span>

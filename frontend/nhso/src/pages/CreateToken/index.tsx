@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
@@ -11,8 +11,13 @@ import Checkbox from '@material-ui/core/Checkbox';
 import axios from 'axios';
 import './style.scss';
 import { useHistory } from 'react-router-dom';
+import { TitleContext } from '../../App';
 
 const CreateToken = () => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Create Token');
+	}, [setTitle]);
 	const [history] = useState(useHistory());
 	const [ageRange, setAgeRange] = useState<number[]>([3, 80]);
 	const [token, setToken] = useState<TokenCreate>({

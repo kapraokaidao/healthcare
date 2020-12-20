@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button';
 import { Hospital, Role, UserCreate } from '../../types';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import { TitleContext } from '../../App';
 
 const useStyles = makeStyles((theme) => ({
 	formControl: {
@@ -22,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CreateAccount = () => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Create Account');
+	}, [setTitle]);
 	const classes = useStyles();
 	const history = useHistory();
 	const [role, setRole] = useState<Role>('NHSO');

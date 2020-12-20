@@ -7,24 +7,29 @@ import Spinner from './components/Spinner';
 
 export const PathContext = createContext({
 	path: '/',
-	setPath: () => {},
-} as {
-	path: string;
-	setPath: Dispatch<SetStateAction<string>>;
+	setPath: (path: string) => {},
+});
+
+export const TitleContext = createContext({
+	title: 'Home',
+	setTitle: (title: string) => {},
 });
 
 function App() {
 	const [path, setPath] = useState('/');
+	const [title, setTitle] = useState('Home');
 
 	return (
 		<AuthStoreContext.Provider value={authStore}>
-			<PathContext.Provider value={{ path, setPath }}>
-				<Router>
-					<Spinner />
-					<Navigation />
-					<Routes />
-				</Router>
-			</PathContext.Provider>
+			<TitleContext.Provider value={{ title, setTitle }}>
+				<PathContext.Provider value={{ path, setPath }}>
+					<Router>
+						<Spinner />
+						<Navigation />
+						<Routes />
+					</Router>
+				</PathContext.Provider>
+			</TitleContext.Provider>
 		</AuthStoreContext.Provider>
 	);
 }

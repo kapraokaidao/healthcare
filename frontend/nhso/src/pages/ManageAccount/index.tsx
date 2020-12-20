@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
@@ -20,6 +20,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import Pagination from '@material-ui/lab/Pagination';
+import { TitleContext } from '../../App';
 
 type CustomRole = Role | 'None';
 
@@ -43,7 +44,11 @@ type FilterUser = {
 	};
 };
 
-const AccountList = () => {
+const ManageAccount = () => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Manage Account');
+	}, [setTitle]);
 	const [pageCount, setPageCount] = useState(1);
 	const [page, setPage] = useState(1);
 	const [users, setUsers] = useState<User[]>([]);
@@ -90,7 +95,7 @@ const AccountList = () => {
 		<>
 			<Grid container spacing={3}>
 				<Grid item xs>
-					<h1>Account List</h1>
+					<h1>Maange Account</h1>
 				</Grid>
 				<Grid>
 					<div className="height-full center">
@@ -459,4 +464,4 @@ const AccountList = () => {
 	);
 };
 
-export default AccountList;
+export default ManageAccount;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
@@ -20,8 +20,13 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import Pagination from '@material-ui/lab/Pagination';
 import MenuItem from '@material-ui/core/MenuItem';
+import { TitleContext } from '../../App';
 
 const KYC = () => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Manage KYC');
+	}, [setTitle]);
 	const [pageCount, setPageCount] = useState(1);
 	const [page, setPage] = useState(1);
 	const [users, setUsers] = useState<User[]>([]);
