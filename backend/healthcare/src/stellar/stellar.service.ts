@@ -15,19 +15,34 @@ export class StellarService {
     this.stellarUrl = this.configService.get<string>("stellar.url");
   }
 
-  async createAccount(): Promise<CreateAccountResponse> {
-    const pair = StellarSdk.Keypair.random();
+  async createAccount(fundingSecret: string, startingBalance: number): Promise<any> {
+    const server = new StellarSdk.Server(this.stellarUrl);
+
+    const fundingKeys = StellarSdk.Keypair.fromSecret(fundingSecret);
+
+    const newKeypair = StellarSdk.Keypair.random();
     try {
-      const { data } = await axios.get(
-        `${this.stellarAccount}?addr=${encodeURIComponent(pair.publicKey())}`
-      );
-      const res = {
-        secret: pair.secret(),
-        publicKey: pair.publicKey(),
+      const funder = await server.loadAccount(fundingKeys.publicKey());
+      const createAccountTransaction = new StellarSdk.TransactionBuilder(funder, {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      })
+        .addOperation(
+          StellarSdk.Operation.createAccount({
+            destination: newKeypair.publicKey(),
+            startingBalance: startingBalance.toString()
+          })
+        )
+        .setTimeout(100)
+        .build();
+      createAccountTransaction.sign(fundingKeys);
+      await server.submitTransaction(createAccountTransaction);
+      return {
+        privateKey: newKeypair.secret(),
+        publicKey: newKeypair.publicKey(),
       };
-      return res;
     } catch (e) {
-      throw new InternalServerErrorException(e);
+      throw e;
     }
   }
 
