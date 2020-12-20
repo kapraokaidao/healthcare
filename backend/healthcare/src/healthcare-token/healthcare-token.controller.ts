@@ -23,10 +23,7 @@ import { TokenType } from "src/constant/enum/token.enum";
 @Controller("healthcare-token")
 @UseGuards(RolesGuard)
 export class HealthcareTokenController {
-
-  constructor(
-    private readonly healthcareTokenService: HealthcareTokenService,
-  ) {}
+  constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
 
   @Get()
   @Roles(UserRole.NHSO)

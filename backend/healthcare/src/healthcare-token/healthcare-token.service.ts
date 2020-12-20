@@ -4,13 +4,12 @@ import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Pagination, PaginationOptions } from "../utils/pagination";
-import * as dayjs from 'dayjs';
+import * as dayjs from "dayjs";
 import { StellarService } from "src/stellar/stellar.service";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class HealthcareTokenService {
-
   private readonly stellarIssuingSecret;
   private readonly stellarReceivingSecret;
 
@@ -54,13 +53,13 @@ export class HealthcareTokenService {
     if (existedToken) {
       throw new BadRequestException(`Token name '${dto.name} is already existed'`);
     }
-    if(dto.startAge > dto.endAge) {
-      throw new BadRequestException('startAge cannot be greater than endAge');
+    if (dto.startAge > dto.endAge) {
+      throw new BadRequestException("startAge cannot be greater than endAge");
     }
     const startDate = dayjs(dto.startDate);
     const endDate = dayjs(dto.endDate);
-    if(endDate.isBefore(startDate)) {
-      throw new BadRequestException('endDate cannot be before startDate');
+    if (endDate.isBefore(startDate)) {
+      throw new BadRequestException("endDate cannot be before startDate");
     }
     const public_keys = await this.stellarService.issueToken(
       this.stellarIssuingSecret,
@@ -68,7 +67,10 @@ export class HealthcareTokenService {
       dto.name,
       dto.totalToken
     );
-    const newToken = await this.healthcareTokenRepository.create({...dto, ...public_keys});
+    const newToken = await this.healthcareTokenRepository.create({
+      ...dto,
+      ...public_keys,
+    });
     return this.healthcareTokenRepository.save(newToken);
   }
 
