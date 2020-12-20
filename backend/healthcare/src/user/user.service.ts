@@ -11,7 +11,7 @@ import { UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
-import { Pagination, PaginationOptions } from "../utils/pagination";
+import { Pagination, PaginationOptions } from "../utils/pagination.util";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 import { KycImageType } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
@@ -152,12 +152,14 @@ export class UserService {
     const newUser = this.userRepository.create(user);
     switch (user.role) {
       case UserRole.Hospital:
-        let hospital = await this.hospitalRepository.findOne({ hid: user.hospital.hid });
+        const hospital = await this.hospitalRepository.findOne({
+          code9: user.hospital.code9,
+        });
         if (!hospital) {
-          hospital = this.hospitalRepository.create(user.hospital);
+          throw new BadRequestException(`Invalid hospital's code9`);
         }
-        hospital.user = newUser;
-        await entityManager.save(hospital);
+        newUser.hospital = hospital;
+        await entityManager.save(newUser);
         return newUser;
 
       case UserRole.NHSO:

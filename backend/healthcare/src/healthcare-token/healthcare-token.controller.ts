@@ -14,7 +14,7 @@ import { HealthcareToken } from "../entities/healthcare-token.entity";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
-import { Pagination } from "../utils/pagination";
+import { Pagination } from "../utils/pagination.util";
 import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
 

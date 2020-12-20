@@ -3,7 +3,7 @@ import { HealthcareToken } from "../entities/healthcare-token.entity";
 import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Pagination, PaginationOptions } from "../utils/pagination";
+import { Pagination, PaginationOptions } from "../utils/pagination.util";
 import * as dayjs from "dayjs";
 import { StellarService } from "src/stellar/stellar.service";
 import { ConfigService } from "@nestjs/config";

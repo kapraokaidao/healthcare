@@ -1,8 +1,10 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { User } from "./user.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity()
 export class Hospital {
+  @ApiProperty()
   @PrimaryColumn({ length: 9 })
   code9: string;
 

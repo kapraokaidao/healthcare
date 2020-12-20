@@ -18,7 +18,7 @@ import { User } from "../entities/user.entity";
 import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
-import { Pagination } from "../utils/pagination";
+import { Pagination } from "../utils/pagination.util";
 import { KycImageType, SearchUsersDto } from "./user.dto";
 import { FileUploadDto } from "../config/file.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
