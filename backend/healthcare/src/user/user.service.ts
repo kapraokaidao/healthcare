@@ -92,15 +92,7 @@ export class UserService {
       query = query.andWhere("patient.approved = :approved", { approved: bool });
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: users,
-      itemCount: users.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<User>(users, totalCount, pageOptions);
   }
 
   async approveKyc(id: number): Promise<void> {
