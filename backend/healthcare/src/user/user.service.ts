@@ -11,7 +11,7 @@ import { UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
-import { Pagination, PaginationOptions } from "../utils/pagination.util";
+import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 import { KycImageType } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
@@ -46,15 +46,7 @@ export class UserService {
       query = query.andWhere("u.role = :role", { role });
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: users,
-      itemCount: users.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<User>(users, totalCount, pageOptions);
   }
 
   async findById(id: number, role = false): Promise<User> {
@@ -249,15 +241,7 @@ export class UserService {
       }
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: users,
-      itemCount: users.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<User>(users, totalCount, pageOptions);
   }
 
   async updateImage(

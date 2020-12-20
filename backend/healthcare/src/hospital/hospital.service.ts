@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Hospital } from "../entities/hospital.entity";
 import { Repository } from "typeorm";
-import { Pagination, PaginationOptions } from "../utils/pagination.util";
+import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 
 @Injectable()
 export class HospitalService {
@@ -33,14 +33,6 @@ export class HospitalService {
       });
     }
     const [hospitals, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: hospitals,
-      itemCount: hospitals.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<Hospital>(hospitals, totalCount, pageOptions);
   }
 }
