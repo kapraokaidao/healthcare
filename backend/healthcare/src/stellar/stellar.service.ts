@@ -1,9 +1,8 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import StellarSdk, { Horizon } from "stellar-sdk";
-import axios from "axios";
 import { ConfigService } from "@nestjs/config";
 import BalanceLine = Horizon.BalanceLine;
-import { CreateAccountResponse } from "./stellar.dto";
+import { Keypair } from "./stellar.dto";
 
 @Injectable()
 export class StellarService {
@@ -15,7 +14,7 @@ export class StellarService {
     this.stellarUrl = this.configService.get<string>("stellar.url");
   }
 
-  async createAccount(fundingSecret: string, startingBalance: number): Promise<any> {
+  async createAccount(fundingSecret: string, startingBalance: number): Promise<Keypair> {
     const server = new StellarSdk.Server(this.stellarUrl);
 
     const fundingKeys = StellarSdk.Keypair.fromSecret(fundingSecret);
@@ -36,7 +35,7 @@ export class StellarService {
         .setTimeout(100)
         .build();
       createAccountTransaction.sign(fundingKeys);
-      await server.submitTransaction(createAccountTransaction);
+      await server.submitTransaction(createAccountTransaction); 
       return {
         privateKey: newKeypair.secret(),
         publicKey: newKeypair.publicKey(),

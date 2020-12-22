@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { StellarService } from "./stellar.service";
 import { PublicAPI } from "../decorators/public-api.decorator";
 import { ApiTags } from "@nestjs/swagger";
-import { CreateAccountResponse, IssueTokenDto, transferTokenDto } from "./stellar.dto";
+import { IssueTokenDto, transferTokenDto } from "./stellar.dto";
 import { Horizon } from "stellar-sdk";
 import BalanceLine = Horizon.BalanceLine;
 

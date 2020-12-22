@@ -16,6 +16,10 @@ export class Keypair {
   encryptedPrivateKey: string;
 
   @ApiProperty()
+  @Column()
+  salt: string;
+
+  @ApiProperty()
   @Column("boolean", { name: "is_active", default: true })
   isActive: boolean;
 
