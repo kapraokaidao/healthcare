@@ -11,7 +11,7 @@ import BalanceLine = Horizon.BalanceLine;
 @Controller("stellar")
 export class StellarController {
   constructor(private readonly stellarService: StellarService) {}
-  
+
   @Get("balance/:secret")
   async getBalanceBySecret(@Param("secret") secret: string): Promise<BalanceLine[]> {
     return await this.stellarService.getBalanceBySecret(secret);

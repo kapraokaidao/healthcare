@@ -29,13 +29,13 @@ export class StellarService {
         .addOperation(
           StellarSdk.Operation.createAccount({
             destination: newKeypair.publicKey(),
-            startingBalance: startingBalance.toString()
+            startingBalance: startingBalance.toString(),
           })
         )
         .setTimeout(100)
         .build();
       createAccountTransaction.sign(fundingKeys);
-      await server.submitTransaction(createAccountTransaction); 
+      await server.submitTransaction(createAccountTransaction);
       return {
         privateKey: newKeypair.secret(),
         publicKey: newKeypair.publicKey(),
@@ -153,6 +153,32 @@ export class StellarService {
         .build();
       transferTransaction.sign(sourceKeys);
       await server.submitTransaction(transferTransaction);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createAccountMergeXdr(
+    sourceSecret: string,
+    destinationPublicKey: string
+  ): Promise<string> {
+    const server = new StellarSdk.Server(this.stellarUrl);
+    const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
+    try {
+      const source = await server.loadAccount(sourceKeys.publicKey());
+      const accountMergeTransaction = new StellarSdk.TransactionBuilder(source, {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      })
+        .addOperation(
+          StellarSdk.Operation.accountMerge({
+            destination: destinationPublicKey,
+          })
+        )
+        .setTimeout(StellarSdk.TimeoutInfinite)
+        .build();
+      accountMergeTransaction.sign(sourceKeys);
+      return accountMergeTransaction.toXDR();
     } catch (e) {
       throw e;
     }

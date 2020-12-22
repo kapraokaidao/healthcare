@@ -16,8 +16,8 @@ export class Keypair {
   encryptedPrivateKey: string;
 
   @ApiProperty()
-  @Column()
-  salt: string;
+  @Column({ name: "account_merge_xdr" })
+  accountMergeXdr: string;
 
   @ApiProperty()
   @Column("boolean", { name: "is_active", default: true })
