@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -6,6 +6,7 @@ import axios from 'axios';
 import './style.scss';
 import { User } from '../../types';
 import { useHistory } from 'react-router-dom';
+import { TitleContext } from '../../App';
 
 type Props = {
 	match: {
@@ -16,6 +17,10 @@ type Props = {
 };
 
 const KYCConfirm = (props: Props) => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('View KYC');
+	}, [setTitle]);
 	const [userId] = useState(props.match.params.id);
 	const [user, setUser] = useState<User>();
 	const [history] = useState(useHistory());
@@ -52,7 +57,7 @@ const KYCConfirm = (props: Props) => {
 				</div>
 				<div className="mt-15">
 					<Typography variant="h3" gutterBottom align="left">
-						{user?.firstname} {user?.surname}
+						{user?.firstname} {user?.lastname}
 					</Typography>
 				</div>
 				<Grid container spacing={2}>
@@ -68,12 +73,12 @@ const KYCConfirm = (props: Props) => {
 					</Grid>
 					<Grid item xs={4} container alignItems="flex-end">
 						<Typography variant="h5" gutterBottom align="left">
-							Surname
+							Last Name
 						</Typography>
 					</Grid>
 					<Grid item xs={8}>
 						<Typography variant="h6" gutterBottom align="left">
-							{user?.surname}
+							{user?.lastname}
 						</Typography>
 					</Grid>
 					<Grid item xs={4} container alignItems="flex-end">

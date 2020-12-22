@@ -2,6 +2,8 @@ export type Gender = 'Male' | 'Female';
 
 export type Role = 'NHSO' | 'Patient' | 'Hospital';
 
+export type Token = 'General' | 'Special';
+
 export type Hospital = {
 	hid: number;
 	name: string;
@@ -24,7 +26,7 @@ export type UserCreate = {
 	username: string;
 	password: string;
 	firstname: string;
-	surname: string;
+	lastname: string;
 	role: Role;
 	phone: string;
 	address: string;
@@ -38,7 +40,7 @@ export type User = {
 	username: string;
 	password: string;
 	firstname: string;
-	surname: string;
+	lastname: string;
 	role: Role;
 	phone: string;
 	address: string;
@@ -48,22 +50,28 @@ export type User = {
 	createdDate: Date;
 };
 
-export type FilterUser = {
-	firstname?: string;
-	surname?: string;
-	role: Role;
-	phone?: string;
-	address?: string;
-	nhso?: {
-		id?: number;
-	};
-	hospital?: {
-		name?: string;
-		hid?: number;
-	};
-	patient?: {
-		nationalId?: string;
-		gender?: Gender;
-		birthDate?: Date;
-	};
+export type TokenCreate = {
+	name: string;
+	tokenType: Token;
+	description: string;
+	totalToken: number;
+	tokenPerPerson: number;
+	startDate?: string;
+	endDate?: string;
+	startAge?: number;
+	endAge?: number;
+	gender?: Gender;
+};
+
+export type TokenDetail = TokenCreate & {
+	id: number;
+	remainingToken: number;
+	isActive: boolean;
+	issuingPublicKey: boolean;
+	receivingPublicKey: boolean;
+	startDate: Date;
+	endDate: Date;
+	startAge: number;
+	endAge: number;
+	gender: Gender;
 };

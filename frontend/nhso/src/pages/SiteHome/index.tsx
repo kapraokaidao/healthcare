@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import nhso from '../../images/nhso.png';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 import { User } from '../../types';
+import { TitleContext } from '../../App';
+import { AuthStoreContext } from '../../stores';
+import { observer } from 'mobx-react-lite';
 
-const SiteHome = () => {
-	const [user, setUser] = useState<User>();
+const SiteHome = observer(() => {
+	const { setTitle } = useContext(TitleContext);
+	const authStore = useContext(AuthStoreContext);
 	useEffect(() => {
-		axios.get(`/user/me`).then(({ data }) => {
-			setUser(data);
-		});
-	}, []);
+		setTitle('Home');
+	}, [setTitle]);
+	const [user, setUser] = useState<User>();
 
 	return (
 		<>
@@ -23,7 +26,7 @@ const SiteHome = () => {
 					</div>
 					<div className="mt-15">
 						<Typography variant="h2" gutterBottom align="center">
-							{user?.username}
+							{authStore.user?.username}
 						</Typography>
 					</div>
 					<div className="mt-15">
@@ -36,27 +39,17 @@ const SiteHome = () => {
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user?.firstname}
+										{authStore.user?.firstname}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
 									<Typography variant="h5" gutterBottom align="left">
-										Surname
+										Last Name
 									</Typography>
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user?.surname}
-									</Typography>
-								</Grid>
-								<Grid item xs={3} container alignItems="flex-end">
-									<Typography variant="h5" gutterBottom align="left">
-										Address
-									</Typography>
-								</Grid>
-								<Grid item xs={8}>
-									<Typography variant="h6" gutterBottom align="left">
-										{user?.address}
+										{authStore.user?.lastname}
 									</Typography>
 								</Grid>
 								<Grid item xs={3} container alignItems="flex-end">
@@ -66,17 +59,7 @@ const SiteHome = () => {
 								</Grid>
 								<Grid item xs={8}>
 									<Typography variant="h6" gutterBottom align="left">
-										{user?.phone}
-									</Typography>
-								</Grid>
-								<Grid item xs={3} container alignItems="flex-end">
-									<Typography variant="h5" gutterBottom align="left">
-										Role
-									</Typography>
-								</Grid>
-								<Grid item xs={8}>
-									<Typography variant="h6" gutterBottom align="left">
-										{user?.role}
+										{authStore.user?.phone}
 									</Typography>
 								</Grid>
 							</Grid>
@@ -86,6 +69,6 @@ const SiteHome = () => {
 			</div>
 		</>
 	);
-};
+});
 
 export default SiteHome;

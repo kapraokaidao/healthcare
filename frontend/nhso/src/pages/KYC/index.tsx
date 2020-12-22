@@ -1,85 +1,57 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
-import { DataGrid, ColDef, ValueFormatterParams } from '@material-ui/data-grid';
-import { FilterUser, Role, Gender, User } from '../../types';
+import { TokenDetail, Token, User } from '../../types';
 import axios from 'axios';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import './style.scss';
+import Select from '@material-ui/core/Select';
 import { useHistory } from 'react-router-dom';
-
-type Row = {
-	id: number;
-	nationalId: string;
-	firstname: string;
-	surname: string;
-	gender: Gender;
-};
+import Table from '@material-ui/core/Table';
+import TableHead from '@material-ui/core/TableHead';
+import TableCell from '@material-ui/core/TableCell';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import Pagination from '@material-ui/lab/Pagination';
+import MenuItem from '@material-ui/core/MenuItem';
+import { TitleContext } from '../../App';
 
 const KYC = () => {
-	const [history] = useState(useHistory());
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Manage KYC');
+	}, [setTitle]);
+	const [pageCount, setPageCount] = useState(1);
+	const [page, setPage] = useState(1);
 	const [users, setUsers] = useState<User[]>([]);
+	const [history] = useState(useHistory());
+
 	useEffect(() => {
 		axios
 			.get('/user/kyc', {
 				params: {
-					page: 0,
-					pageSize: 0,
+					page,
+					pageSize: 20,
 					approved: false,
 					ready: true,
 				},
 			})
-			.then(({ data: { data } }) => {
-				setUsers(data);
+			.then(({ data }) => {
+				setUsers(data.data);
+				setPage(data.page);
+				setPageCount(data.pageCount);
 			});
-	}, []);
+	}, [page]);
 
-	const rows = useMemo(() => {
-		const data: Row[] = [];
-		for (const user of users) {
-			if (user.patient) {
-				data.push({
-					id: user.id,
-					nationalId: user.patient.nationalId,
-					firstname: user.firstname,
-					surname: user.surname,
-					gender: user.patient.gender,
-				});
-			}
-		}
-		return data;
-	}, [users]);
-
-	const columns: ColDef[] = useMemo(() => {
-		return [
-			{ field: 'id', hide: true },
-			{ field: 'nationalId', headerName: 'National ID', width: 150 },
-			{ field: 'firstname', headerName: 'First Name', width: 120 },
-			{ field: 'surname', headerName: 'Surname', width: 120 },
-			{ field: 'gender', headerName: 'Gender', flex: 0.2 },
-			{
-				field: '',
-				headerName: '',
-				width: 100,
-				disableClickEventBubbling: true,
-				renderCell: (params: ValueFormatterParams) => {
-					const onClick = () => {
-						const row = params.row as Row;
-						history.push(`/kyc/${row.id}`);
-					};
-					return (
-						<strong>
-							<Button onClick={onClick} variant="contained" color="primary" size="small">
-								View
-							</Button>
-						</strong>
-					);
-				},
-			},
-		];
-	}, []);
+	const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+		setPage(value);
+	};
 
 	return (
 		<>
@@ -88,7 +60,52 @@ const KYC = () => {
 			</Grid>
 
 			<div style={{ height: 700, width: '100%' }}>
-				<DataGrid rows={rows} columns={columns} pageSize={20} rowsPerPageOptions={[5, 10, 20]} pagination />
+				<Table>
+					<TableHead>
+						<TableRow>
+							<TableCell>National Id</TableCell>
+							<TableCell>Firstname</TableCell>
+							<TableCell>Last Name</TableCell>
+							<TableCell>Gender</TableCell>
+							<TableCell></TableCell>
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{users.map((user) => {
+							return (
+								<TableRow>
+									<TableCell>{user.patient?.nationalId}</TableCell>
+									<TableCell>{user.firstname}</TableCell>
+									<TableCell>{user.lastname}</TableCell>
+									<TableCell>{user.patient?.gender}</TableCell>
+									<TableCell>
+										<Button
+											onClick={() => {
+												history.push(`/kyc/${user.id}`);
+											}}
+											variant="contained"
+											color="primary"
+											size="small"
+										>
+											View
+										</Button>
+									</TableCell>
+								</TableRow>
+							);
+						})}
+					</TableBody>
+				</Table>
+				<div className="center mt-15">
+					<Pagination
+						count={pageCount}
+						defaultPage={page}
+						onChange={handlePageChange}
+						size="large"
+						showFirstButton
+						showLastButton
+						color="primary"
+					/>
+				</div>
 			</div>
 		</>
 	);

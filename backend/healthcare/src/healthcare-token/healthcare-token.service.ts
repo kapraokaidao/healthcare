@@ -3,7 +3,7 @@ import { HealthcareToken } from "../entities/healthcare-token.entity";
 import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Pagination, PaginationOptions } from "../utils/pagination";
+import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 import * as dayjs from "dayjs";
 import { StellarService } from "src/stellar/stellar.service";
 import { ConfigService } from "@nestjs/config";
@@ -37,15 +37,7 @@ export class HealthcareTokenService {
       take: pageOptions.pageSize,
       skip: (pageOptions.page - 1) * pageOptions.pageSize,
     });
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: tokens,
-      itemCount: tokens.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
   }
 
   async createToken(dto: HealthcareTokenDto): Promise<HealthcareToken> {

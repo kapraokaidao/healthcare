@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -37,7 +39,7 @@ export class User {
 
   @ApiProperty({ required: true })
   @Column()
-  surname: string;
+  lastname: string;
 
   @ApiProperty({ enum: UserRole, required: true, default: "" })
   @Column({ type: "enum", enum: UserRole, update: false })
@@ -56,7 +58,8 @@ export class User {
   nhso: NHSO;
 
   @ApiProperty()
-  @OneToOne(() => Hospital, (hospital) => hospital.user)
+  @ManyToOne(() => Hospital, (hospital) => hospital.users)
+  @JoinColumn({ name: "hospital_code9" })
   hospital: Hospital;
 
   @ApiProperty()

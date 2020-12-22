@@ -11,7 +11,7 @@ import { UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
-import { Pagination, PaginationOptions } from "../utils/pagination";
+import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
 import { KycImageType } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
@@ -46,15 +46,7 @@ export class UserService {
       query = query.andWhere("u.role = :role", { role });
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: users,
-      itemCount: users.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<User>(users, totalCount, pageOptions);
   }
 
   async findById(id: number, role = false): Promise<User> {
@@ -100,15 +92,7 @@ export class UserService {
       query = query.andWhere("patient.approved = :approved", { approved: bool });
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: users,
-      itemCount: users.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<User>(users, totalCount, pageOptions);
   }
 
   async approveKyc(id: number): Promise<void> {
@@ -152,12 +136,14 @@ export class UserService {
     const newUser = this.userRepository.create(user);
     switch (user.role) {
       case UserRole.Hospital:
-        let hospital = await this.hospitalRepository.findOne({ hid: user.hospital.hid });
+        const hospital = await this.hospitalRepository.findOne({
+          code9: user.hospital.code9,
+        });
         if (!hospital) {
-          hospital = this.hospitalRepository.create(user.hospital);
+          throw new BadRequestException(`Invalid hospital's code9`);
         }
-        hospital.user = newUser;
-        await entityManager.save(hospital);
+        newUser.hospital = hospital;
+        await entityManager.save(newUser);
         return newUser;
 
       case UserRole.NHSO:
@@ -207,9 +193,9 @@ export class UserService {
         firstname: `%${user.firstname}%`,
       });
     }
-    if (user.surname) {
+    if (user.lastname) {
       query = query.andWhere("u.surname like :surname", {
-        surname: `%${user.surname}%`,
+        surname: `%${user.lastname}%`,
       });
     }
     if (user.phone) {
@@ -228,6 +214,16 @@ export class UserService {
           nationalId: `%${user.patient.nationalId}%`,
         });
       }
+      if (user.patient.nationalId) {
+        query = query.andWhere("p.nationalId like :nationalId", {
+          nationalId: `%${user.patient.nationalId}%`,
+        });
+      }
+      if (user.patient.nationalId) {
+        query = query.andWhere("p.nationalId like :nationalId", {
+          nationalId: `%${user.patient.nationalId}%`,
+        });
+      }
     }
     if (user.hospital) {
       if (user.hospital.hid) {
@@ -237,15 +233,7 @@ export class UserService {
       }
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const pageCount = Math.ceil(totalCount / pageOptions.pageSize);
-    return {
-      data: users,
-      itemCount: users.length,
-      page: pageOptions.page,
-      pageSize: pageOptions.pageSize,
-      totalCount,
-      pageCount,
-    };
+    return toPagination<User>(users, totalCount, pageOptions);
   }
 
   async updateImage(

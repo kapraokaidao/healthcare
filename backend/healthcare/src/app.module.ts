@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import configuration from "./config/configuration";
 import { StellarModule } from "./stellar/stellar.module";
 import { HealthcareTokenModule } from "./healthcare-token/healthcare-token.module";
+import { HospitalModule } from "./hospital/hospital.module";
 import { KeypairModule } from "./keypair/keypair.module";
 
 @Module({
@@ -36,6 +37,7 @@ import { KeypairModule } from "./keypair/keypair.module";
     UserModule,
     StellarModule,
     HealthcareTokenModule,
+    HospitalModule,
     KeypairModule,
   ],
   controllers: [AppController],
