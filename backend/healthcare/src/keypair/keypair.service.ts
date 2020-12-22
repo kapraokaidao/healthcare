@@ -9,6 +9,7 @@ import { AES, enc, SHA256 } from "crypto-js";
 import { genSaltSync, hashSync } from "bcryptjs";
 import { User } from "src/entities/user.entity";
 import StellarSdk from "stellar-sdk";
+import { UserRole } from "src/constant/enum/user.enum";
 
 @Injectable()
 export class KeypairService {
@@ -28,9 +29,7 @@ export class KeypairService {
   }
 
   async createKeypair(userId: number, dto: createKeypairDto): Promise<Keypair> {
-    const user = await this.userRepository.findOneOrFail(userId, {
-      relations: ["patient"],
-    });
+    let user = await this.userRepository.findOneOrFail(userId);
     const [, activeKeypairsCount] = await this.keypairRepository.findAndCount({
       where: [{ user: user, isActive: true }],
     });
@@ -40,12 +39,23 @@ export class KeypairService {
     if (!/^\d{6}$/.test(dto.pin)) {
       throw new BadRequestException("PIN must be 6 digits");
     }
+
+    let userSalt: string;
+    switch (user.role) {
+      case UserRole.Hospital:
+        user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
+        userSalt = user.hospital.code9
+      case UserRole.Patient:
+        user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+        userSalt = user.patient.nationalId
+    }
+
     const keypair = await this.stellarService.createAccount(
       this.stellarReceivingSecret,
       2
     );
     const salt = genSaltSync(10);
-    const encryptKey = hashSync(SHA256(user.patient.nationalId) + dto.pin, salt);
+    const encryptKey = hashSync(SHA256(userSalt) + dto.pin, salt);
     const encryptedPrivateKey = AES.encrypt(keypair.privateKey, encryptKey).toString();
 
     const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
@@ -62,7 +72,6 @@ export class KeypairService {
     newKeypair.hashPin = hashPin;
     newKeypair.user = user;
     newKeypair.accountMergeXdr = accontMergeXdr;
-
     return this.keypairRepository.save(newKeypair);
   }
 
@@ -70,14 +79,23 @@ export class KeypairService {
     if (!/^\d{6}$/.test(pin)) {
       throw new BadRequestException("PIN must be 6 digits");
     }
-    const user = await this.userRepository.findOneOrFail(userId, {
-      relations: ["patient"],
-    });
+
+    let user = await this.userRepository.findOneOrFail(userId);
+    let userSalt: string;
+    switch (user.role) {
+      case UserRole.Hospital:
+        user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
+        userSalt = user.hospital.code9
+      case UserRole.Patient:
+        user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+        userSalt = user.patient.nationalId
+    }
+
     const keypair = await this.keypairRepository.findOneOrFail({
       where: [{ user: user, isActive: true }],
     });
     const [salt, encryptedPrivateKey] = keypair.encryptedPrivateKey.split("$$$");
-    const encryptKey = hashSync(SHA256(user.patient.nationalId) + pin, salt);
+    const encryptKey = hashSync(SHA256(userSalt) + pin, salt);
     const privateKey = AES.decrypt(encryptedPrivateKey, encryptKey).toString(enc.Utf8);
     return privateKey;
   }
