@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { UserGender } from "../constant/enum/user.enum";
 import { TokenType } from "../constant/enum/token.enum";
+import { UserToken } from "./user-token.entity";
 
 @Entity()
 export class HealthcareToken {
@@ -70,6 +72,10 @@ export class HealthcareToken {
   @ApiProperty()
   @Column("int", { name: "token_per_person" })
   tokenPerPerson: number;
+
+  @ApiProperty()
+  @OneToMany(() => UserToken, (userToken) => userToken.healthcareToken)
+  userTokens: UserToken[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;
