@@ -44,10 +44,10 @@ export class KeypairService {
     switch (user.role) {
       case UserRole.Hospital:
         user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
-        userSalt = user.hospital.code9
+        userSalt = user.hospital.code9;
       case UserRole.Patient:
         user = await this.userRepository.findOne(userId, { relations: ["patient"] });
-        userSalt = user.patient.nationalId
+        userSalt = user.patient.nationalId;
     }
 
     const keypair = await this.stellarService.createAccount(
@@ -85,10 +85,10 @@ export class KeypairService {
     switch (user.role) {
       case UserRole.Hospital:
         user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
-        userSalt = user.hospital.code9
+        userSalt = user.hospital.code9;
       case UserRole.Patient:
         user = await this.userRepository.findOne(userId, { relations: ["patient"] });
-        userSalt = user.patient.nationalId
+        userSalt = user.patient.nationalId;
     }
 
     const keypair = await this.keypairRepository.findOneOrFail({

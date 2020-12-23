@@ -17,6 +17,7 @@ import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination.util";
 import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
+import { UserId } from "src/decorators/user-id.decorator";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
@@ -65,5 +66,19 @@ export class HealthcareTokenController {
   @Roles(UserRole.NHSO)
   async deactivateToken(@Param("id") id: number): Promise<HealthcareToken> {
     return this.healthcareTokenService.deactivateToken(id);
+  }
+
+  @Get("valid")
+  @Roles(UserRole.Patient)
+  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
+  async findValidToken(
+    @UserId() userId: number,
+    @Query("page") qPage: string,
+    @Query("pageSize") qPageSize: string
+  ): Promise<Pagination<HealthcareToken>> {
+    const page = qPage ? parseInt(qPage) : 1;
+    const pageSize = qPageSize ? parseInt(qPageSize) : 10;
+    return this.healthcareTokenService.findValidTokens(userId, { page, pageSize });
   }
 }
