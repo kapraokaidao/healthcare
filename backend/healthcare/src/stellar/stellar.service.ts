@@ -106,7 +106,7 @@ export class StellarService {
     }
   }
 
-  async transferToken(
+  async allowTrustAndTransferToken(
     sourceSecret: string,
     destinationSecret: string,
     name: string,

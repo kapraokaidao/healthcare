@@ -31,7 +31,7 @@ export class StellarController {
 
   @Post("transfer")
   async transferToken(@Body() dto: transferTokenDto): Promise<void> {
-    return this.stellarService.transferToken(
+    return this.stellarService.allowTrustAndTransferToken(
       dto.sourceSecret,
       dto.destinationSecret,
       dto.name,

@@ -12,7 +12,9 @@ export class UserToken {
   @Column()
   balance: number;
 
-  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.id, { cascade: true })
+  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.id, {
+    cascade: true,
+  })
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 

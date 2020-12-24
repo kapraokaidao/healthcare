@@ -15,7 +15,7 @@ import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination.util";
-import { HealthcareTokenDto } from "./healthcare-token.dto";
+import { HealthcareTokenDto, ReceiveTokenDto } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
 import { UserId } from "src/decorators/user-id.decorator";
 
@@ -80,5 +80,11 @@ export class HealthcareTokenController {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     return this.healthcareTokenService.findValidTokens(userId, { page, pageSize });
+  }
+
+  @Post("receive")
+  @Roles(UserRole.Patient)
+  async receiveToken(@UserId() userId: number, @Body() dto: ReceiveTokenDto) {
+    return this.healthcareTokenService.receiveToken(userId, dto);
   }
 }
