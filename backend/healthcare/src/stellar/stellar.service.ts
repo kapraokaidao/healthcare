@@ -106,6 +106,40 @@ export class StellarService {
     }
   }
 
+  async changeTrust(
+    sourceSecret: string,
+    name: string,
+    issuerPublicKey: string,
+    limit?: number
+  ){
+    const server = new StellarSdk.Server(this.stellarUrl);
+
+    const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
+    const serviceAsset = new StellarSdk.Asset(name, issuerPublicKey);
+
+    try {
+      /** begin allowing trust transaction */
+      const source = await server.loadAccount(sourceKeys.publicKey());
+      const changeTrustTransaction = new StellarSdk.TransactionBuilder(sourceKeys, {
+        fee: 100
+      })
+        .addOperation(
+          StellarSdk.Operation.changeTrust({
+            asset: serviceAsset,
+          })
+        )
+        .setTimeout(100)
+        .build();
+      changeTrustTransaction.sign(sourceKeys);
+      await server.submitTransaction(changeTrustTransaction);
+    } catch (e) {
+      throw e;
+    }
+
+
+
+  }
+
   async allowTrustAndTransferToken(
     sourceSecret: string,
     destinationSecret: string,

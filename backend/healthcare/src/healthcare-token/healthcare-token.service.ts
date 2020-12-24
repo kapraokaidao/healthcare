@@ -10,6 +10,8 @@ import { ConfigService } from "@nestjs/config";
 import { User } from "src/entities/user.entity";
 import { KeypairService } from "src/keypair/keypair.service";
 import { UserToken } from "src/entities/user-token.entity";
+import { Transaction } from "src/entities/transaction.entity";
+import StellarSdk from "stellar-sdk";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -23,6 +25,8 @@ export class HealthcareTokenService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserToken)
     private readonly userTokenRepository: Repository<UserToken>,
+    @InjectRepository(Transaction)
+    private readonly transactionRepository: Repository<Transaction>,
     private readonly stellarService: StellarService,
     private readonly keypairService: KeypairService,
     private readonly configService: ConfigService,
@@ -170,9 +174,17 @@ export class HealthcareTokenService {
     newUserToken.balance = data[0].tokenPerPerson;
     newUserToken.user = user;
     newUserToken.healthcareToken = data[0];
+
+    const newTransaction = this.transactionRepository.create();
+    newTransaction.amount = data[0].tokenPerPerson;
+    newTransaction.destinationPublicKey = StellarSdk.Keypair.fromSecret(privateKey).publicKey();
+    newTransaction.destinationUser = user;
+    newTransaction.healthcareToken = data[0];
+    newTransaction.sourcePublicKey = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret).publicKey();
+
     await this.connection.transaction(async (manager) => {
       await manager.save(newUserToken);
-      //Todo: save transaction
+      await manager.save(newTransaction);
       await this.stellarService.allowTrustAndTransferToken(
         this.stellarReceivingSecret,
         privateKey,

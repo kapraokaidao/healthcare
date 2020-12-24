@@ -8,9 +8,10 @@ import { User } from "src/entities/user.entity";
 import { KeypairService } from "src/keypair/keypair.service";
 import { Keypair } from "src/entities/keypair.entity";
 import { UserToken } from "src/entities/user-token.entity";
+import { Transaction } from "src/entities/transaction.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([HealthcareToken, User, Keypair, UserToken])],
+  imports: [TypeOrmModule.forFeature([HealthcareToken, User, Keypair, UserToken, Transaction])],
   controllers: [HealthcareTokenController],
   providers: [HealthcareTokenService, StellarService, KeypairService],
 })
