@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
-import { HealthcareTokenDto, ReceiveTokenDto } from "./healthcare-token.dto";
+import {
+  HealthcareTokenDto,
+  ReceiveTokenDto,
+  VerificationInfoDto,
+} from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brackets, Connection, Repository } from "typeorm";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
@@ -161,15 +165,19 @@ export class HealthcareTokenService {
       dto.serviceId
     );
     if (totalCount === 0) {
-      throw new BadRequestException("This service is not available for this user.");
+      throw new BadRequestException("This service is not available for this user");
     }
     if (data[0].userTokens.length > 0) {
       throw new BadRequestException("This service was received before");
+    }
+    if(data[0].remainingToken < data[0].tokenPerPerson) {
+      throw new BadRequestException("Remaining token is not enough");
     }
     const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
     if (!privateKey) {
       throw new BadRequestException("Invalid PIN");
     }
+
     const newUserToken = this.userTokenRepository.create();
     newUserToken.balance = data[0].tokenPerPerson;
     newUserToken.user = user;
@@ -177,14 +185,19 @@ export class HealthcareTokenService {
 
     const newTransaction = this.transactionRepository.create();
     newTransaction.amount = data[0].tokenPerPerson;
-    newTransaction.destinationPublicKey = StellarSdk.Keypair.fromSecret(privateKey).publicKey();
+    newTransaction.destinationPublicKey = StellarSdk.Keypair.fromSecret(
+      privateKey
+    ).publicKey();
     newTransaction.destinationUser = user;
     newTransaction.healthcareToken = data[0];
-    newTransaction.sourcePublicKey = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret).publicKey();
+    newTransaction.sourcePublicKey = StellarSdk.Keypair.fromSecret(
+      this.stellarReceivingSecret
+    ).publicKey();
 
     await this.connection.transaction(async (manager) => {
       await manager.save(newUserToken);
       await manager.save(newTransaction);
+      await manager.update(HealthcareToken, {id: data[0].id}, {remainingToken: data[0].remainingToken - data[0].tokenPerPerson});
       await this.stellarService.allowTrustAndTransferToken(
         this.stellarReceivingSecret,
         privateKey,
@@ -195,5 +208,36 @@ export class HealthcareTokenService {
     });
 
     //Todo: update XDR
+  }
+
+  async getVerificationInfo(
+    userId: number,
+    serviceId: number
+  ): Promise<VerificationInfoDto> {
+    const user = await this.userRepository.findOneOrFail(userId, {
+      relations: ["patient"],
+    });
+    const { data, totalCount } = await this.findValidTokens(
+      userId,
+      { page: 0, pageSize: 0 },
+      serviceId
+    );
+    if (totalCount === 0) {
+      throw new BadRequestException("This service is not available for this user");
+    }
+    if (data[0].userTokens.length === 0) {
+      throw new BadRequestException("User must receive the token for this service first");
+    }
+    if (data[0].userTokens[0].balance <= 0) {
+      throw new BadRequestException("User doesn't have enough token fot this service");
+    }
+    return {
+      user: user,
+      healthcareToken: data[0],
+    };
+  }
+
+  async redeemToken(userId: number, serviceId: number){
+    const verficationInfo = await this.getVerificationInfo(userId, serviceId);
   }
 }

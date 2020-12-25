@@ -87,4 +87,15 @@ export class HealthcareTokenController {
   async receiveToken(@UserId() userId: number, @Body() dto: ReceiveTokenDto) {
     return this.healthcareTokenService.receiveToken(userId, dto);
   }
+
+  @Get("verify")
+  @Roles(UserRole.Hospital)
+  @ApiQuery({ name: "userId", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "serviceId", schema: { type: "integer" }, required: true })
+  async getVerificationInfo(
+    @Query("userId") qUserId: number,
+    @Query("serviceId") qServiceId: number
+  ) {
+    return this.healthcareTokenService.getVerificationInfo(qUserId, qServiceId);
+  }
 }

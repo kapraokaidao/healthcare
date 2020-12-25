@@ -111,7 +111,7 @@ export class StellarService {
     name: string,
     issuerPublicKey: string,
     limit?: number
-  ){
+  ) {
     const server = new StellarSdk.Server(this.stellarUrl);
 
     const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
@@ -121,7 +121,7 @@ export class StellarService {
       /** begin allowing trust transaction */
       const source = await server.loadAccount(sourceKeys.publicKey());
       const changeTrustTransaction = new StellarSdk.TransactionBuilder(sourceKeys, {
-        fee: 100
+        fee: 100,
       })
         .addOperation(
           StellarSdk.Operation.changeTrust({
@@ -135,9 +135,6 @@ export class StellarService {
     } catch (e) {
       throw e;
     }
-
-
-
   }
 
   async allowTrustAndTransferToken(

@@ -2,7 +2,6 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "t
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
-import { TransactionStatus } from "src/constant/enum/token.enum";
 
 @Entity()
 export class Transaction {
@@ -14,28 +13,22 @@ export class Transaction {
   amount: number;
 
   @ApiProperty()
-  @Column({name: "source_public_key"})
+  @Column({ name: "source_public_key" })
   sourcePublicKey: string;
 
   @ApiProperty()
-  @Column({name: "destination_public_key"})
+  @Column({ name: "destination_public_key" })
   destinationPublicKey: string;
 
-  @ApiProperty({ enum: TransactionStatus, required: false, default: TransactionStatus.Completed })
-  @Column({type: "enum", enum: TransactionStatus, name: "destination_public_key", default: TransactionStatus.Completed})
-  status: TransactionStatus;
-
-  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.id, {
-    cascade: true,
-  })
+  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.transactions)
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
-  @ManyToOne(() => User, (user) => user.keypairs, { cascade: true })
+  @ManyToOne(() => User, (user) => user.sourceUserTransactions)
   @JoinColumn({ name: "source_user_id" })
   sourceUser: User;
 
-  @ManyToOne(() => User, (user) => user.keypairs, { cascade: true })
+  @ManyToOne(() => User, (user) => user.destinationUserTransactions)
   @JoinColumn({ name: "destination_user_id" })
   destinationUser: User;
 }

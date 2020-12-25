@@ -11,6 +11,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { UserGender } from "../constant/enum/user.enum";
 import { TokenType } from "../constant/enum/token.enum";
 import { UserToken } from "./user-token.entity";
+import { Transaction } from "./transaction.entity";
 
 @Entity()
 export class HealthcareToken {
@@ -76,6 +77,10 @@ export class HealthcareToken {
   @ApiProperty()
   @OneToMany(() => UserToken, (userToken) => userToken.healthcareToken)
   userTokens: UserToken[];
+
+  @ApiProperty()
+  @OneToMany(() => Transaction, (transaction) => transaction.healthcareToken)
+  transactions: Transaction[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;

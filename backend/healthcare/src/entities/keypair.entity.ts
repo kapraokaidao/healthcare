@@ -27,7 +27,7 @@ export class Keypair {
   @Column({ name: "hash_pin" })
   hashPin: string;
 
-  @ManyToOne(() => User, (user) => user.keypairs, { cascade: true })
+  @ManyToOne(() => User, (user) => user.keypairs)
   @JoinColumn({ name: "user_id" })
   user: User;
 }

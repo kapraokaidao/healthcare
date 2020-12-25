@@ -20,6 +20,7 @@ import { Hospital } from "./hospital.entity";
 import { Patient } from "./patient.entity";
 import { Keypair } from "./keypair.entity";
 import { UserToken } from "./user-token.entity";
+import { Transaction } from "./transaction.entity";
 
 @Entity()
 export class User {
@@ -67,13 +68,17 @@ export class User {
   @OneToOne(() => Patient, (patient) => patient.user)
   patient: Patient;
 
-  @ApiProperty()
   @OneToMany(() => Keypair, (keyPair) => keyPair.user)
   keypairs: Keypair[];
 
-  @ApiProperty()
   @OneToMany(() => UserToken, (UserToken) => UserToken.user)
   userTokens: UserToken[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.sourceUser)
+  sourceUserTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.destinationUser)
+  destinationUserTransactions: Transaction[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;

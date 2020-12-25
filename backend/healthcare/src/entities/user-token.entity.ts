@@ -12,13 +12,11 @@ export class UserToken {
   @Column()
   balance: number;
 
-  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.id, {
-    cascade: true,
-  })
+  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.userTokens)
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
-  @ManyToOne(() => User, (user) => user.keypairs, { cascade: true })
+  @ManyToOne(() => User, (user) => user.userTokens)
   @JoinColumn({ name: "user_id" })
   user: User;
 }
