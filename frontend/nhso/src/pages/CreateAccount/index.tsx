@@ -1,40 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react';
-import Typography from '@material-ui/core/Typography';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
-import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
-import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import Button from '@material-ui/core/Button';
 import { Hospital, Role, UserCreate } from '../../types';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { TitleContext } from '../../App';
-
-const useStyles = makeStyles((theme) => ({
-	formControl: {
-		margin: theme.spacing(1),
-		minWidth: 120,
-	},
-	selectEmpty: {
-		marginTop: theme.spacing(2),
-	},
-}));
+import { debounce } from 'lodash';
 
 const CreateAccount = () => {
 	const { setTitle } = useContext(TitleContext);
 	useEffect(() => {
 		setTitle('Create Account');
 	}, [setTitle]);
-	const classes = useStyles();
 	const history = useHistory();
 	const [role, setRole] = useState<Role>('NHSO');
-	const [hospital, setHospital] = useState<Hospital>({
-		name: '',
-		hid: 0,
-	});
-	const [account, setAccount] = React.useState<UserCreate>({
+	const [account, setAccount] = useState<UserCreate>({
 		role: 'NHSO',
 		firstname: '',
 		lastname: '',
@@ -46,98 +30,94 @@ const CreateAccount = () => {
 
 	const createAccount = async () => {
 		const sendAccount = account;
-		if (role == 'Hospital') {
+		if (role == 'Hospital' && selectedHospital !== null) {
 			sendAccount.hospital = {
-				name: hospital.name,
-				hid: hospital.hid,
+				code9: selectedHospital.code9,
 			};
 		}
 		await axios.post('/user', sendAccount);
-		history.push('/account-list');
+		history.push('/account');
 	};
 	const handleRoleChange = (event: { target: { value: string } }) => {
 		const newRole = event.target.value as Role;
 		setRole(newRole);
 		setAccount({ ...account, ['role']: newRole });
 	};
-	const handleHospitalChange = (props: any) => (event: { target: { value: any } }) => {
-		setHospital({ ...hospital, [props]: event.target.value });
-	};
 	const handleInputChange = (props: any) => (event: { target: { value: any } }) => {
 		setAccount({ ...account, [props]: event.target.value });
 	};
+
+	const [hospitals, setHospitals] = useState<Hospital[]>([]);
+	const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+	const fetchHospital = useCallback(
+		debounce(async (name: string) => {
+			const { data } = await axios.post('/hospital/search', {
+				page: 1,
+				pageSize: 100,
+				hospital: {
+					fullname: name,
+				},
+			});
+			setHospitals(data.data);
+		}, 1000),
+		[]
+	);
+	useEffect(() => {
+		fetchHospital('');
+	}, []);
 
 	return (
 		<>
 			<div className="sitehome">
 				<div className="mt-15">
-					<Typography variant="h2" gutterBottom align="left">
-						Create Account
-					</Typography>
+					<h1>Create Account</h1>
 				</div>
 				<div className="mt-15">
 					<Grid container spacing={2}>
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Role
-							</Typography>
+							Role
 						</Grid>
 						<Grid item xs={8}>
-							<FormControl className={classes.formControl}>
-								<InputLabel htmlFor="role-native-helper">Role</InputLabel>
-								<NativeSelect
-									value={account.role}
-									onChange={handleRoleChange}
-									variant="outlined"
-									inputProps={{
-										name: 'type',
-										id: 'role-native-helper',
-									}}
-								>
-									<option value={'NHSO'}>NHSO</option>
-									<option value={'Hospital'}>Hospital</option>
-								</NativeSelect>
-							</FormControl>
+							<NativeSelect
+								value={account.role}
+								onChange={handleRoleChange}
+								variant="outlined"
+								inputProps={{
+									name: 'type',
+									id: 'role-native-helper',
+								}}
+							>
+								<option value={'NHSO'}>NHSO</option>
+								<option value={'Hospital'}>Hospital</option>
+							</NativeSelect>
 						</Grid>
 						{role === 'Hospital' && (
 							<>
 								<Grid item xs={4} container alignItems="flex-end">
-									<Typography variant="h5" gutterBottom align="left">
-										Hospital Name
-									</Typography>
+									Hospital
 								</Grid>
 								<Grid item xs={8}>
-									<TextField
-										id="outlined-firstname-input"
-										label="Hospital Name"
-										variant="outlined"
-										value={hospital.name}
-										onChange={handleHospitalChange('name')}
-										fullWidth
-									/>
-								</Grid>
-								<Grid item xs={4} container alignItems="flex-end">
-									<Typography variant="h5" gutterBottom align="left">
-										Hospital ID
-									</Typography>
-								</Grid>
-								<Grid item xs={8}>
-									<TextField
-										id="outlined-firstname-input"
-										label="Hospital ID"
-										variant="outlined"
-										value={hospital.hid}
-										onChange={handleHospitalChange('hid')}
-										fullWidth
+									<Autocomplete
+										value={selectedHospital}
+										onChange={(_, newValue) => {
+											setSelectedHospital(newValue);
+										}}
+										onInputChange={(_, newInputValue) => {
+											fetchHospital(newInputValue);
+										}}
+										options={hospitals}
+										getOptionLabel={(option) => option.fullname || ''}
+										style={{ width: 300 }}
+										renderInput={(params) => (
+											<TextField {...params} label="Combo box" variant="outlined" />
+										)}
 									/>
 								</Grid>
 							</>
 						)}
 
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Firstname
-							</Typography>
+							Firstname
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
@@ -150,9 +130,7 @@ const CreateAccount = () => {
 							/>
 						</Grid>
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Last Name
-							</Typography>
+							Lastname
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
@@ -165,9 +143,7 @@ const CreateAccount = () => {
 							/>
 						</Grid>
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Address
-							</Typography>
+							Address
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
@@ -180,14 +156,12 @@ const CreateAccount = () => {
 							/>
 						</Grid>
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Phone Number
-							</Typography>
+							Phone
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
 								id="outlined-phone-input"
-								label="Phone Number"
+								label="Phone"
 								variant="outlined"
 								value={account.phone}
 								onChange={handleInputChange('phone')}
@@ -195,9 +169,7 @@ const CreateAccount = () => {
 							/>
 						</Grid>
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Username
-							</Typography>
+							Username
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
@@ -210,9 +182,7 @@ const CreateAccount = () => {
 							/>
 						</Grid>
 						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Password
-							</Typography>
+							Password
 						</Grid>
 						<Grid item xs={8}>
 							<TextField
@@ -224,37 +194,21 @@ const CreateAccount = () => {
 								fullWidth
 							/>
 						</Grid>
-						<Grid item xs={4} container alignItems="flex-end">
-							<Typography variant="h5" gutterBottom align="left">
-								Confirm Password
-							</Typography>
-						</Grid>
-						<Grid item xs={8}>
-							<TextField
-								id="outlined-confirm-password-input"
-								label="Confirm Password"
-								variant="outlined"
-								//value={account.confirm}
-								//onChange={handleInputChange("confirm")}
-								fullWidth
-							/>
-						</Grid>
 					</Grid>
 				</div>
-				<div className="mt-15">
-					<Grid container spacing={0}>
-						<Grid item xs={8}></Grid>
-						<Grid item xs={2}>
-							<Button color="primary" size="large">
-								Cancel
-							</Button>
-						</Grid>
-						<Grid item xs={2}>
-							<Button onClick={createAccount} variant="contained" color="primary" size="large">
-								Create
-							</Button>
-						</Grid>
-					</Grid>
+				<div className="mt-15 align-right">
+					<Button
+						color="primary"
+						size="large"
+						onClick={() => {
+							history.push('/account');
+						}}
+					>
+						Cancel
+					</Button>
+					<Button onClick={createAccount} variant="contained" color="primary" size="large">
+						Create
+					</Button>
 				</div>
 			</div>
 		</>

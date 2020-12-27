@@ -5,8 +5,8 @@ export type Role = 'NHSO' | 'Patient' | 'Hospital';
 export type Token = 'General' | 'Special';
 
 export type Hospital = {
-	hid: number;
-	name: string;
+	code9: string;
+	fullname?: string;
 };
 
 export type NHSO = {

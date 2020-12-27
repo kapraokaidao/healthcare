@@ -401,11 +401,7 @@ const ManageAccount = () => {
 								<>
 									<tr>
 										<td>Hospital Id</td>
-										<td>{selectedUser.hospital.hid}</td>
-									</tr>
-									<tr>
-										<td>Hospital Name</td>
-										<td>{selectedUser.hospital.name}</td>
+										<td>{selectedUser.hospital.code9}</td>
 									</tr>
 								</>
 							)}
