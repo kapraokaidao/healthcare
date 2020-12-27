@@ -9,10 +9,18 @@ import { KeypairService } from "src/keypair/keypair.service";
 import { Keypair } from "src/entities/keypair.entity";
 import { UserToken } from "src/entities/user-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
+import { RedeemRequest } from "src/entities/redeem-request.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([HealthcareToken, User, Keypair, UserToken, Transaction]),
+    TypeOrmModule.forFeature([
+      HealthcareToken,
+      User,
+      Keypair,
+      UserToken,
+      Transaction,
+      RedeemRequest,
+    ]),
   ],
   controllers: [HealthcareTokenController],
   providers: [HealthcareTokenService, StellarService, KeypairService],

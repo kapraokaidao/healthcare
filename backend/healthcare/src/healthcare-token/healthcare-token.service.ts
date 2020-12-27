@@ -6,7 +6,7 @@ import {
   VerificationInfoDto,
 } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Brackets, Connection, Repository } from "typeorm";
+import { Brackets, Connection, MoreThan, Repository } from "typeorm";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 import * as dayjs from "dayjs";
 import { StellarService } from "src/stellar/stellar.service";
@@ -16,6 +16,8 @@ import { KeypairService } from "src/keypair/keypair.service";
 import { UserToken } from "src/entities/user-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
 import StellarSdk from "stellar-sdk";
+import { RedeemRequest } from "src/entities/redeem-request.entity";
+import { UserRole } from "src/constant/enum/user.enum";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -31,6 +33,8 @@ export class HealthcareTokenService {
     private readonly userTokenRepository: Repository<UserToken>,
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+    @InjectRepository(RedeemRequest)
+    private readonly redeemRequestRepository: Repository<RedeemRequest>,
     private readonly stellarService: StellarService,
     private readonly keypairService: KeypairService,
     private readonly configService: ConfigService,
@@ -170,7 +174,7 @@ export class HealthcareTokenService {
     if (data[0].userTokens.length > 0) {
       throw new BadRequestException("This service was received before");
     }
-    if(data[0].remainingToken < data[0].tokenPerPerson) {
+    if (data[0].remainingToken < data[0].tokenPerPerson) {
       throw new BadRequestException("Remaining token is not enough");
     }
     const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
@@ -197,7 +201,11 @@ export class HealthcareTokenService {
     await this.connection.transaction(async (manager) => {
       await manager.save(newUserToken);
       await manager.save(newTransaction);
-      await manager.update(HealthcareToken, {id: data[0].id}, {remainingToken: data[0].remainingToken - data[0].tokenPerPerson});
+      await manager.update(
+        HealthcareToken,
+        { id: data[0].id },
+        { remainingToken: data[0].remainingToken - data[0].tokenPerPerson }
+      );
       await this.stellarService.allowTrustAndTransferToken(
         this.stellarReceivingSecret,
         privateKey,
@@ -229,7 +237,7 @@ export class HealthcareTokenService {
       throw new BadRequestException("User must receive the token for this service first");
     }
     if (data[0].userTokens[0].balance <= 0) {
-      throw new BadRequestException("User doesn't have enough token fot this service");
+      throw new BadRequestException("User doesn't have enough token for this service");
     }
     return {
       user: user,
@@ -237,7 +245,38 @@ export class HealthcareTokenService {
     };
   }
 
-  async redeemToken(userId: number, serviceId: number){
-    const verficationInfo = await this.getVerificationInfo(userId, serviceId);
+  async requestRedeemToken(
+    userId: number,
+    patientId: number,
+    serviceId: number,
+    amount: number
+  ): Promise<RedeemRequest> {
+    const hospital = await this.userRepository.findOneOrFail({
+      where: { id: userId, role: UserRole.Hospital },
+    });
+    const verficationInfo = await this.getVerificationInfo(patientId, serviceId);
+    if (amount > verficationInfo.healthcareToken.userTokens[0].balance) {
+      throw new BadRequestException("User doesn't have enough token");
+    }
+    const existedRedeemRequest = await this.redeemRequestRepository.findOne({
+      where: {
+        patient: verficationInfo.user,
+        healthcareToken: verficationInfo.healthcareToken,
+        expiredDate: MoreThan(dayjs().toDate()),
+        isConfirmed: false,
+      },
+    });
+    if (existedRedeemRequest) {
+      throw new BadRequestException("Redeem request was already created");
+    }
+    const newRedeemRequest = this.redeemRequestRepository.create();
+    newRedeemRequest.amount = amount;
+    newRedeemRequest.expiredDate = dayjs().add(10, "minute").toDate();
+    newRedeemRequest.healthcareToken = verficationInfo.healthcareToken;
+    newRedeemRequest.isConfirmed = false;
+    newRedeemRequest.hospital = hospital;
+    newRedeemRequest.patient = verficationInfo.user;
+    newRedeemRequest.amount = amount;
+    return this.redeemRequestRepository.save(newRedeemRequest);
   }
 }

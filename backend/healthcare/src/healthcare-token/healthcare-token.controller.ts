@@ -15,9 +15,15 @@ import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination.util";
-import { HealthcareTokenDto, ReceiveTokenDto } from "./healthcare-token.dto";
+import {
+  CreateRedeemRequestDto,
+  HealthcareTokenDto,
+  ReceiveTokenDto,
+  VerificationInfoDto,
+} from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
 import { UserId } from "src/decorators/user-id.decorator";
+import { RedeemRequest } from "src/entities/redeem-request.entity";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
@@ -84,7 +90,10 @@ export class HealthcareTokenController {
 
   @Post("receive")
   @Roles(UserRole.Patient)
-  async receiveToken(@UserId() userId: number, @Body() dto: ReceiveTokenDto) {
+  async receiveToken(
+    @UserId() userId: number,
+    @Body() dto: ReceiveTokenDto
+  ): Promise<void> {
     return this.healthcareTokenService.receiveToken(userId, dto);
   }
 
@@ -95,7 +104,21 @@ export class HealthcareTokenController {
   async getVerificationInfo(
     @Query("userId") qUserId: number,
     @Query("serviceId") qServiceId: number
-  ) {
+  ): Promise<VerificationInfoDto> {
     return this.healthcareTokenService.getVerificationInfo(qUserId, qServiceId);
+  }
+
+  @Post("redeem-request")
+  @Roles(UserRole.Hospital)
+  async requestRedeemToken(
+    @UserId() userId,
+    @Body() dto: CreateRedeemRequestDto
+  ): Promise<RedeemRequest> {
+    return this.healthcareTokenService.requestRedeemToken(
+      userId,
+      dto.userId,
+      dto.serviceId,
+      dto.amount
+    );
   }
 }

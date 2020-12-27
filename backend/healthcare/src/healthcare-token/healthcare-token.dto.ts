@@ -51,3 +51,14 @@ export class VerificationInfoDto {
   @ApiProperty()
   healthcareToken: HealthcareToken;
 }
+
+export class CreateRedeemRequestDto {
+  @ApiProperty()
+  userId: number;
+
+  @ApiProperty()
+  serviceId: number;
+
+  @ApiProperty()
+  amount: number;
+}
