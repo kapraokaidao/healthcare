@@ -48,7 +48,7 @@ export class KeypairService {
       user = await this.userRepository.findOne(userId, { relations: ["patient"] });
       userSalt = user.patient.nationalId;
     } else {
-      throw new BadRequestException("This user role can't create keypair");
+      throw new BadRequestException(`${user.role} role can't create keypair`);
     }
 
     const keypair = await this.stellarService.createAccount(
@@ -83,13 +83,14 @@ export class KeypairService {
 
     let user = await this.userRepository.findOneOrFail(userId);
     let userSalt: string;
-    switch (user.role) {
-      case UserRole.Hospital:
-        user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
-        userSalt = user.hospital.code9;
-      case UserRole.Patient:
-        user = await this.userRepository.findOne(userId, { relations: ["patient"] });
-        userSalt = user.patient.nationalId;
+    if (user.role === UserRole.Hospital) {
+      user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
+      userSalt = user.hospital.code9;
+    } else if (user.role === UserRole.Patient) {
+      user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+      userSalt = user.patient.nationalId;
+    } else {
+      throw new BadRequestException(`${user.role} role doesn't have keypair`);
     }
 
     const keypair = await this.keypairRepository.findOneOrFail({
