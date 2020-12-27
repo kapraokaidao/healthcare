@@ -36,14 +36,6 @@ export class HealthcareTokenDto {
   tokenPerPerson: number;
 }
 
-export class ReceiveTokenDto {
-  @ApiProperty()
-  serviceId: number;
-
-  @ApiProperty()
-  pin: string;
-}
-
 export class VerificationInfoDto {
   @ApiProperty()
   user: User;
@@ -61,4 +53,12 @@ export class CreateRedeemRequestDto {
 
   @ApiProperty()
   amount: number;
+}
+
+export class ServiceAndPinDto {
+  @ApiProperty()
+  serviceId: number;
+
+  @ApiProperty()
+  pin: string;
 }

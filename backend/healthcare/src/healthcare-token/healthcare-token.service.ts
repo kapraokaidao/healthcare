@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
 import {
   HealthcareTokenDto,
-  ReceiveTokenDto,
+  ServiceAndPinDto,
   VerificationInfoDto,
 } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -161,7 +161,7 @@ export class HealthcareTokenService {
     return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
   }
 
-  async receiveToken(userId: number, dto: ReceiveTokenDto): Promise<void> {
+  async receiveToken(userId: number, dto: ServiceAndPinDto): Promise<void> {
     const user = await this.userRepository.findOneOrFail(userId);
     const { data, totalCount } = await this.findValidTokens(
       userId,
@@ -178,9 +178,6 @@ export class HealthcareTokenService {
       throw new BadRequestException("Remaining token is not enough");
     }
     const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
-    if (!privateKey) {
-      throw new BadRequestException("Invalid PIN");
-    }
 
     const newUserToken = this.userTokenRepository.create();
     newUserToken.balance = data[0].tokenPerPerson;
@@ -278,5 +275,76 @@ export class HealthcareTokenService {
     newRedeemRequest.patient = verficationInfo.user;
     newRedeemRequest.amount = amount;
     return this.redeemRequestRepository.save(newRedeemRequest);
+  }
+
+  async redeemToken(userId: number, serviceId: number, pin: string) {
+    const existedRedeemRequest = await this.redeemRequestRepository.findOne({
+      where: {
+        patient: { id: userId },
+        healthcareToken: { id: serviceId },
+        expiredDate: MoreThan(dayjs().toDate()),
+        isConfirmed: false,
+      },
+      relations: ["hospital", "healthcareToken", "patient"],
+    });
+    if (!existedRedeemRequest) {
+      throw new BadRequestException("There is no redeem request from hospital");
+    }
+
+    const sourcePrivateKey = await this.keypairService.decryptPrivateKey(userId, pin);
+    const destinationPublicKey = (
+      await this.keypairService.findActiveKeypair(existedRedeemRequest.hospital.id)
+    ).publicKey;
+
+    const userToken = await this.userTokenRepository.findOneOrFail({
+      user: { id: userId },
+      healthcareToken: { id: serviceId },
+    });
+    userToken.balance = userToken.balance - existedRedeemRequest.amount;
+
+    const newTransaction = this.transactionRepository.create();
+    newTransaction.amount = existedRedeemRequest.amount;
+    newTransaction.sourcePublicKey = StellarSdk.Keypair.fromSecret(
+      sourcePrivateKey
+    ).publicKey();
+    newTransaction.sourceUser = existedRedeemRequest.patient;
+    newTransaction.healthcareToken = existedRedeemRequest.healthcareToken;
+    newTransaction.destinationUser = existedRedeemRequest.hospital;
+    newTransaction.destinationPublicKey = destinationPublicKey;
+    await this.connection.transaction(async (manager) => {
+      await manager.save(userToken);
+      await manager.save(newTransaction);
+      await this.stellarService.transferToken(
+        sourcePrivateKey,
+        destinationPublicKey,
+        existedRedeemRequest.healthcareToken.name,
+        existedRedeemRequest.healthcareToken.issuingPublicKey,
+        existedRedeemRequest.amount
+      );
+    });
+    existedRedeemRequest.isConfirmed = true;
+    this.redeemRequestRepository.save(existedRedeemRequest);
+
+    //Todo: update XDR
+  }
+
+  async addTrustline(userId: number, dto: ServiceAndPinDto) {
+    const user = await this.userRepository.findOneOrFail(userId);
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
+      dto.serviceId
+    );
+    const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
+    await this.stellarService.changeTrust(
+      privateKey,
+      healthcareToken.name,
+      healthcareToken.issuingPublicKey
+    );
+    const newUserToken = this.userTokenRepository.create();
+    newUserToken.balance = 0;
+    newUserToken.healthcareToken = healthcareToken;
+    newUserToken.user = user;
+    this.userTokenRepository.save(newUserToken);
+
+    //Todo: update XDR
   }
 }

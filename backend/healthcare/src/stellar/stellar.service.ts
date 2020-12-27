@@ -120,18 +120,52 @@ export class StellarService {
     try {
       /** begin allowing trust transaction */
       const source = await server.loadAccount(sourceKeys.publicKey());
-      const changeTrustTransaction = new StellarSdk.TransactionBuilder(sourceKeys, {
+      const changeTrustTransaction = new StellarSdk.TransactionBuilder(source, {
         fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
           StellarSdk.Operation.changeTrust({
             asset: serviceAsset,
+            limit: limit,
           })
         )
         .setTimeout(100)
         .build();
       changeTrustTransaction.sign(sourceKeys);
       await server.submitTransaction(changeTrustTransaction);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async transferToken(
+    sourceSecret: string,
+    destinationPublicKey: string,
+    name: string,
+    issuerPublicKey: string,
+    amount: number
+  ): Promise<void> {
+    const server = new StellarSdk.Server(this.stellarUrl);
+    const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
+    const serviceAsset = new StellarSdk.Asset(name, issuerPublicKey);
+    try {
+      const source = await server.loadAccount(sourceKeys.publicKey());
+      const transferTransaction = new StellarSdk.TransactionBuilder(source, {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      })
+        .addOperation(
+          StellarSdk.Operation.payment({
+            destination: destinationPublicKey,
+            asset: serviceAsset,
+            amount: amount.toString(),
+          })
+        )
+        .setTimeout(100)
+        .build();
+      transferTransaction.sign(sourceKeys);
+      await server.submitTransaction(transferTransaction);
     } catch (e) {
       throw e;
     }

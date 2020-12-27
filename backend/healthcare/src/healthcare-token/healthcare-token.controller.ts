@@ -18,7 +18,7 @@ import { Pagination } from "../utils/pagination.util";
 import {
   CreateRedeemRequestDto,
   HealthcareTokenDto,
-  ReceiveTokenDto,
+  ServiceAndPinDto,
   VerificationInfoDto,
 } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
@@ -92,7 +92,7 @@ export class HealthcareTokenController {
   @Roles(UserRole.Patient)
   async receiveToken(
     @UserId() userId: number,
-    @Body() dto: ReceiveTokenDto
+    @Body() dto: ServiceAndPinDto
   ): Promise<void> {
     return this.healthcareTokenService.receiveToken(userId, dto);
   }
@@ -120,5 +120,23 @@ export class HealthcareTokenController {
       dto.serviceId,
       dto.amount
     );
+  }
+
+  @Post("redeem")
+  @Roles(UserRole.Patient)
+  async redeemToken(
+    @UserId() userId: number,
+    @Body() dto: ServiceAndPinDto
+  ): Promise<void> {
+    return this.healthcareTokenService.redeemToken(userId, dto.serviceId, dto.pin);
+  }
+
+  @Post("trustline")
+  @Roles(UserRole.Patient, UserRole.Hospital)
+  async addTrustline(
+    @UserId() userId: number,
+    @Body() dto: ServiceAndPinDto
+  ): Promise<void> {
+    return this.healthcareTokenService.addTrustline(userId, dto);
   }
 }
