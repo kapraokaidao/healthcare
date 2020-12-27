@@ -23,4 +23,10 @@ export class KeypairController {
   ): Promise<Keypair> {
     return this.keypairService.createKeypair(userId, dto);
   }
+
+  @Roles(UserRole.Hospital, UserRole.Patient)
+  @Get("active")
+  async findActiveKeypair(@UserId() userId: number): Promise<Keypair> {
+    return this.keypairService.findActiveKeypair(userId);
+  }
 }

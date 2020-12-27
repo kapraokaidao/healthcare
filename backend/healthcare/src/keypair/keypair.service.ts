@@ -97,6 +97,20 @@ export class KeypairService {
     const [salt, encryptedPrivateKey] = keypair.encryptedPrivateKey.split("$$$");
     const encryptKey = hashSync(SHA256(userSalt) + pin, salt);
     const privateKey = AES.decrypt(encryptedPrivateKey, encryptKey).toString(enc.Utf8);
+    if (!privateKey) {
+      throw new BadRequestException("Invalid PIN");
+    }
     return privateKey;
+  }
+
+  async findActiveKeypair(userId: number): Promise<Keypair> {
+    const keypair = await this.keypairRepository.findOneOrFail({
+      where: {
+        user: { id: userId },
+        isActive: true,
+      },
+      select: ["isActive", "publicKey"],
+    });
+    return keypair;
   }
 }
