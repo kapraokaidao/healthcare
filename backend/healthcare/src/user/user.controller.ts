@@ -86,7 +86,7 @@ export class UserController {
   @HttpCode(200)
   @Post("search")
   async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
-    const page = dto.page !== null ? dto.page : 1;
+    const page = dto.page ? dto.page : 1;
     const pageSize = dto.pageSize !== null ? dto.pageSize : 10;
     return this.userService.search(dto.user, { page, pageSize });
   }
