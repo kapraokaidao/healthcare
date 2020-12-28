@@ -400,8 +400,8 @@ const ManageAccount = () => {
 							{selectedUser?.hospital && (
 								<>
 									<tr>
-										<td>Hospital Id</td>
-										<td>{selectedUser.hospital.code9}</td>
+										<td>Hospital Name</td>
+										<td>{selectedUser.hospital.fullname}</td>
 									</tr>
 								</>
 							)}
