@@ -108,9 +108,7 @@ const CreateAccount = () => {
 										options={hospitals}
 										getOptionLabel={(option) => option.fullname || ''}
 										style={{ width: 300 }}
-										renderInput={(params) => (
-											<TextField {...params} label="Combo box" variant="outlined" />
-										)}
+										renderInput={(params) => <TextField {...params} variant="outlined" />}
 									/>
 								</Grid>
 							</>
