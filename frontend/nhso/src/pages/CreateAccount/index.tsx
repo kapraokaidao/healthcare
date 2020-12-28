@@ -188,6 +188,7 @@ const CreateAccount = () => {
 							<TextField
 								id="outlined-password-input"
 								label="Password"
+								type="password"
 								variant="outlined"
 								value={account.password}
 								onChange={handleInputChange('password')}
