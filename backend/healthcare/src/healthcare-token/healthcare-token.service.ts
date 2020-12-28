@@ -177,6 +177,7 @@ export class HealthcareTokenService {
     if (data[0].remainingToken < data[0].tokenPerPerson) {
       throw new BadRequestException("Remaining token is not enough");
     }
+
     const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
 
     const newUserToken = this.userTokenRepository.create();
@@ -198,10 +199,11 @@ export class HealthcareTokenService {
     await this.connection.transaction(async (manager) => {
       await manager.save(newUserToken);
       await manager.save(newTransaction);
-      await manager.update(
+      await manager.decrement(
         HealthcareToken,
         { id: data[0].id },
-        { remainingToken: data[0].remainingToken - data[0].tokenPerPerson }
+        "remainingToken",
+        data[0].tokenPerPerson
       );
       await this.stellarService.allowTrustAndTransferToken(
         this.stellarReceivingSecret,
@@ -290,60 +292,72 @@ export class HealthcareTokenService {
     if (!existedRedeemRequest) {
       throw new BadRequestException("There is no redeem request from hospital");
     }
-
-    const sourcePrivateKey = await this.keypairService.decryptPrivateKey(userId, pin);
-    const destinationPublicKey = (
-      await this.keypairService.findActiveKeypair(existedRedeemRequest.hospital.id)
-    ).publicKey;
-
-    const userToken = await this.userTokenRepository.findOneOrFail({
-      user: { id: userId },
-      healthcareToken: { id: serviceId },
-    });
-    userToken.balance = userToken.balance - existedRedeemRequest.amount;
-
-    const newTransaction = this.transactionRepository.create();
-    newTransaction.amount = existedRedeemRequest.amount;
-    newTransaction.sourcePublicKey = StellarSdk.Keypair.fromSecret(
-      sourcePrivateKey
-    ).publicKey();
-    newTransaction.sourceUser = existedRedeemRequest.patient;
-    newTransaction.healthcareToken = existedRedeemRequest.healthcareToken;
-    newTransaction.destinationUser = existedRedeemRequest.hospital;
-    newTransaction.destinationPublicKey = destinationPublicKey;
-    await this.connection.transaction(async (manager) => {
-      await manager.save(userToken);
-      await manager.save(newTransaction);
-      await this.stellarService.transferToken(
-        sourcePrivateKey,
-        destinationPublicKey,
-        existedRedeemRequest.healthcareToken.name,
-        existedRedeemRequest.healthcareToken.issuingPublicKey,
-        existedRedeemRequest.amount
-      );
-    });
+    await this.transferToken(userId, existedRedeemRequest.hospital.id, serviceId, existedRedeemRequest.amount, pin);
     existedRedeemRequest.isConfirmed = true;
     this.redeemRequestRepository.save(existedRedeemRequest);
-
-    //Todo: update XDR
   }
 
-  async addTrustline(userId: number, dto: ServiceAndPinDto) {
+  async addTrustline(userId: number, serviceId: number, pin: string) {
     const user = await this.userRepository.findOneOrFail(userId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
-      dto.serviceId
+      serviceId
     );
-    const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
-    await this.stellarService.changeTrust(
-      privateKey,
-      healthcareToken.name,
-      healthcareToken.issuingPublicKey
-    );
+    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
     const newUserToken = this.userTokenRepository.create();
     newUserToken.balance = 0;
     newUserToken.healthcareToken = healthcareToken;
     newUserToken.user = user;
-    this.userTokenRepository.save(newUserToken);
+     
+    await this.connection.transaction(async (manager) => {
+      await manager.save(newUserToken);
+      await this.stellarService.changeTrust(
+        privateKey,
+        healthcareToken.name,
+        healthcareToken.issuingPublicKey
+      );
+    });
+
+
+    //Todo: update XDR
+  }
+
+  async transferToken(sourceUserId: number, destinationUserId: number, serviceId: number, amount: number, pin: string){
+    const sourceUser = await this.userRepository.findOneOrFail(sourceUserId);
+    const destinationUser = await this.userRepository.findOneOrFail(destinationUserId);
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
+    const sourceUserBalance = await this.userTokenRepository.findOneOrFail({where: {user: sourceUser, healthcareToken: healthcareToken}})
+    const privateKey = await this.keypairService.decryptPrivateKey(sourceUserId, pin);
+    const sourceKeypair = await this.keypairService.findActiveKeypair(sourceUserId);
+    const destinationKeypair = await this.keypairService.findActiveKeypair(destinationUserId);
+    const newTransaction = this.transactionRepository.create();
+
+    if(amount <= 0){
+      throw new BadRequestException("Amount must be greater than 0")
+    }
+
+    if(amount > sourceUserBalance.balance){
+      throw new BadRequestException("Source account doesn't have enough tokens")
+    }
+
+    newTransaction.amount = amount;
+    newTransaction.destinationPublicKey = destinationKeypair.publicKey;
+    newTransaction.destinationUser = destinationUser;
+    newTransaction.healthcareToken = healthcareToken;
+    newTransaction.sourcePublicKey = sourceKeypair.publicKey;
+    newTransaction.sourceUser = sourceUser;
+    
+    await this.connection.transaction(async (manager) => {
+      await manager.save(newTransaction);
+      await manager.decrement(UserToken, {user: {id: sourceUserId}, healthcareToken: {id: serviceId}}, "balance", amount);
+      await manager.increment(UserToken, {user: {id: destinationUserId}, healthcareToken: {id: serviceId}}, "balance", amount);
+      await this.stellarService.transferToken(
+        privateKey,
+        destinationKeypair.publicKey,
+        healthcareToken.name,
+        healthcareToken.issuingPublicKey,
+        amount
+      );
+    });
 
     //Todo: update XDR
   }

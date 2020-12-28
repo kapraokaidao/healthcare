@@ -111,7 +111,7 @@ export class KeypairService {
         user: { id: userId },
         isActive: true,
       },
-      select: ["isActive", "publicKey"],
+      select: ["publicKey"],
     });
     return keypair;
   }

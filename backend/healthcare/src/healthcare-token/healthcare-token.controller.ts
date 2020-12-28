@@ -137,6 +137,6 @@ export class HealthcareTokenController {
     @UserId() userId: number,
     @Body() dto: ServiceAndPinDto
   ): Promise<void> {
-    return this.healthcareTokenService.addTrustline(userId, dto);
+    return this.healthcareTokenService.addTrustline(userId, dto.serviceId, dto.pin);
   }
 }

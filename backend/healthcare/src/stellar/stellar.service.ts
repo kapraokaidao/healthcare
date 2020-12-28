@@ -8,10 +8,12 @@ import { Keypair } from "./stellar.dto";
 export class StellarService {
   private readonly stellarAccount;
   private readonly stellarUrl;
+  private readonly stellarFee;
 
   constructor(private readonly configService: ConfigService) {
     this.stellarAccount = this.configService.get<string>("stellar.account");
     this.stellarUrl = this.configService.get<string>("stellar.url");
+    this.stellarFee = 10000;
   }
 
   async createAccount(fundingSecret: string, startingBalance: number): Promise<Keypair> {
@@ -23,7 +25,7 @@ export class StellarService {
     try {
       const funder = await server.loadAccount(fundingKeys.publicKey());
       const createAccountTransaction = new StellarSdk.TransactionBuilder(funder, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
@@ -68,7 +70,7 @@ export class StellarService {
       /** begin allowing trust transaction */
       const receiver = await server.loadAccount(receivingKeys.publicKey());
       const allowTrustTransaction = new StellarSdk.TransactionBuilder(receiver, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
@@ -121,7 +123,7 @@ export class StellarService {
       /** begin allowing trust transaction */
       const source = await server.loadAccount(sourceKeys.publicKey());
       const changeTrustTransaction = new StellarSdk.TransactionBuilder(source, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
@@ -152,7 +154,7 @@ export class StellarService {
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
       const transferTransaction = new StellarSdk.TransactionBuilder(source, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
@@ -189,7 +191,7 @@ export class StellarService {
       /** begin allowing trust transaction */
       const receiver = await server.loadAccount(destinationKeys.publicKey());
       const allowTrustTransaction = new StellarSdk.TransactionBuilder(receiver, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
@@ -204,7 +206,7 @@ export class StellarService {
       /** begin transfer transaction */
       const source = await server.loadAccount(sourceKeys.publicKey());
       const transferTransaction = new StellarSdk.TransactionBuilder(source, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
@@ -232,7 +234,7 @@ export class StellarService {
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
       const accountMergeTransaction = new StellarSdk.TransactionBuilder(source, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
