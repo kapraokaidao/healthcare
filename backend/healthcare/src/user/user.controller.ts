@@ -23,6 +23,7 @@ import { KycImageType, SearchUsersDto } from "./user.dto";
 import { FileUploadDto } from "../config/file.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "../s3/s3.service";
+import { isBetween } from "../utils/number.util";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -87,7 +88,7 @@ export class UserController {
   @Post("search")
   async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
     const page = dto.page ? dto.page : 1;
-    const pageSize = dto.pageSize !== null ? dto.pageSize : 10;
+    const pageSize = isBetween(dto.pageSize, 0, 1001) ? dto.pageSize : 100;
     return this.userService.search(dto.user, { page, pageSize });
   }
 

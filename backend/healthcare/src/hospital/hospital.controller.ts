@@ -21,7 +21,7 @@ export class HospitalController {
   @Post("search")
   async searchHospital(@Body() dto: SearchHospitalDto): Promise<Pagination<Hospital>> {
     const page = Number.isInteger(dto.page) && dto.page > 0 ? dto.page : 1;
-    const pageSize = isBetween(dto.pageSize, 0, 1001) ? dto.pageSize : 200;
+    const pageSize = isBetween(dto.pageSize, 0, 1001) ? dto.pageSize : 100;
     return this.hospitalService.search(dto.hospital, { page, pageSize });
   }
 }
