@@ -194,8 +194,8 @@ export class UserService {
       });
     }
     if (user.lastname) {
-      query = query.andWhere("u.surname like :surname", {
-        surname: `%${user.lastname}%`,
+      query = query.andWhere("u.lastname like :lastname", {
+        lastname: `%${user.lastname}%`,
       });
     }
     if (user.phone) {
