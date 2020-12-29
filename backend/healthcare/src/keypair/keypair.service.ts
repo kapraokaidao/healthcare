@@ -28,7 +28,7 @@ export class KeypairService {
     );
   }
 
-  async createKeypair(userId: number, dto: createKeypairDto): Promise<Keypair> {
+  async createKeypair(userId: number, dto: createKeypairDto): Promise<void> {
     let user = await this.userRepository.findOneOrFail(userId);
     const [, activeKeypairsCount] = await this.keypairRepository.findAndCount({
       where: [{ user: user, isActive: true }],
@@ -73,7 +73,7 @@ export class KeypairService {
     newKeypair.hashPin = hashPin;
     newKeypair.user = user;
     newKeypair.accountMergeXdr = accontMergeXdr;
-    return this.keypairRepository.save(newKeypair);
+    await this.keypairRepository.save(newKeypair);
   }
 
   async decryptPrivateKey(userId: number, pin: string): Promise<string> {

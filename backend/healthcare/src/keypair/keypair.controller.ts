@@ -20,7 +20,7 @@ export class KeypairController {
   async createKeypair(
     @UserId() userId: number,
     @Body() dto: createKeypairDto
-  ): Promise<Keypair> {
+  ): Promise<void> {
     return this.keypairService.createKeypair(userId, dto);
   }
 
