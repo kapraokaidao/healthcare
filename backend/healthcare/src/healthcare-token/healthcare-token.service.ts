@@ -18,6 +18,7 @@ import { Transaction } from "src/entities/transaction.entity";
 import StellarSdk from "stellar-sdk";
 import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserRole } from "src/constant/enum/user.enum";
+import { TransferRequestType } from "src/constant/enum/token.enum";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -263,6 +264,7 @@ export class HealthcareTokenService {
         healthcareToken: verficationInfo.healthcareToken,
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
+        type: TransferRequestType.Redemption
       },
     });
     if (existedTransferRequest) {
@@ -286,6 +288,7 @@ export class HealthcareTokenService {
         healthcareToken: { id: serviceId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
+        type: TransferRequestType.Redemption
       },
       relations: ["hospital", "healthcareToken", "patient"],
     });
