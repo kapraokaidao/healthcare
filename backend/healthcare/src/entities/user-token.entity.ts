@@ -9,6 +9,14 @@ export class UserToken {
   id: number;
 
   @ApiProperty()
+  @Column({name: "is_trusted"})
+  isTrusted: boolean;
+
+  @ApiProperty()
+  @Column({name: "is_received"})
+  isReceived: boolean;
+
+  @ApiProperty()
   @Column()
   balance: number;
 

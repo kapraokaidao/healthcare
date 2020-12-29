@@ -61,7 +61,8 @@ export class HealthcareTokenService {
     return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
   }
 
-  async createToken(dto: HealthcareTokenDto): Promise<HealthcareToken> {
+  async createToken(userId: number, dto: HealthcareTokenDto): Promise<HealthcareToken> {
+    const user = await this.userRepository.findOneOrFail(userId);
     const existedToken = await this.healthcareTokenRepository.findOne({ name: dto.name });
     if (existedToken) {
       throw new BadRequestException(`Token name '${dto.name} is already existed'`);
@@ -85,6 +86,7 @@ export class HealthcareTokenService {
       ...public_keys,
     });
     newToken.remainingToken = dto.totalToken;
+    newToken.createdBy = user;
     return this.healthcareTokenRepository.save(newToken);
   }
 
@@ -162,12 +164,12 @@ export class HealthcareTokenService {
     return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
   }
 
-  async receiveToken(userId: number, dto: ServiceAndPinDto): Promise<void> {
+  async receiveToken(userId: number, serviceId: number, pin: string): Promise<void> {
     const user = await this.userRepository.findOneOrFail(userId);
     const { data, totalCount } = await this.findValidTokens(
       userId,
       { page: 0, pageSize: 0 },
-      dto.serviceId
+      serviceId
     );
     if (totalCount === 0) {
       throw new BadRequestException("This service is not available for this user");
@@ -179,12 +181,14 @@ export class HealthcareTokenService {
       throw new BadRequestException("Remaining token is not enough");
     }
 
-    const privateKey = await this.keypairService.decryptPrivateKey(userId, dto.pin);
+    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
 
     const newUserToken = this.userTokenRepository.create();
     newUserToken.balance = data[0].tokenPerPerson;
     newUserToken.user = user;
     newUserToken.healthcareToken = data[0];
+    newUserToken.isTrusted = true;
+    newUserToken.isReceived = true;
 
     const newTransaction = this.transactionRepository.create();
     newTransaction.amount = data[0].tokenPerPerson;
@@ -307,6 +311,7 @@ export class HealthcareTokenService {
     );
     const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
     const newUserToken = this.userTokenRepository.create();
+    newUserToken.isTrusted = true;
     newUserToken.balance = 0;
     newUserToken.healthcareToken = healthcareToken;
     newUserToken.user = user;

@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -12,6 +14,7 @@ import { UserGender } from "../constant/enum/user.enum";
 import { TokenType } from "../constant/enum/token.enum";
 import { UserToken } from "./user-token.entity";
 import { Transaction } from "./transaction.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class HealthcareToken {
@@ -81,6 +84,11 @@ export class HealthcareToken {
   @ApiProperty()
   @OneToMany(() => Transaction, (transaction) => transaction.healthcareToken)
   transactions: Transaction[];
+
+  @ManyToOne(() => User)
+  @JoinColumn({name: "created_by"})
+  createdBy: User;
+
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;

@@ -64,8 +64,8 @@ export class HealthcareTokenController {
 
   @Post()
   @Roles(UserRole.NHSO)
-  async createToken(@Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
-    return this.healthcareTokenService.createToken(dto);
+  async createToken(@UserId() userId, @Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
+    return this.healthcareTokenService.createToken(userId, dto);
   }
 
   @Put("deactivate/:id")
@@ -94,7 +94,7 @@ export class HealthcareTokenController {
     @UserId() userId: number,
     @Body() dto: ServiceAndPinDto
   ): Promise<void> {
-    return this.healthcareTokenService.receiveToken(userId, dto);
+    return this.healthcareTokenService.receiveToken(userId, dto.serviceId, dto.pin);
   }
 
   @Get("verify")
