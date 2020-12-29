@@ -47,10 +47,9 @@ export class StellarService {
     }
   }
 
-  async getBalanceBySecret(secret: string): Promise<BalanceLine[]> {
-    const pair = StellarSdk.Keypair.fromSecret(secret);
+  async getBalance(publicKey: string): Promise<BalanceLine[]> {
     const server = new StellarSdk.Server(this.stellarUrl);
-    const account = await server.loadAccount(pair.publicKey());
+    const account = await server.loadAccount(publicKey);
     return account.balances;
   }
 

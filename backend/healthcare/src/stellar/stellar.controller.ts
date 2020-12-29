@@ -14,7 +14,7 @@ export class StellarController {
 
   @Get("balance/:secret")
   async getBalanceBySecret(@Param("secret") secret: string): Promise<BalanceLine[]> {
-    return await this.stellarService.getBalanceBySecret(secret);
+    return await this.stellarService.getBalance(secret);
   }
 
   @Post("service")
