@@ -44,7 +44,7 @@ export class VerificationInfoDto {
   healthcareToken: HealthcareToken;
 }
 
-export class CreateRedeemRequestDto {
+export class CreateTransferRequestDto {
   @ApiProperty()
   userId: number;
 

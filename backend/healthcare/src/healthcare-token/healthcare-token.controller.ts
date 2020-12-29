@@ -16,14 +16,14 @@ import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination.util";
 import {
-  CreateRedeemRequestDto,
+  CreateTransferRequestDto,
   HealthcareTokenDto,
   ServiceAndPinDto,
   VerificationInfoDto,
 } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
 import { UserId } from "src/decorators/user-id.decorator";
-import { RedeemRequest } from "src/entities/redeem-request.entity";
+import { TransferRequest } from "src/entities/transfer-request.entity";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
@@ -112,8 +112,8 @@ export class HealthcareTokenController {
   @Roles(UserRole.Hospital)
   async requestRedeemToken(
     @UserId() userId,
-    @Body() dto: CreateRedeemRequestDto
-  ): Promise<RedeemRequest> {
+    @Body() dto: CreateTransferRequestDto
+  ): Promise<TransferRequest> {
     return this.healthcareTokenService.requestRedeemToken(
       userId,
       dto.userId,

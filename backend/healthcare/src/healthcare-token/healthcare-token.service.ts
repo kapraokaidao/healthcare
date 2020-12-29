@@ -16,7 +16,7 @@ import { KeypairService } from "src/keypair/keypair.service";
 import { UserToken } from "src/entities/user-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
 import StellarSdk from "stellar-sdk";
-import { RedeemRequest } from "src/entities/redeem-request.entity";
+import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 
 @Injectable()
@@ -33,8 +33,8 @@ export class HealthcareTokenService {
     private readonly userTokenRepository: Repository<UserToken>,
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    @InjectRepository(RedeemRequest)
-    private readonly redeemRequestRepository: Repository<RedeemRequest>,
+    @InjectRepository(TransferRequest)
+    private readonly transferRequestRepository: Repository<TransferRequest>,
     private readonly stellarService: StellarService,
     private readonly keypairService: KeypairService,
     private readonly configService: ConfigService,
@@ -249,7 +249,7 @@ export class HealthcareTokenService {
     patientId: number,
     serviceId: number,
     amount: number
-  ): Promise<RedeemRequest> {
+  ): Promise<TransferRequest> {
     const hospital = await this.userRepository.findOneOrFail({
       where: { id: userId, role: UserRole.Hospital },
     });
@@ -257,7 +257,7 @@ export class HealthcareTokenService {
     if (amount > verficationInfo.healthcareToken.userTokens[0].balance) {
       throw new BadRequestException("User doesn't have enough token");
     }
-    const existedRedeemRequest = await this.redeemRequestRepository.findOne({
+    const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
         patient: verficationInfo.user,
         healthcareToken: verficationInfo.healthcareToken,
@@ -265,22 +265,22 @@ export class HealthcareTokenService {
         isConfirmed: false,
       },
     });
-    if (existedRedeemRequest) {
+    if (existedTransferRequest) {
       throw new BadRequestException("Redeem request was already created");
     }
-    const newRedeemRequest = this.redeemRequestRepository.create();
-    newRedeemRequest.amount = amount;
-    newRedeemRequest.expiredDate = dayjs().add(10, "minute").toDate();
-    newRedeemRequest.healthcareToken = verficationInfo.healthcareToken;
-    newRedeemRequest.isConfirmed = false;
-    newRedeemRequest.hospital = hospital;
-    newRedeemRequest.patient = verficationInfo.user;
-    newRedeemRequest.amount = amount;
-    return this.redeemRequestRepository.save(newRedeemRequest);
+    const newTransferRequest = this.transferRequestRepository.create();
+    newTransferRequest.amount = amount;
+    newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
+    newTransferRequest.healthcareToken = verficationInfo.healthcareToken;
+    newTransferRequest.isConfirmed = false;
+    newTransferRequest.hospital = hospital;
+    newTransferRequest.patient = verficationInfo.user;
+    newTransferRequest.amount = amount;
+    return this.transferRequestRepository.save(newTransferRequest);
   }
 
   async redeemToken(userId: number, serviceId: number, pin: string) {
-    const existedRedeemRequest = await this.redeemRequestRepository.findOne({
+    const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
         patient: { id: userId },
         healthcareToken: { id: serviceId },
@@ -289,12 +289,12 @@ export class HealthcareTokenService {
       },
       relations: ["hospital", "healthcareToken", "patient"],
     });
-    if (!existedRedeemRequest) {
+    if (!existedTransferRequest) {
       throw new BadRequestException("There is no redeem request from hospital");
     }
-    await this.transferToken(userId, existedRedeemRequest.hospital.id, serviceId, existedRedeemRequest.amount, pin);
-    existedRedeemRequest.isConfirmed = true;
-    this.redeemRequestRepository.save(existedRedeemRequest);
+    await this.transferToken(userId, existedTransferRequest.hospital.id, serviceId, existedTransferRequest.amount, pin);
+    existedTransferRequest.isConfirmed = true;
+    this.transferRequestRepository.save(existedTransferRequest);
   }
 
   async addTrustline(userId: number, serviceId: number, pin: string) {

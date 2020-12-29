@@ -9,7 +9,7 @@ import { KeypairService } from "src/keypair/keypair.service";
 import { Keypair } from "src/entities/keypair.entity";
 import { UserToken } from "src/entities/user-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
-import { RedeemRequest } from "src/entities/redeem-request.entity";
+import { TransferRequest } from "src/entities/transfer-request.entity";
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { RedeemRequest } from "src/entities/redeem-request.entity";
       Keypair,
       UserToken,
       Transaction,
-      RedeemRequest,
+      TransferRequest,
     ]),
   ],
   controllers: [HealthcareTokenController],

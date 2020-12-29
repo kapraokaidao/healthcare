@@ -10,7 +10,7 @@ import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
 
 @Entity()
-export class RedeemRequest {
+export class TransferRequest {
   @PrimaryGeneratedColumn()
   id: number;
 
