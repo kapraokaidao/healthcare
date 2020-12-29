@@ -84,7 +84,7 @@ export class StellarService {
       /** begin transfer transaction */
       const issuer = await server.loadAccount(issuingKeys.publicKey());
       const transferTransaction = new StellarSdk.TransactionBuilder(issuer, {
-        fee: 100,
+        fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
