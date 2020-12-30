@@ -135,6 +135,21 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.redeemToken(userId, dto.serviceId, dto.pin);
   }
 
+  @Post("retrieve-special-token")
+  @Roles(UserRole.Patient)
+  async retreiveSpecialToken(
+    @UserId() userId: number,
+    @Body() dto: ServiceAndPinDto
+  ): Promise<void> {
+    return this.healthcareTokenService.retrieveSpecialToken(userId, dto.serviceId, dto.pin);
+  }
+
+  @Post("special-token-request")
+  @Roles(UserRole.Hospital)
+  async createSpecialTokenRequest(@UserId() userId, @Body() dto: CreateTransferRequestDto): Promise<TransferRequest>{
+    return this.healthcareTokenService.createSpecialTokenRequest(userId, dto.userId, dto.serviceId, dto.amount, dto.pin);
+  }
+
   @Post("trustline")
   @Roles(UserRole.Patient, UserRole.Hospital)
   async addTrustline(

@@ -14,7 +14,7 @@ import { Transaction } from "src/entities/transaction.entity";
 import StellarSdk from "stellar-sdk";
 import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserRole } from "src/constant/enum/user.enum";
-import { TransferRequestType } from "src/constant/enum/token.enum";
+import { TokenType, TransferRequestType } from "src/constant/enum/token.enum";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -224,7 +224,7 @@ export class HealthcareTokenService {
       { relations: ["user", "healthcareToken"] }
     );
     if (!userToken) {
-      throw new BadRequestException("This service is not available for this user");
+      throw new BadRequestException(`${userToken.healthcareToken.name} service is not available for this user`);
     }
     return userToken;
   }
@@ -236,6 +236,7 @@ export class HealthcareTokenService {
     amount: number,
     pin: string
   ): Promise<TransferRequest> {
+    // Todo: Validate pin
     const hospital = await this.userRepository.findOneOrFail({
       where: { id: userId, role: UserRole.Hospital },
     });
@@ -243,7 +244,7 @@ export class HealthcareTokenService {
       where: {user: {id: userId}, healthcareToken: {id: serviceId}}
     });
     if(!userToken || userToken.isTrusted === false){
-      this.addTrustline(userId, serviceId, pin);
+      await this.addTrustline(userId, serviceId, pin);
     }
     const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
@@ -259,16 +260,57 @@ export class HealthcareTokenService {
     }
 
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
-    const user = await this.userRepository.findOneOrFail(patientId);
+    const patient = await this.userRepository.findOneOrFail(patientId);
     const newTransferRequest = this.transferRequestRepository.create();
     newTransferRequest.amount = amount;
     newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
     newTransferRequest.healthcareToken = healthcareToken;
     newTransferRequest.isConfirmed = false;
     newTransferRequest.hospital = hospital;
-    newTransferRequest.patient = user;
+    newTransferRequest.patient = patient;
     newTransferRequest.amount = amount;
+    newTransferRequest.type = TransferRequestType.Redemption;
     return this.transferRequestRepository.save(newTransferRequest);
+  }
+
+  async createSpecialTokenRequest(
+    userId: number,
+    patientId: number,
+    serviceId: number,
+    amount: number,
+    pin: string): Promise<TransferRequest>{
+      // Todo: Validate pin
+      const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
+      if(healthcareToken.tokenType !== TokenType.Special){
+        throw new BadRequestException(`${healthcareToken.name} is not a special token type`)
+      }
+      const hospital = await this.userRepository.findOneOrFail({
+        where: { id: userId, role: UserRole.Hospital },
+      });
+      const existedTransferRequest = await this.transferRequestRepository.findOne({
+        where: {
+          patient: { id: patientId },
+          healthcareToken: { id: serviceId },
+          expiredDate: MoreThan(dayjs().toDate()),
+          isConfirmed: false,
+          type: TransferRequestType.SpecialToken,
+        },
+      });
+      if (existedTransferRequest) {
+        throw new BadRequestException("Special token request was already created");
+      }
+      
+      const patient = await this.userRepository.findOneOrFail(patientId);
+      const newTransferRequest = this.transferRequestRepository.create();
+      newTransferRequest.amount = amount;
+      newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
+      newTransferRequest.healthcareToken = healthcareToken;
+      newTransferRequest.isConfirmed = false;
+      newTransferRequest.hospital = hospital;
+      newTransferRequest.patient = patient;
+      newTransferRequest.amount = amount;
+      newTransferRequest.type = TransferRequestType.SpecialToken;
+      return this.transferRequestRepository.save(newTransferRequest);
   }
 
   async redeemToken(userId: number, serviceId: number, pin: string) {
@@ -293,7 +335,26 @@ export class HealthcareTokenService {
       pin
     );
     existedTransferRequest.isConfirmed = true;
-    this.transferRequestRepository.save(existedTransferRequest);
+    await this.transferRequestRepository.save(existedTransferRequest);
+  }
+
+  async retrieveSpecialToken(userId: number, serviceId: number, pin: string){
+    const existedTransferRequest = await this.transferRequestRepository.findOne({
+      where: {
+        patient: { id: userId },
+        healthcareToken: { id: serviceId },
+        expiredDate: MoreThan(dayjs().toDate()),
+        isConfirmed: false,
+        type: TransferRequestType.Redemption,
+      },
+      relations: ["hospital", "healthcareToken", "patient"],
+    });
+    if (!existedTransferRequest) {
+      throw new BadRequestException("There is no redeem request from hospital");
+    }
+    existedTransferRequest.isConfirmed = true;
+    await this.transferRequestRepository.save(existedTransferRequest);
+    await this.receiveToken(userId, serviceId, pin);
   }
 
   async addTrustline(userId: number, serviceId: number, pin: string) {
