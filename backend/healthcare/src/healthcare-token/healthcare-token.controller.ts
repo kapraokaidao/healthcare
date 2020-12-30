@@ -117,11 +117,12 @@ export class HealthcareTokenController {
     @UserId() userId,
     @Body() dto: CreateTransferRequestDto
   ): Promise<TransferRequest> {
-    return this.healthcareTokenService.requestRedeemToken(
+    return this.healthcareTokenService.createRedeemRequest(
       userId,
       dto.userId,
       dto.serviceId,
-      dto.amount
+      dto.amount,
+      dto.pin
     );
   }
 

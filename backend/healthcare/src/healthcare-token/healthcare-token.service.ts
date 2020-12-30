@@ -229,15 +229,22 @@ export class HealthcareTokenService {
     return userToken;
   }
 
-  async requestRedeemToken(
+  async createRedeemRequest(
     userId: number,
     patientId: number,
     serviceId: number,
-    amount: number
+    amount: number,
+    pin: string
   ): Promise<TransferRequest> {
     const hospital = await this.userRepository.findOneOrFail({
       where: { id: userId, role: UserRole.Hospital },
     });
+    const userToken = await this.userTokenRepository.findOne({
+      where: {user: {id: userId}, healthcareToken: {id: serviceId}}
+    });
+    if(!userToken || userToken.isTrusted === false){
+      this.addTrustline(userId, serviceId, pin);
+    }
     const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
         patient: { id: patientId },
@@ -371,4 +378,5 @@ export class HealthcareTokenService {
 
     //Todo: update XDR
   }
+
 }

@@ -1,8 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserGender } from "../constant/enum/user.enum";
 import { TokenType } from "../constant/enum/token.enum";
-import { User } from "src/entities/user.entity";
-import { HealthcareToken } from "src/entities/healthcare-token.entity";
 
 export class HealthcareTokenDto {
   @ApiProperty()
@@ -45,6 +43,9 @@ export class CreateTransferRequestDto {
 
   @ApiProperty()
   amount: number;
+
+  @ApiProperty()
+  pin: string;
 }
 
 export class ServiceAndPinDto {
