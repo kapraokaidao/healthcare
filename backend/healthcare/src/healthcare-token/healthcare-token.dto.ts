@@ -36,14 +36,6 @@ export class HealthcareTokenDto {
   tokenPerPerson: number;
 }
 
-export class VerificationInfoDto {
-  @ApiProperty()
-  user: User;
-
-  @ApiProperty()
-  healthcareToken: HealthcareToken;
-}
-
 export class CreateTransferRequestDto {
   @ApiProperty()
   userId: number;

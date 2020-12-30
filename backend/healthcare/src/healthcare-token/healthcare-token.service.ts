@@ -2,8 +2,6 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
 import {
   HealthcareTokenDto,
-  ServiceAndPinDto,
-  VerificationInfoDto,
 } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brackets, Connection, MoreThan, Repository } from "typeorm";
@@ -225,28 +223,12 @@ export class HealthcareTokenService {
   async getVerificationInfo(
     userId: number,
     serviceId: number
-  ): Promise<VerificationInfoDto> {
-    const user = await this.userRepository.findOneOrFail(userId, {
-      relations: ["patient"],
-    });
-    const { data, totalCount } = await this.findValidTokens(
-      userId,
-      { page: 0, pageSize: 0 },
-      serviceId
-    );
-    if (totalCount === 0) {
+  ): Promise<UserToken> {
+    const userToken = await this.userTokenRepository.findOne({user: {id: userId}, healthcareToken: {id: serviceId}}, {relations: ["user", "healthcareToken"]})
+    if(!userToken){
       throw new BadRequestException("This service is not available for this user");
     }
-    if (data[0].userTokens.length === 0) {
-      throw new BadRequestException("User must receive the token for this service first");
-    }
-    if (data[0].userTokens[0].balance <= 0) {
-      throw new BadRequestException("User doesn't have enough token for this service");
-    }
-    return {
-      user: user,
-      healthcareToken: data[0],
-    };
+    return userToken;
   }
 
   async requestRedeemToken(
@@ -258,14 +240,10 @@ export class HealthcareTokenService {
     const hospital = await this.userRepository.findOneOrFail({
       where: { id: userId, role: UserRole.Hospital },
     });
-    const verficationInfo = await this.getVerificationInfo(patientId, serviceId);
-    if (amount > verficationInfo.healthcareToken.userTokens[0].balance) {
-      throw new BadRequestException("User doesn't have enough token");
-    }
     const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
-        patient: verficationInfo.user,
-        healthcareToken: verficationInfo.healthcareToken,
+        patient: {id: patientId},
+        healthcareToken: {id: serviceId},
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
         type: TransferRequestType.Redemption
@@ -274,13 +252,16 @@ export class HealthcareTokenService {
     if (existedTransferRequest) {
       throw new BadRequestException("Redeem request was already created");
     }
+
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
+    const user = await this.userRepository.findOneOrFail(patientId);
     const newTransferRequest = this.transferRequestRepository.create();
     newTransferRequest.amount = amount;
     newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
-    newTransferRequest.healthcareToken = verficationInfo.healthcareToken;
+    newTransferRequest.healthcareToken = healthcareToken;
     newTransferRequest.isConfirmed = false;
     newTransferRequest.hospital = hospital;
-    newTransferRequest.patient = verficationInfo.user;
+    newTransferRequest.patient = user;
     newTransferRequest.amount = amount;
     return this.transferRequestRepository.save(newTransferRequest);
   }

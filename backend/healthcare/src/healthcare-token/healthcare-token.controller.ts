@@ -19,11 +19,11 @@ import {
   CreateTransferRequestDto,
   HealthcareTokenDto,
   ServiceAndPinDto,
-  VerificationInfoDto,
 } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
 import { UserId } from "src/decorators/user-id.decorator";
 import { TransferRequest } from "src/entities/transfer-request.entity";
+import { UserToken } from "src/entities/user-token.entity";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
@@ -104,7 +104,7 @@ export class HealthcareTokenController {
   async getVerificationInfo(
     @Query("userId") qUserId: number,
     @Query("serviceId") qServiceId: number
-  ): Promise<VerificationInfoDto> {
+  ): Promise<UserToken> {
     return this.healthcareTokenService.getVerificationInfo(qUserId, qServiceId);
   }
 
