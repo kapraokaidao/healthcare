@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
-import {
-  HealthcareTokenDto,
-} from "./healthcare-token.dto";
+import { HealthcareTokenDto } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brackets, Connection, MoreThan, Repository } from "typeorm";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
@@ -220,12 +218,12 @@ export class HealthcareTokenService {
     //Todo: update XDR
   }
 
-  async getVerificationInfo(
-    userId: number,
-    serviceId: number
-  ): Promise<UserToken> {
-    const userToken = await this.userTokenRepository.findOne({user: {id: userId}, healthcareToken: {id: serviceId}}, {relations: ["user", "healthcareToken"]})
-    if(!userToken){
+  async getVerificationInfo(userId: number, serviceId: number): Promise<UserToken> {
+    const userToken = await this.userTokenRepository.findOne(
+      { user: { id: userId }, healthcareToken: { id: serviceId } },
+      { relations: ["user", "healthcareToken"] }
+    );
+    if (!userToken) {
       throw new BadRequestException("This service is not available for this user");
     }
     return userToken;
@@ -242,11 +240,11 @@ export class HealthcareTokenService {
     });
     const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
-        patient: {id: patientId},
-        healthcareToken: {id: serviceId},
+        patient: { id: patientId },
+        healthcareToken: { id: serviceId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
-        type: TransferRequestType.Redemption
+        type: TransferRequestType.Redemption,
       },
     });
     if (existedTransferRequest) {
@@ -273,30 +271,34 @@ export class HealthcareTokenService {
         healthcareToken: { id: serviceId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
-        type: TransferRequestType.Redemption
+        type: TransferRequestType.Redemption,
       },
       relations: ["hospital", "healthcareToken", "patient"],
     });
     if (!existedTransferRequest) {
       throw new BadRequestException("There is no redeem request from hospital");
     }
-    await this.transferToken(userId, existedTransferRequest.hospital.id, serviceId, existedTransferRequest.amount, pin);
+    await this.transferToken(
+      userId,
+      existedTransferRequest.hospital.id,
+      serviceId,
+      existedTransferRequest.amount,
+      pin
+    );
     existedTransferRequest.isConfirmed = true;
     this.transferRequestRepository.save(existedTransferRequest);
   }
 
   async addTrustline(userId: number, serviceId: number, pin: string) {
     const user = await this.userRepository.findOneOrFail(userId);
-    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
-      serviceId
-    );
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
     const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
     const newUserToken = this.userTokenRepository.create();
     newUserToken.isTrusted = true;
     newUserToken.balance = 0;
     newUserToken.healthcareToken = healthcareToken;
     newUserToken.user = user;
-     
+
     await this.connection.transaction(async (manager) => {
       await manager.save(newUserToken);
       await this.stellarService.changeTrust(
@@ -306,26 +308,35 @@ export class HealthcareTokenService {
       );
     });
 
-
     //Todo: update XDR
   }
 
-  async transferToken(sourceUserId: number, destinationUserId: number, serviceId: number, amount: number, pin: string){
+  async transferToken(
+    sourceUserId: number,
+    destinationUserId: number,
+    serviceId: number,
+    amount: number,
+    pin: string
+  ) {
     const sourceUser = await this.userRepository.findOneOrFail(sourceUserId);
     const destinationUser = await this.userRepository.findOneOrFail(destinationUserId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
-    const sourceUserBalance = await this.userTokenRepository.findOneOrFail({where: {user: sourceUser, healthcareToken: healthcareToken}})
+    const sourceUserBalance = await this.userTokenRepository.findOneOrFail({
+      where: { user: sourceUser, healthcareToken: healthcareToken },
+    });
     const privateKey = await this.keypairService.decryptPrivateKey(sourceUserId, pin);
     const sourceKeypair = await this.keypairService.findActiveKeypair(sourceUserId);
-    const destinationKeypair = await this.keypairService.findActiveKeypair(destinationUserId);
+    const destinationKeypair = await this.keypairService.findActiveKeypair(
+      destinationUserId
+    );
     const newTransaction = this.transactionRepository.create();
 
-    if(amount <= 0){
-      throw new BadRequestException("Amount must be greater than 0")
+    if (amount <= 0) {
+      throw new BadRequestException("Amount must be greater than 0");
     }
 
-    if(amount > sourceUserBalance.balance){
-      throw new BadRequestException("Source account doesn't have enough tokens")
+    if (amount > sourceUserBalance.balance) {
+      throw new BadRequestException("Source account doesn't have enough tokens");
     }
 
     newTransaction.amount = amount;
@@ -334,11 +345,21 @@ export class HealthcareTokenService {
     newTransaction.healthcareToken = healthcareToken;
     newTransaction.sourcePublicKey = sourceKeypair.publicKey;
     newTransaction.sourceUser = sourceUser;
-    
+
     await this.connection.transaction(async (manager) => {
       await manager.save(newTransaction);
-      await manager.decrement(UserToken, {user: {id: sourceUserId}, healthcareToken: {id: serviceId}}, "balance", amount);
-      await manager.increment(UserToken, {user: {id: destinationUserId}, healthcareToken: {id: serviceId}}, "balance", amount);
+      await manager.decrement(
+        UserToken,
+        { user: { id: sourceUserId }, healthcareToken: { id: serviceId } },
+        "balance",
+        amount
+      );
+      await manager.increment(
+        UserToken,
+        { user: { id: destinationUserId }, healthcareToken: { id: serviceId } },
+        "balance",
+        amount
+      );
       await this.stellarService.transferToken(
         privateKey,
         destinationKeypair.publicKey,

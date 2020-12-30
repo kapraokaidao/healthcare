@@ -33,7 +33,7 @@ export class HealthcareTokenController {
   constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
 
   @Get()
-  @Roles(UserRole.NHSO)
+  @Roles(UserRole.NHSO, UserRole.Hospital)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @ApiQuery({
@@ -64,7 +64,10 @@ export class HealthcareTokenController {
 
   @Post()
   @Roles(UserRole.NHSO)
-  async createToken(@UserId() userId, @Body() dto: HealthcareTokenDto): Promise<HealthcareToken> {
+  async createToken(
+    @UserId() userId,
+    @Body() dto: HealthcareTokenDto
+  ): Promise<HealthcareToken> {
     return this.healthcareTokenService.createToken(userId, dto);
   }
 

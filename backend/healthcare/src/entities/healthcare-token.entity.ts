@@ -86,9 +86,8 @@ export class HealthcareToken {
   transactions: Transaction[];
 
   @ManyToOne(() => User)
-  @JoinColumn({name: "created_by"})
+  @JoinColumn({ name: "created_by" })
   createdBy: User;
-
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;

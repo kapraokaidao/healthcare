@@ -53,7 +53,7 @@ export class KeypairService {
 
     const keypair = await this.stellarService.createAccount(
       this.stellarReceivingSecret,
-      2
+      100
     );
     const salt = genSaltSync(10);
     const encryptKey = hashSync(SHA256(userSalt) + dto.pin, salt);

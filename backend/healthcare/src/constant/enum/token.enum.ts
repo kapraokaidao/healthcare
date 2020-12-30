@@ -5,5 +5,5 @@ export enum TokenType {
 
 export enum TransferRequestType {
   Redemption = "Redemption",
-  SpecialToken = "SpecialToken"
+  SpecialToken = "SpecialToken",
 }

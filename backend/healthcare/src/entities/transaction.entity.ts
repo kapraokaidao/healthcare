@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
@@ -31,4 +38,7 @@ export class Transaction {
   @ManyToOne(() => User, (user) => user.destinationUserTransactions)
   @JoinColumn({ name: "destination_user_id" })
   destinationUser: User;
+
+  @CreateDateColumn({ update: false, name: "created_date" })
+  createdDate!: Date;
 }

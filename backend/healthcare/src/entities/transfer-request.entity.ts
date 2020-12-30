@@ -1,11 +1,5 @@
 import { TransferRequestType } from "src/constant/enum/token.enum";
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
 
@@ -14,8 +8,8 @@ export class TransferRequest {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "enum", enum: TransferRequestType})
-  type: TransferRequestType;  
+  @Column({ type: "enum", enum: TransferRequestType })
+  type: TransferRequestType;
 
   @Column()
   amount: number;
