@@ -224,19 +224,13 @@ export class HealthcareTokenService {
       { relations: ["user", "healthcareToken", "user.patient"] }
     );
     if (!userToken) {
-      const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
-        serviceId
-      );
-      const user = await this.userRepository.findOneOrFail(userId, {
-        relations: ["patient"],
-      });
-      userToken = new UserToken();
-      userToken.id = null;
-      userToken.isReceived = null;
-      userToken.isTrusted = null;
-      userToken.balance = null;
-      userToken.user = user;
-      userToken.healthcareToken = healthcareToken;
+      throw new BadRequestException("This service is not available for this user")
+    }
+    if(!userToken.healthcareToken.isActive){
+      throw new BadRequestException(`${userToken.healthcareToken.name} was alredy deactivated`)
+    }
+    if(dayjs().isAfter(dayjs(userToken.healthcareToken.endDate), 'day')){
+      throw new BadRequestException(`${userToken.healthcareToken.name} is expired`)
     }
     return userToken;
   }
@@ -451,7 +445,6 @@ export class HealthcareTokenService {
         amount
       );
     });
-
     //Todo: update XDR
   }
 }
