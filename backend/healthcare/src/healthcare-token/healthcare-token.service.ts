@@ -224,13 +224,16 @@ export class HealthcareTokenService {
       { relations: ["user", "healthcareToken", "user.patient"] }
     );
     if (!userToken) {
-      throw new BadRequestException("This service is not available for this user")
+      throw new BadRequestException("This service is not available for this user");
+    }
+    if(userToken.balance <= 0) {
+      throw new BadRequestException(`${userToken.healthcareToken.name} is exceeded the redemption limit`);
     }
     if(!userToken.healthcareToken.isActive){
-      throw new BadRequestException(`${userToken.healthcareToken.name} was alredy deactivated`)
+      throw new BadRequestException(`${userToken.healthcareToken.name} was alredy deactivated`);
     }
     if(dayjs().isAfter(dayjs(userToken.healthcareToken.endDate), 'day')){
-      throw new BadRequestException(`${userToken.healthcareToken.name} is expired`)
+      throw new BadRequestException(`${userToken.healthcareToken.name} is expired`);
     }
     return userToken;
   }
