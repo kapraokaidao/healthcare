@@ -26,7 +26,5 @@ export class TransactionSearchResponseDto {
 
   name: string;
 
-  issuingPublicKey: string;
-
   amount: number;
 }

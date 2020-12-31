@@ -15,7 +15,7 @@ export class TransactionService {
     @InjectRepository(User) private readonly userRepository
   ) {}
 
-  async search(
+  async searchGroupByService(
     userId: number,
     dto: TransactionSearchDto
   ): Promise<Pagination<TransactionSearchResponseDto>> {
@@ -66,7 +66,6 @@ export class TransactionService {
       const transaction: TransactionSearchResponseDto = {
         id: e.healthcareToken_id,
         name: e.healthcareToken_name,
-        issuingPublicKey: e.healthcareToken_issuing_public_key,
         amount: e.amount,
       };
       return transaction;

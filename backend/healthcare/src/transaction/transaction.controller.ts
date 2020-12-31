@@ -16,11 +16,11 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Roles(UserRole.Hospital)
-  @Post("search")
-  async search(
+  @Post("search/group-by-service")
+  async searchGroupByService(
     @UserId() userId,
     @Body() dto: TransactionSearchDto
   ): Promise<Pagination<TransactionSearchResponseDto>> {
-    return this.transactionService.search(userId, dto);
+    return this.transactionService.searchGroupByService(userId, dto);
   }
 }
