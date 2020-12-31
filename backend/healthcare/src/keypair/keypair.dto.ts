@@ -11,7 +11,7 @@ export class IsActiveResponseDto {
 
 export class ChangePinDto {
   @ApiProperty()
-  oldPin: string;
+  currentPin: string;
 
   @ApiProperty()
   newPin: string;
