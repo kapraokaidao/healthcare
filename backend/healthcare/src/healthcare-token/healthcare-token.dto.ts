@@ -33,3 +33,25 @@ export class HealthcareTokenDto {
   @ApiProperty()
   tokenPerPerson: number;
 }
+
+export class CreateTransferRequestDto {
+  @ApiProperty()
+  userId: number;
+
+  @ApiProperty()
+  serviceId: number;
+
+  @ApiProperty()
+  amount: number;
+
+  @ApiProperty()
+  pin: string;
+}
+
+export class ServiceAndPinDto {
+  @ApiProperty()
+  serviceId: number;
+
+  @ApiProperty()
+  pin: string;
+}

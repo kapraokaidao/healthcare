@@ -9,6 +9,8 @@ import configuration from "./config/configuration";
 import { StellarModule } from "./stellar/stellar.module";
 import { HealthcareTokenModule } from "./healthcare-token/healthcare-token.module";
 import { HospitalModule } from "./hospital/hospital.module";
+import { KeypairModule } from "./keypair/keypair.module";
+import { TransactionModule } from "./transaction/transaction.module";
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { HospitalModule } from "./hospital/hospital.module";
     StellarModule,
     HealthcareTokenModule,
     HospitalModule,
+    KeypairModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

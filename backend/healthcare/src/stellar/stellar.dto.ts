@@ -14,8 +14,8 @@ export class IssueTokenDto {
   amount: number;
 }
 
-export class CreateAccountResponse {
-  secret: string;
+export class Keypair {
+  privateKey: string;
   publicKey: string;
 }
 
