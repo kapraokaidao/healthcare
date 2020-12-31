@@ -135,7 +135,13 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.redeemToken(userId, dto.serviceId, dto.pin);
   }
 
-  @Post("receive-special-token")
+  @Get("special-token/valid/:userId")
+  @Roles(UserRole.Hospital)
+  async findValidSpecialTokens(@Param("userId") userId: number): Promise<HealthcareToken[]> {
+    return this.healthcareTokenService.findValidSpecialTokens(userId);
+  }
+
+  @Post("special-token/receive")
   @Roles(UserRole.Patient)
   async retreiveSpecialToken(
     @UserId() userId: number,
@@ -148,7 +154,7 @@ export class HealthcareTokenController {
     );
   }
 
-  @Post("special-token-request")
+  @Post("special-token/request")
   @Roles(UserRole.Hospital)
   async createSpecialTokenRequest(
     @UserId() userId,
