@@ -244,7 +244,7 @@ export class HealthcareTokenService {
     amount: number,
     pin: string
   ): Promise<TransferRequest> {
-    // Todo: Validate pin
+    await this.keypairService.validatePin(userId, pin);
     const hospital = await this.userRepository.findOneOrFail({
       where: { id: userId, role: UserRole.Hospital },
     });
@@ -287,7 +287,7 @@ export class HealthcareTokenService {
     serviceId: number,
     amount: number,
     pin: string): Promise<TransferRequest>{
-      // Todo: Validate pin
+      await this.keypairService.validatePin(userId, pin);
       const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
       if(healthcareToken.tokenType !== TokenType.Special){
         throw new BadRequestException(`${healthcareToken.name} is not a special token type`)

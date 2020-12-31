@@ -6,7 +6,7 @@ import { StellarService } from "src/stellar/stellar.service";
 import { Repository } from "typeorm";
 import { CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
 import { AES, enc, SHA256 } from "crypto-js";
-import { genSaltSync, hashSync } from "bcryptjs";
+import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import { User } from "src/entities/user.entity";
 import StellarSdk from "stellar-sdk";
 import { UserRole } from "src/constant/enum/user.enum";
@@ -161,6 +161,18 @@ export class KeypairService {
       keypair.hashPin = newHashPin;
       await this.keypairRepository.save(keypair);
     }
+  }
 
+  async validatePin(userId: number, pin: string):Promise<boolean> {
+    const keypair = await this.keypairRepository.findOne({
+      where: {user: {id: userId}, isActive: true}
+    })
+    if(!keypair){
+      throw new BadRequestException("There is no active keypair")
+    }
+    if(!compareSync(pin, keypair.hashPin)){
+      throw new BadRequestException("Invalid PIN")
+    }
+    return true;
   }
 }
