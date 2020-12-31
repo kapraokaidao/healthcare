@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { UserRole } from "src/constant/enum/user.enum";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserId } from "src/decorators/user-id.decorator";
 import { RolesGuard } from "src/guards/roles.guard";
-import { Keypair } from "../entities/keypair.entity";
-import { createKeypairDto } from "./keypair.dto";
+import { ChangePinDto, CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
 import { KeypairService } from "./keypair.service";
 
 @ApiBearerAuth()
@@ -19,14 +18,21 @@ export class KeypairController {
   @Post()
   async createKeypair(
     @UserId() userId: number,
-    @Body() dto: createKeypairDto
+    @Body() dto: CreateKeypairDto
   ): Promise<void> {
     return this.keypairService.createKeypair(userId, dto);
   }
+  
+  @Roles(UserRole.Hospital)
+  @Put("")
+  async changePin(@UserId() userId: number, @Body() dto: ChangePinDto): Promise<void> {
+    return this.keypairService.changePin(userId, dto.oldPin, dto.newPin);
+  }
 
   @Roles(UserRole.Hospital, UserRole.Patient)
-  @Get("active")
-  async findActiveKeypair(@UserId() userId: number): Promise<Keypair> {
-    return this.keypairService.findActiveKeypair(userId);
+  @Get("is-active")
+  async findActiveKeypair(@UserId() userId: number): Promise<IsActiveResponseDto> {
+    return this.keypairService.isActive(userId);
   }
+
 }

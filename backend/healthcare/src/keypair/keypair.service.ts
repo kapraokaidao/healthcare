@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Keypair } from "src/entities/keypair.entity";
 import { StellarService } from "src/stellar/stellar.service";
 import { Repository } from "typeorm";
-import { createKeypairDto } from "./keypair.dto";
+import { CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
 import { AES, enc, SHA256 } from "crypto-js";
 import { genSaltSync, hashSync } from "bcryptjs";
 import { User } from "src/entities/user.entity";
@@ -28,18 +28,8 @@ export class KeypairService {
     );
   }
 
-  async createKeypair(userId: number, dto: createKeypairDto): Promise<void> {
+  async encryptedPrivateKey(userId: number, pin: string, privateKey: string): Promise<string>{
     let user = await this.userRepository.findOneOrFail(userId);
-    const [, activeKeypairsCount] = await this.keypairRepository.findAndCount({
-      where: [{ user: user, isActive: true }],
-    });
-    if (activeKeypairsCount > 0) {
-      throw new BadRequestException("Keypair is already existed");
-    }
-    if (!/^\d{6}$/.test(dto.pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
-    }
-
     let userSalt: string;
     if (user.role === UserRole.Hospital) {
       user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
@@ -51,14 +41,30 @@ export class KeypairService {
       throw new BadRequestException(`${user.role} role can't create keypair`);
     }
 
+    const salt = genSaltSync(10);
+    const encryptKey = hashSync(SHA256(userSalt) + pin, salt);
+    const encryptedPrivateKey = AES.encrypt(privateKey, encryptKey).toString();
+    return `${salt}$$$${encryptedPrivateKey}`;
+  }
+
+  async createKeypair(userId: number, dto: CreateKeypairDto): Promise<void> {
+    let user = await this.userRepository.findOneOrFail(userId);
+    const [, activeKeypairsCount] = await this.keypairRepository.findAndCount({
+      where: [{ user: user, isActive: true }],
+    });
+    if (activeKeypairsCount > 0) {
+      throw new BadRequestException("Keypair is already existed");
+    }
+    if (!/^\d{6}$/.test(dto.pin)) {
+      throw new BadRequestException("PIN must be 6 digits");
+    }
+
     const keypair = await this.stellarService.createAccount(
       this.stellarReceivingSecret,
       100
     );
-    const salt = genSaltSync(10);
-    const encryptKey = hashSync(SHA256(userSalt) + dto.pin, salt);
-    const encryptedPrivateKey = AES.encrypt(keypair.privateKey, encryptKey).toString();
-
+    
+    const encryptedPrivateKey = await this.encryptedPrivateKey(userId, dto.pin, keypair.privateKey)
     const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
     const accontMergeXdr = await this.stellarService.createAccountMergeXdr(
       keypair.privateKey,
@@ -68,15 +74,16 @@ export class KeypairService {
     const hashPin = hashSync(dto.pin);
 
     const newKeypair = new Keypair();
-    newKeypair.encryptedPrivateKey = `${salt}$$$${encryptedPrivateKey}`;
+    newKeypair.encryptedPrivateKey = encryptedPrivateKey;
     newKeypair.publicKey = keypair.publicKey;
     newKeypair.hashPin = hashPin;
     newKeypair.user = user;
     newKeypair.accountMergeXdr = accontMergeXdr;
     await this.keypairRepository.save(newKeypair);
   }
+  
 
-  async decryptPrivateKey(userId: number, pin: string): Promise<string> {
+  async decryptPrivateKeyFromKeypair(userId: number, pin: string, keypair: Keypair): Promise<string> {
     if (!/^\d{6}$/.test(pin)) {
       throw new BadRequestException("PIN must be 6 digits");
     }
@@ -93,9 +100,6 @@ export class KeypairService {
       throw new BadRequestException(`${user.role} role doesn't have keypair`);
     }
 
-    const keypair = await this.keypairRepository.findOneOrFail({
-      where: [{ user: user, isActive: true }],
-    });
     const [salt, encryptedPrivateKey] = keypair.encryptedPrivateKey.split("$$$");
     const encryptKey = hashSync(SHA256(userSalt) + pin, salt);
     const privateKey = AES.decrypt(encryptedPrivateKey, encryptKey).toString(enc.Utf8);
@@ -105,6 +109,21 @@ export class KeypairService {
     return privateKey;
   }
 
+  async decryptPrivateKey(userId: number, pin: string): Promise<string> {
+    if (!/^\d{6}$/.test(pin)) {
+      throw new BadRequestException("PIN must be 6 digits");
+    }
+
+    const keypair = await this.keypairRepository.findOneOrFail({
+      where: [{ user: {id: userId}, isActive: true }],
+    });
+
+    const privateKey = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
+
+    return privateKey;
+  }
+
+  // Deprecated
   async findActiveKeypair(userId: number): Promise<Keypair> {
     const keypair = await this.keypairRepository.findOneOrFail({
       where: {
@@ -114,5 +133,34 @@ export class KeypairService {
       select: ["publicKey"],
     });
     return keypair;
+  }
+
+  async isActive(userId: number): Promise<IsActiveResponseDto> {
+    const keypair = await this.keypairRepository.findOne({
+      where: {
+        user: { id: userId },
+        isActive: true,
+      },
+    })
+    return {isActive: !!keypair};
+  }
+
+  async changePin(userId: number, oldPin: string, newPin: string): Promise<void> {
+    const keypairs = await this.keypairRepository.find({
+      where: {
+        user: { id: userId },
+        isActive: true,
+      },
+    })
+
+    for(const keypair of keypairs){
+      const pk = await this.decryptPrivateKeyFromKeypair(userId, oldPin, keypair);
+      const newEncryptedPrivateKey = await this.encryptedPrivateKey(userId, newPin, pk);
+      keypair.encryptedPrivateKey = newEncryptedPrivateKey;
+      const newHashPin = hashSync(newPin);
+      keypair.hashPin = newHashPin;
+      await this.keypairRepository.save(keypair);
+    }
+
   }
 }
