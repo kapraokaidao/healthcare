@@ -168,4 +168,12 @@ export class HealthcareTokenController {
       dto.pin
     );
   }
+
+  @Get("balance")
+  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
+  @Roles(UserRole.Hospital)
+  async getBalance(@UserId() userId, @Query("page") qPage: number, @Query("pageSize") qPageSize: number): Promise<Pagination<UserToken>>{
+    return this.healthcareTokenService.getBalance(userId, {page: qPage, pageSize: qPageSize});
+  }
 }

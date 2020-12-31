@@ -508,4 +508,15 @@ export class HealthcareTokenService {
     });
     //Todo: update XDR
   }
+
+  async getBalance(userId: number, pageOptions: PaginationOptions): Promise<Pagination<UserToken>>{
+    const [userTokens, totalCount] = await this.userTokenRepository.findAndCount({
+      where: {user: {id: userId}},
+      relations: ["healthcareToken"],
+      take: pageOptions.pageSize,
+      skip: (pageOptions.page - 1) * pageOptions.pageSize
+    }
+    );
+    return toPagination<UserToken>(userTokens, totalCount, pageOptions)
+  }
 }
