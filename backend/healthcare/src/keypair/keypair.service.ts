@@ -28,7 +28,11 @@ export class KeypairService {
     );
   }
 
-  async encryptedPrivateKey(userId: number, pin: string, privateKey: string): Promise<string>{
+  async encryptedPrivateKey(
+    userId: number,
+    pin: string,
+    privateKey: string
+  ): Promise<string> {
     let user = await this.userRepository.findOneOrFail(userId);
     let userSalt: string;
     if (user.role === UserRole.Hospital) {
@@ -63,8 +67,12 @@ export class KeypairService {
       this.stellarReceivingSecret,
       100
     );
-    
-    const encryptedPrivateKey = await this.encryptedPrivateKey(userId, dto.pin, keypair.privateKey)
+
+    const encryptedPrivateKey = await this.encryptedPrivateKey(
+      userId,
+      dto.pin,
+      keypair.privateKey
+    );
     const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
     const accontMergeXdr = await this.stellarService.createAccountMergeXdr(
       keypair.privateKey,
@@ -81,9 +89,12 @@ export class KeypairService {
     newKeypair.accountMergeXdr = accontMergeXdr;
     await this.keypairRepository.save(newKeypair);
   }
-  
 
-  async decryptPrivateKeyFromKeypair(userId: number, pin: string, keypair: Keypair): Promise<string> {
+  async decryptPrivateKeyFromKeypair(
+    userId: number,
+    pin: string,
+    keypair: Keypair
+  ): Promise<string> {
     if (!/^\d{6}$/.test(pin)) {
       throw new BadRequestException("PIN must be 6 digits");
     }
@@ -115,7 +126,7 @@ export class KeypairService {
     }
 
     const keypair = await this.keypairRepository.findOneOrFail({
-      where: [{ user: {id: userId}, isActive: true }],
+      where: [{ user: { id: userId }, isActive: true }],
     });
 
     const privateKey = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
@@ -141,8 +152,8 @@ export class KeypairService {
         user: { id: userId },
         isActive: true,
       },
-    })
-    return {isActive: !!keypair};
+    });
+    return { isActive: !!keypair };
   }
 
   async changePin(userId: number, oldPin: string, newPin: string): Promise<void> {
@@ -151,9 +162,9 @@ export class KeypairService {
         user: { id: userId },
         isActive: true,
       },
-    })
+    });
 
-    for(const keypair of keypairs){
+    for (const keypair of keypairs) {
       const pk = await this.decryptPrivateKeyFromKeypair(userId, oldPin, keypair);
       const newEncryptedPrivateKey = await this.encryptedPrivateKey(userId, newPin, pk);
       keypair.encryptedPrivateKey = newEncryptedPrivateKey;
@@ -163,15 +174,15 @@ export class KeypairService {
     }
   }
 
-  async validatePin(userId: number, pin: string):Promise<boolean> {
+  async validatePin(userId: number, pin: string): Promise<boolean> {
     const keypair = await this.keypairRepository.findOne({
-      where: {user: {id: userId}, isActive: true}
-    })
-    if(!keypair){
-      throw new BadRequestException("There is no active keypair")
+      where: { user: { id: userId }, isActive: true },
+    });
+    if (!keypair) {
+      throw new BadRequestException("There is no active keypair");
     }
-    if(!compareSync(pin, keypair.hashPin)){
-      throw new BadRequestException("Invalid PIN")
+    if (!compareSync(pin, keypair.hashPin)) {
+      throw new BadRequestException("Invalid PIN");
     }
     return true;
   }

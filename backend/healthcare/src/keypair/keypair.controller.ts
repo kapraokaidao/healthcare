@@ -22,9 +22,9 @@ export class KeypairController {
   ): Promise<void> {
     return this.keypairService.createKeypair(userId, dto);
   }
-  
+
   @Roles(UserRole.Hospital)
-  @Put("")
+  @Put("change")
   async changePin(@UserId() userId: number, @Body() dto: ChangePinDto): Promise<void> {
     return this.keypairService.changePin(userId, dto.oldPin, dto.newPin);
   }
@@ -34,5 +34,4 @@ export class KeypairController {
   async findActiveKeypair(@UserId() userId: number): Promise<IsActiveResponseDto> {
     return this.keypairService.isActive(userId);
   }
-
 }
