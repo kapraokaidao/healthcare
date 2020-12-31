@@ -353,7 +353,7 @@ export class HealthcareTokenService {
     await this.transferRequestRepository.save(existedTransferRequest);
   }
 
-  async retrieveSpecialToken(userId: number, serviceId: number, pin: string) {
+  async receiveSpecialToken(userId: number, serviceId: number, pin: string) {
     const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
         patient: { id: userId },

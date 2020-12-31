@@ -135,13 +135,13 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.redeemToken(userId, dto.serviceId, dto.pin);
   }
 
-  @Post("retrieve-special-token")
+  @Post("receive-special-token")
   @Roles(UserRole.Patient)
   async retreiveSpecialToken(
     @UserId() userId: number,
     @Body() dto: ServiceAndPinDto
   ): Promise<void> {
-    return this.healthcareTokenService.retrieveSpecialToken(
+    return this.healthcareTokenService.receiveSpecialToken(
       userId,
       dto.serviceId,
       dto.pin
