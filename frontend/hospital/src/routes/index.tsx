@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { PathContext } from '../App';
 import RequireAuth from '../components/RequireAuth';
+import ChangePin from '../pages/ChangePin';
 import Pin from '../pages/Pin';
 import Scanner from '../pages/Scanner';
 import Signin from '../pages/Signin';
@@ -33,7 +34,12 @@ const Routes = () => {
 			<Switch>
 				<Route exact path="/" component={(props: any) => <RequireAuth {...props} Component={SiteHome} />} />
 				<Route exact path="/signin" component={Signin} />
-				<Route exact path="/pin" component={Pin} />
+				<Route
+					exact
+					path="/pin/change"
+					component={(props: any) => <RequireAuth {...props} Component={ChangePin} />}
+				/>
+				<Route exact path="/pin" component={(props: any) => <RequireAuth {...props} Component={Pin} />} />
 				<Route
 					exact
 					path="/scanner"

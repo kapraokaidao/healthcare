@@ -8,60 +8,55 @@ import { TitleContext } from '../../App';
 import { AuthStoreContext } from '../../stores';
 import './style.scss';
 
-const Pin = observer(() => {
+const ChangePin = observer(() => {
 	const { setTitle } = useContext(TitleContext);
 	const authStore = useContext(AuthStoreContext);
 	useEffect(() => {
-		setTitle('Choose Your Pin');
+		setTitle('Change Pin');
 	}, [setTitle]);
 
 	const [history] = useState(useHistory());
-	const [pin, setPin] = useState('');
+	const [currentPin, setCurrentPin] = useState('');
+	const [newPin, setNewPin] = useState('');
+
 	const setPinCallback = useCallback(async () => {
-		await axios.post('/keypair', { pin });
+		await axios.put('/keypair/change', { currentPin, newPin });
 		history.push('/');
-	}, [pin]);
+	}, [currentPin, newPin]);
 
 	return (
 		<>
-			<h1>Choose Your Pin</h1>
+			<h1>Change Pin</h1>
 			<div>
 				<table className="table-pin">
 					<tr>
-						<td>Hospital Name</td>
-						<td>{authStore.user?.hospital?.fullname}</td>
-					</tr>
-					<tr>
-						<td>Unit</td>
-						<td>{authStore.user?.hospital?.unit}</td>
-					</tr>
-					<tr>
-						<td>Type</td>
-						<td>{authStore.user?.hospital?.type}</td>
-					</tr>
-					<tr>
-						<td>Address</td>
-						<td>
-							{authStore.user?.hospital?.address} {authStore.user?.hospital?.moo}{' '}
-							{authStore.user?.hospital?.tambon} {authStore.user?.hospital?.amphur}{' '}
-							{authStore.user?.hospital?.province} {authStore.user?.hospital?.zipcode}
-						</td>
-					</tr>
-					<tr>
-						<td>Telephone</td>
-						<td>{authStore.user?.hospital?.telephone}</td>
-					</tr>
-					<tr>
-						<td>Choose Your Pin</td>
+						<td>Current Pin</td>
 						<td>
 							<TextField
 								label="6 Digit PINs"
 								variant="outlined"
-								value={pin}
+								value={currentPin}
 								onChange={(e) => {
 									const regex = /^([0-9]){0,6}$/i;
 									if (regex.test(e.target.value)) {
-										setPin(e.target.value);
+										setCurrentPin(e.target.value);
+									}
+								}}
+								fullWidth
+							/>
+						</td>
+					</tr>
+					<tr>
+						<td>Choose New Pin</td>
+						<td>
+							<TextField
+								label="6 Digit PINs"
+								variant="outlined"
+								value={newPin}
+								onChange={(e) => {
+									const regex = /^([0-9]){0,6}$/i;
+									if (regex.test(e.target.value)) {
+										setNewPin(e.target.value);
 									}
 								}}
 								fullWidth
@@ -79,4 +74,4 @@ const Pin = observer(() => {
 	);
 });
 
-export default Pin;
+export default ChangePin;

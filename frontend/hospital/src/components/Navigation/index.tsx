@@ -1,28 +1,28 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { AuthStoreContext } from '../../stores';
-import { observer } from 'mobx-react-lite';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Button from '@material-ui/core/Button';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
+import { default as AccountCircle, default as AccountCircleIcon } from '@material-ui/icons/AccountCircle';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import LockIcon from '@material-ui/icons/Lock';
+import MenuIcon from '@material-ui/icons/Menu';
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
-import { useHistory, useLocation } from 'react-router-dom';
+import clsx from 'clsx';
+import { observer } from 'mobx-react-lite';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { PathContext, TitleContext } from '../../App';
+import { AuthStoreContext } from '../../stores';
 
 const drawerWidth = 240;
 
@@ -192,6 +192,17 @@ const Navigation = observer(() => {
 									<AccountBalanceWalletIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Wallet" />
+							</ListItem>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/pin/change');
+								}}
+							>
+								<ListItemIcon>
+									<LockIcon fontSize="large" />
+								</ListItemIcon>
+								<ListItemText primary="Change Pin" />
 							</ListItem>
 						</List>
 					</Drawer>
