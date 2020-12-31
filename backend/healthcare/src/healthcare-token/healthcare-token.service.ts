@@ -219,12 +219,20 @@ export class HealthcareTokenService {
   }
 
   async getVerificationInfo(userId: number, serviceId: number): Promise<UserToken> {
-    const userToken = await this.userTokenRepository.findOne(
+    let userToken = await this.userTokenRepository.findOne(
       { user: { id: userId }, healthcareToken: { id: serviceId } },
-      { relations: ["user", "healthcareToken"] }
+      { relations: ["user", "healthcareToken", "user.patient"] }
     );
     if (!userToken) {
-      throw new BadRequestException(`${userToken.healthcareToken.name} service is not available for this user`);
+      const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
+      const user = await this.userRepository.findOneOrFail(userId, {relations: ["patient"]});
+      userToken = new UserToken();
+      userToken.id = null;
+      userToken.isReceived = null;
+      userToken.isTrusted = null;
+      userToken.balance = null;
+      userToken.user = user;
+      userToken.healthcareToken = healthcareToken;
     }
     return userToken;
   }
