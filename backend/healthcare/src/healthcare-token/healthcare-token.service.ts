@@ -15,6 +15,7 @@ import StellarSdk from "stellar-sdk";
 import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 import { TokenType, TransferRequestType } from "src/constant/enum/token.enum";
+import { StellarController } from "src/stellar/stellar.controller";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -160,9 +161,7 @@ export class HealthcareTokenService {
     return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
   }
 
-  async findValidSpecialTokens(
-    userId: number,
-  ): Promise<HealthcareToken[]> {
+  async findValidSpecialTokens(userId: number): Promise<HealthcareToken[]> {
     const user = await this.userRepository.findOne(userId, { relations: ["patient"] });
     const now = dayjs();
     const userAge = now.diff(user.patient.birthDate, "year");
@@ -205,7 +204,9 @@ export class HealthcareTokenService {
           );
         })
       )
-      .andWhere("healthcare_token.token_type = :tokenType", { tokenType: TokenType.Special })
+      .andWhere("healthcare_token.token_type = :tokenType", {
+        tokenType: TokenType.Special,
+      })
       .andWhere("healthcare_token.is_active = 1")
       .leftJoinAndSelect(
         "healthcare_token.userTokens",
@@ -213,7 +214,7 @@ export class HealthcareTokenService {
         "user_token.user_id = :userId",
         { userId: userId }
       )
-      .andWhere("user_token.id IS NULL")
+      .andWhere("user_token.id IS NULL");
 
     const tokens = await query.getMany();
     return tokens;
@@ -232,47 +233,8 @@ export class HealthcareTokenService {
     if (data[0].userTokens.length > 0) {
       throw new BadRequestException("This service was received before");
     }
-    if (data[0].remainingToken < data[0].tokenPerPerson) {
-      throw new BadRequestException("Remaining token is not enough");
-    }
 
-    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
-
-    const newUserToken = this.userTokenRepository.create();
-    newUserToken.balance = data[0].tokenPerPerson;
-    newUserToken.user = user;
-    newUserToken.healthcareToken = data[0];
-    newUserToken.isTrusted = true;
-    newUserToken.isReceived = true;
-
-    const newTransaction = this.transactionRepository.create();
-    newTransaction.amount = data[0].tokenPerPerson;
-    newTransaction.destinationPublicKey = StellarSdk.Keypair.fromSecret(
-      privateKey
-    ).publicKey();
-    newTransaction.destinationUser = user;
-    newTransaction.healthcareToken = data[0];
-    newTransaction.sourcePublicKey = StellarSdk.Keypair.fromSecret(
-      this.stellarReceivingSecret
-    ).publicKey();
-
-    await this.connection.transaction(async (manager) => {
-      await manager.save(newUserToken);
-      await manager.save(newTransaction);
-      await manager.decrement(
-        HealthcareToken,
-        { id: data[0].id },
-        "remainingToken",
-        data[0].tokenPerPerson
-      );
-      await this.stellarService.allowTrustAndTransferToken(
-        this.stellarReceivingSecret,
-        privateKey,
-        data[0].name,
-        data[0].issuingPublicKey,
-        data[0].tokenPerPerson
-      );
-    });
+    await this.transferTokenFromNHSO(userId, serviceId, pin);
 
     //Todo: update XDR
   }
@@ -285,13 +247,17 @@ export class HealthcareTokenService {
     if (!userToken) {
       throw new BadRequestException("This service is not available for this user");
     }
-    if(userToken.balance <= 0) {
-      throw new BadRequestException(`${userToken.healthcareToken.name} is exceeded the redemption limit`);
+    if (userToken.balance <= 0) {
+      throw new BadRequestException(
+        `${userToken.healthcareToken.name} is exceeded the redemption limit`
+      );
     }
-    if(!userToken.healthcareToken.isActive){
-      throw new BadRequestException(`${userToken.healthcareToken.name} was alredy deactivated`);
+    if (!userToken.healthcareToken.isActive) {
+      throw new BadRequestException(
+        `${userToken.healthcareToken.name} was alredy deactivated`
+      );
     }
-    if(dayjs().isAfter(dayjs(userToken.healthcareToken.endDate), 'day')){
+    if (dayjs().isAfter(dayjs(userToken.healthcareToken.endDate), "day")) {
       throw new BadRequestException(`${userToken.healthcareToken.name} is expired`);
     }
     return userToken;
@@ -421,7 +387,16 @@ export class HealthcareTokenService {
     if (!existedTransferRequest) {
       throw new BadRequestException("There is no special token request from hospital");
     }
-    await this.receiveToken(userId, serviceId, pin);
+    const validSpecialTokens = await this.findValidSpecialTokens(userId);
+    if (
+      validSpecialTokens.findIndex(
+        (validSpecialToken) => validSpecialToken.id === serviceId
+      ) === -1
+    ) {
+      throw new BadRequestException("This service is not valid for this user");
+    }
+
+    await this.transferTokenFromNHSO(userId, serviceId, pin);
     existedTransferRequest.isConfirmed = true;
     await this.transferRequestRepository.save(existedTransferRequest);
   }
@@ -508,14 +483,78 @@ export class HealthcareTokenService {
     //Todo: update XDR
   }
 
-  async getBalance(userId: number, pageOptions: PaginationOptions): Promise<Pagination<UserToken>>{
+  async transferTokenFromNHSO(userId: number, serviceId: number, pin: string) {
+    const user = await this.userRepository.findOneOrFail(userId);
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
+    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
+    const publicKey = StellarSdk.Keypair.fromSecret(privateKey).publicKey();
+
+    if (healthcareToken.tokenPerPerson > healthcareToken.remainingToken) {
+      throw new BadRequestException(
+        `${healthcareToken.name} doesn't have enough remaining token`
+      );
+    }
+
+    const newTransaction = this.transactionRepository.create();
+    newTransaction.amount = healthcareToken.tokenPerPerson;
+    newTransaction.destinationPublicKey = publicKey;
+    newTransaction.destinationUser = user;
+    newTransaction.healthcareToken = healthcareToken;
+    newTransaction.sourcePublicKey = healthcareToken.receivingPublicKey;
+
+    const userToken = await this.userTokenRepository.findOne({
+      where: { user: { id: userId }, healthcareToken: { id: serviceId } },
+    });
+
+    await this.connection.transaction(async (manager) => {
+      await manager.save(newTransaction);
+      await manager.decrement(
+        HealthcareToken,
+        { id: serviceId },
+        "remainingToken",
+        healthcareToken.tokenPerPerson
+      );
+      if (!userToken || !userToken.isTrusted) {
+        const newUserToken = this.userTokenRepository.create();
+        newUserToken.isTrusted = true;
+        newUserToken.balance = healthcareToken.tokenPerPerson;
+        newUserToken.healthcareToken = healthcareToken;
+        newUserToken.user = user;
+        await manager.save(newUserToken);
+        await this.stellarService.changeTrust(
+          privateKey,
+          healthcareToken.name,
+          healthcareToken.issuingPublicKey
+        );
+      } else {
+        await manager.increment(
+          UserToken,
+          { user: { id: userId }, healthcareToken: { id: serviceId } },
+          "balance",
+          healthcareToken.tokenPerPerson
+        );
+      }
+      await this.stellarService.transferToken(
+        this.stellarReceivingSecret,
+        publicKey,
+        healthcareToken.name,
+        healthcareToken.issuingPublicKey,
+        healthcareToken.tokenPerPerson
+      );
+    });
+    //Todo: update XDR
+  }
+
+  async getBalance(
+    userId: number,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<UserToken>> {
     const [userTokens, totalCount] = await this.userTokenRepository.findAndCount({
-      where: {user: {id: userId}},
+      where: { user: { id: userId } },
       relations: ["healthcareToken"],
       take: pageOptions.pageSize,
-      skip: (pageOptions.page - 1) * pageOptions.pageSize
-    }
-    );
-    return toPagination<UserToken>(userTokens, totalCount, pageOptions)
+      skip: (pageOptions.page - 1) * pageOptions.pageSize,
+    });
+    return toPagination<UserToken>(userTokens, totalCount, pageOptions);
   }
 }
