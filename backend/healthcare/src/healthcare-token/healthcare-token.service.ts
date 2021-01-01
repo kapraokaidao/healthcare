@@ -205,6 +205,7 @@ export class HealthcareTokenService {
           );
         })
       )
+      .andWhere("healthcare_token.token_type = :tokenType", { tokenType: TokenType.Special })
       .andWhere("healthcare_token.is_active = 1")
       .leftJoinAndSelect(
         "healthcare_token.userTokens",
@@ -344,7 +345,6 @@ export class HealthcareTokenService {
     userId: number,
     patientId: number,
     serviceId: number,
-    amount: number,
     pin: string
   ): Promise<TransferRequest> {
     await this.keypairService.validatePin(userId, pin);
@@ -372,13 +372,12 @@ export class HealthcareTokenService {
 
     const patient = await this.userRepository.findOneOrFail(patientId);
     const newTransferRequest = this.transferRequestRepository.create();
-    newTransferRequest.amount = amount;
     newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
     newTransferRequest.healthcareToken = healthcareToken;
     newTransferRequest.isConfirmed = false;
     newTransferRequest.hospital = hospital;
     newTransferRequest.patient = patient;
-    newTransferRequest.amount = amount;
+    newTransferRequest.amount = healthcareToken.tokenPerPerson;
     newTransferRequest.type = TransferRequestType.SpecialToken;
     return this.transferRequestRepository.save(newTransferRequest);
   }
@@ -415,16 +414,16 @@ export class HealthcareTokenService {
         healthcareToken: { id: serviceId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
-        type: TransferRequestType.Redemption,
+        type: TransferRequestType.SpecialToken,
       },
       relations: ["hospital", "healthcareToken", "patient"],
     });
     if (!existedTransferRequest) {
       throw new BadRequestException("There is no special token request from hospital");
     }
+    await this.receiveToken(userId, serviceId, pin);
     existedTransferRequest.isConfirmed = true;
     await this.transferRequestRepository.save(existedTransferRequest);
-    await this.receiveToken(userId, serviceId, pin);
   }
 
   async addTrustline(userId: number, serviceId: number, pin: string) {

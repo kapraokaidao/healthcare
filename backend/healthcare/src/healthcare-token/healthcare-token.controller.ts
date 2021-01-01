@@ -16,7 +16,8 @@ import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination.util";
 import {
-  CreateTransferRequestDto,
+  CreateRedeemRequestDto,
+  CreateSpecialTokenRequestDto,
   HealthcareTokenDto,
   ServiceAndPinDto,
 } from "./healthcare-token.dto";
@@ -113,9 +114,9 @@ export class HealthcareTokenController {
 
   @Post("redeem-request")
   @Roles(UserRole.Hospital)
-  async requestRedeemToken(
+  async createRedeemRequest(
     @UserId() userId,
-    @Body() dto: CreateTransferRequestDto
+    @Body() dto: CreateRedeemRequestDto
   ): Promise<TransferRequest> {
     return this.healthcareTokenService.createRedeemRequest(
       userId,
@@ -158,13 +159,12 @@ export class HealthcareTokenController {
   @Roles(UserRole.Hospital)
   async createSpecialTokenRequest(
     @UserId() userId,
-    @Body() dto: CreateTransferRequestDto
+    @Body() dto: CreateSpecialTokenRequestDto
   ): Promise<TransferRequest> {
     return this.healthcareTokenService.createSpecialTokenRequest(
       userId,
       dto.userId,
       dto.serviceId,
-      dto.amount,
       dto.pin
     );
   }
