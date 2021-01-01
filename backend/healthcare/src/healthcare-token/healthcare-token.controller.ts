@@ -112,6 +112,15 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.getVerificationInfo(qUserId, qServiceId);
   }
 
+  @Get("redeem-check")
+  @Roles(UserRole.Hospital)
+  @ApiQuery({ name: "id", schema: { type: "integer" }, required: true })
+  async checkConfirmedRedeemRequest(
+    @Query("id") id: number
+  ): Promise<{ isConfirmed: boolean }> {
+    return this.healthcareTokenService.checkConfirmRedeemRequest(id);
+  }
+
   @Post("redeem-request")
   @Roles(UserRole.Hospital)
   async createRedeemRequest(

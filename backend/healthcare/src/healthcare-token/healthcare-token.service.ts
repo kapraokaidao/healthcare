@@ -307,6 +307,11 @@ export class HealthcareTokenService {
     return this.transferRequestRepository.save(newTransferRequest);
   }
 
+  async checkConfirmRedeemRequest(id: number): Promise<{ isConfirmed: boolean }> {
+    const transferRequest = await this.transferRequestRepository.findOne(id);
+    return { isConfirmed: transferRequest.isConfirmed };
+  }
+
   async createSpecialTokenRequest(
     userId: number,
     patientId: number,
