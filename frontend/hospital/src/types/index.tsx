@@ -42,13 +42,12 @@ export type User = {
 };
 
 export type TokenDetail = {
+	id: number;
 	name: string;
 	tokenType: Token;
 	description: string;
 	token: number;
-	startDate?: string;
-	endDate?: string;
-	startAge?: number;
-	endAge?: number;
-	gender?: Gender;
+	startAge: number | null;
+	endAge: number | null;
+	gender: Gender | null;
 };

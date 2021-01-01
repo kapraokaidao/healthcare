@@ -31,13 +31,8 @@ const Spinner = () => {
 		axios.interceptors.response.use(undefined, (error) => {
 			document.getElementById('spinner')?.classList.remove('overlay');
 			document.getElementById('dialog')?.classList.add('overlay');
-			const error_list = [];
-			if ('errors' in error) {
-				for (const key in error.errors) {
-					error_list.push(error.errors[key].join(', '));
-				}
-			}
-			setErrors([...errors, error.message].concat(error_list));
+			const error_message = error.response.data?.message;
+			setErrors([...errors, error_message]);
 			return Promise.reject(error);
 		});
 	}, [errors]);
