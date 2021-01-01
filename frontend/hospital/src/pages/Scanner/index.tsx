@@ -33,7 +33,7 @@ const Scanner = () => {
 	const [serviceId, setServiceId] = useState(0);
 	const scanPatient = useCallback(async () => {
 		setUserId(230);
-		setServiceId(318);
+		setServiceId(319);
 	}, []);
 
 	const [scan, setScan] = useState<ScanPatient | null>(null);
@@ -60,7 +60,7 @@ const Scanner = () => {
 	}, [userId]);
 
 	const [selectedGiveSpecialToken, setSelectedGiveSpecialToken] = useState<TokenDetail | null>(null);
-	const [open, setOpen] = useState(false);
+	const [openGiveSpecialToken, setOpenGiveSpecialToken] = useState(false);
 	const [pin, setPin] = useState('');
 	const giveSpecialToken = useCallback(async () => {
 		if (selectedGiveSpecialToken) {
@@ -72,9 +72,40 @@ const Scanner = () => {
 		}
 	}, [userId, pin, selectedGiveSpecialToken]);
 
-	const requestToken = useCallback(() => {
-		console.log('request token');
-	}, []);
+	const [openRequestRedeem, setOpenRequestRedeem] = useState(false);
+	const [amount, setAmount] = useState('1');
+	const [pollingId, setPollingId] = useState(0);
+	const requestRedeem = useCallback(async () => {
+		if (userId && serviceId) {
+			const {
+				data: { id },
+			} = await axios.post<{ id: number }>('/healthcare-token/redeem-request', {
+				userId,
+				serviceId,
+				pin,
+				amount,
+			});
+			setPollingId(id);
+		}
+	}, [userId, serviceId, amount, pin]);
+
+	useEffect(() => {
+		if (pollingId) {
+			const timer = setInterval(async () => {
+				const {
+					data: { isConfirmed },
+				} = await axios.get<{ isConfirmed: boolean }>('/healthcare-token/redeem-check', {
+					params: {
+						id: pollingId,
+					},
+				});
+				if (isConfirmed) {
+					setPollingId(0);
+					clearInterval(timer);
+				}
+			}, 5000);
+		}
+	}, [pollingId]);
 
 	return (
 		<>
@@ -147,8 +178,15 @@ const Scanner = () => {
 								</table>
 								<hr />
 								<div className="align-right">
-									<Button onClick={requestToken} variant="contained" color="secondary" size="large">
-										Request Token
+									<Button
+										onClick={() => {
+											setOpenRequestRedeem(true);
+										}}
+										variant="contained"
+										color="primary"
+										size="large"
+									>
+										Request Redeem
 									</Button>
 								</div>
 							</>
@@ -160,7 +198,7 @@ const Scanner = () => {
 						<Table>
 							<TableHead>
 								<TableRow>
-									<TableCell>Token Name</TableCell>
+									<TableCell>Service Name</TableCell>
 									<TableCell align="right">Age Range</TableCell>
 									<TableCell align="right">Gender</TableCell>
 									<TableCell align="right">Description</TableCell>
@@ -183,13 +221,13 @@ const Scanner = () => {
 												<Button
 													onClick={() => {
 														setSelectedGiveSpecialToken(token);
-														setOpen(true);
+														setOpenGiveSpecialToken(true);
 													}}
 													variant="contained"
 													color="primary"
 													size="small"
 												>
-													Give token
+													Give Service
 												</Button>
 											</TableCell>
 										</TableRow>
@@ -201,11 +239,11 @@ const Scanner = () => {
 				)}
 			</div>
 			<Dialog
-				open={open}
+				open={openGiveSpecialToken}
 				fullWidth
 				maxWidth="sm"
 				onClose={() => {
-					setOpen(false);
+					setOpenGiveSpecialToken(false);
 					setPin('');
 				}}
 			>
@@ -232,33 +270,136 @@ const Scanner = () => {
 								<td>{selectedGiveSpecialToken?.gender}</td>
 							</tr>
 						</table>
-						<TextField
-							label="6 Digit PINs"
-							variant="outlined"
-							value={pin}
-							onChange={(e) => {
-								const regex = /^([0-9]){0,6}$/i;
-								if (regex.test(e.target.value)) {
-									setPin(e.target.value);
-								}
-							}}
-							className="mt-15"
-							fullWidth
-						/>
+						<div className="mt-15">
+							<TextField
+								label="6 Digit PINs"
+								variant="outlined"
+								value={pin}
+								onChange={(e) => {
+									const regex = /^([0-9]){0,6}$/i;
+									if (regex.test(e.target.value)) {
+										setPin(e.target.value);
+									}
+								}}
+								fullWidth
+							/>
+						</div>
 						<div className="align-right mt-15">
 							<Button
 								onClick={async () => {
 									await giveSpecialToken();
+
+									setOpenGiveSpecialToken(false);
 									setPin('');
-									setOpen(false);
 								}}
 								variant="contained"
-								color="primary"
+								color="secondary"
 								size="large"
 							>
-								Give This Token
+								Give Service
 							</Button>
 						</div>
+					</DialogContentText>
+				</DialogContent>
+			</Dialog>
+			<Dialog
+				open={openRequestRedeem}
+				fullWidth
+				maxWidth="sm"
+				onClose={() => {
+					setOpenRequestRedeem(false);
+					setPin('');
+					setAmount('1');
+				}}
+			>
+				<DialogTitle>Request Redeem Service</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						<table className="w-full">
+							<tr>
+								<td>Service Name</td>
+								<td>{scan?.healthcareToken.name}</td>
+							</tr>
+							<tr>
+								<td>Description</td>
+								<td>{scan?.healthcareToken.description}</td>
+							</tr>
+							<tr>
+								<td>Age Range</td>
+								<td>
+									{scan?.healthcareToken.startAge} - {scan?.healthcareToken.endAge}
+								</td>
+							</tr>
+							<tr>
+								<td>Gender</td>
+								<td>{scan?.healthcareToken.gender}</td>
+							</tr>
+						</table>
+						<div className="mt-15">
+							<TextField
+								label="Amount"
+								variant="outlined"
+								value={amount}
+								onChange={(e) => {
+									const regex = /^([0-9]){0,6}$/i;
+									if (regex.test(e.target.value)) {
+										setAmount(e.target.value);
+									}
+								}}
+								className="mt-15"
+								fullWidth
+							/>
+						</div>
+						<div className="mt-15">
+							<TextField
+								label="6 Digit PINs"
+								variant="outlined"
+								value={pin}
+								onChange={(e) => {
+									const regex = /^([0-9]){0,6}$/i;
+									if (regex.test(e.target.value)) {
+										setPin(e.target.value);
+									}
+								}}
+								fullWidth
+							/>
+						</div>
+						<div className="align-right mt-15">
+							<Button
+								onClick={async () => {
+									await requestRedeem();
+
+									setOpenRequestRedeem(false);
+									setPin('');
+									setAmount('1');
+								}}
+								variant="contained"
+								color="secondary"
+								size="large"
+							>
+								Request Redeem Service
+							</Button>
+						</div>
+					</DialogContentText>
+				</DialogContent>
+			</Dialog>
+			<Dialog open={pollingId > 0} fullWidth maxWidth="sm">
+				<DialogTitle>Waiting Patient</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						<div className="waiting">
+							<iframe
+								src="https://giphy.com/embed/tXL4FHPSnVJ0A"
+								width="100%"
+								height="100%"
+								style={{ position: 'absolute' }}
+								frameBorder="0"
+								allowFullScreen
+							></iframe>
+						</div>
+						<p>
+							<a href="https://giphy.com/gifs/kim-novak-tXL4FHPSnVJ0A">via GIPHY</a>
+						</p>
 					</DialogContentText>
 				</DialogContent>
 			</Dialog>
