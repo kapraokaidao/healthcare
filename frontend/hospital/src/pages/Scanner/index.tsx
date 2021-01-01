@@ -384,7 +384,7 @@ const Scanner = () => {
 				</DialogContent>
 			</Dialog>
 			<Dialog open={pollingId > 0} fullWidth maxWidth="sm">
-				<DialogTitle>Waiting Patient</DialogTitle>
+				<DialogTitle>Waiting Patient Enter the PIN</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
 						<div className="waiting">

@@ -1,15 +1,15 @@
 import React, { useContext, useEffect } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
-import Signin from '../pages/Signin';
-import ManageAccount from '../pages/ManageAccount';
-import SiteHome from './../pages/SiteHome';
-import ManageToken from './../pages/ManageToken';
-import CreateToken from './../pages/CreateToken';
-import CreateAccount from '../pages/CreateAccount';
-import KYCConfirm from '../pages/KYCConfirm';
-import KYC from '../pages/KYC';
 import { PathContext } from '../App';
 import RequireAuth from '../components/RequireAuth';
+import CreateAccount from '../pages/CreateAccount';
+import KYC from '../pages/KYC';
+import KYCConfirm from '../pages/KYCConfirm';
+import ManageAccount from '../pages/ManageAccount';
+import Signin from '../pages/Signin';
+import CreateToken from './../pages/CreateToken';
+import ManageToken from './../pages/ManageToken';
+import SiteHome from './../pages/SiteHome';
 
 const Routes = () => {
 	const location = useLocation();
