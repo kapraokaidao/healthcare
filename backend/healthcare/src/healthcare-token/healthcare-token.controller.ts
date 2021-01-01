@@ -112,6 +112,15 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.getVerificationInfo(qUserId, qServiceId);
   }
 
+  @Get("redeem-check")
+  @Roles(UserRole.Hospital)
+  @ApiQuery({ name: "id", schema: { type: "integer" }, required: true })
+  async checkConfirmedRedeemRequest(
+    @Query("id") id: number
+  ): Promise<{ isConfirmed: boolean }> {
+    return this.healthcareTokenService.checkConfirmRedeemRequest(id);
+  }
+
   @Post("redeem-request")
   @Roles(UserRole.Hospital)
   async createRedeemRequest(
@@ -138,7 +147,9 @@ export class HealthcareTokenController {
 
   @Get("special-token/valid/:userId")
   @Roles(UserRole.Hospital)
-  async findValidSpecialTokens(@Param("userId") userId: number): Promise<HealthcareToken[]> {
+  async findValidSpecialTokens(
+    @Param("userId") userId: number
+  ): Promise<HealthcareToken[]> {
     return this.healthcareTokenService.findValidSpecialTokens(userId);
   }
 
@@ -173,7 +184,14 @@ export class HealthcareTokenController {
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @Roles(UserRole.Hospital)
-  async getBalance(@UserId() userId, @Query("page") qPage: number, @Query("pageSize") qPageSize: number): Promise<Pagination<UserToken>>{
-    return this.healthcareTokenService.getBalance(userId, {page: qPage, pageSize: qPageSize});
+  async getBalance(
+    @UserId() userId,
+    @Query("page") qPage: number,
+    @Query("pageSize") qPageSize: number
+  ): Promise<Pagination<UserToken>> {
+    return this.healthcareTokenService.getBalance(userId, {
+      page: qPage,
+      pageSize: qPageSize,
+    });
   }
 }

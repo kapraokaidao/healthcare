@@ -50,8 +50,6 @@ export class CreateRedeemRequestDto extends CreateSpecialTokenRequestDto {
   amount: number;
 }
 
-
-
 export class ServiceAndPinDto {
   @ApiProperty()
   serviceId: number;
