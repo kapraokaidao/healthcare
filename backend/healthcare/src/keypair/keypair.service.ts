@@ -156,7 +156,7 @@ export class KeypairService {
     return { isActive: !!keypair };
   }
 
-  async changePin(userId: number, oldPin: string, newPin: string): Promise<void> {
+  async changePin(userId: number, currentPin: string, newPin: string): Promise<void> {
     const keypairs = await this.keypairRepository.find({
       where: {
         user: { id: userId },
@@ -165,7 +165,7 @@ export class KeypairService {
     });
 
     for (const keypair of keypairs) {
-      const pk = await this.decryptPrivateKeyFromKeypair(userId, oldPin, keypair);
+      const pk = await this.decryptPrivateKeyFromKeypair(userId, currentPin, keypair);
       const newEncryptedPrivateKey = await this.encryptedPrivateKey(userId, newPin, pk);
       keypair.encryptedPrivateKey = newEncryptedPrivateKey;
       const newHashPin = hashSync(newPin);

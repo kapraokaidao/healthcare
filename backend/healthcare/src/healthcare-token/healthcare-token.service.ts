@@ -160,6 +160,65 @@ export class HealthcareTokenService {
     return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
   }
 
+  async findValidSpecialTokens(
+    userId: number,
+  ): Promise<HealthcareToken[]> {
+    const user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+    const now = dayjs();
+    const userAge = now.diff(user.patient.birthDate, "year");
+    const today = now.format("YYYY-MM-DD");
+
+    let query = this.healthcareTokenRepository
+      .createQueryBuilder("healthcare_token")
+      .where(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.start_age <= :userAge", {
+            userAge: userAge,
+          }).orWhere("healthcare_token.start_age IS NULL");
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.end_age >= :userAge", { userAge: userAge }).orWhere(
+            "healthcare_token.end_age IS NULL"
+          );
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.gender = :userGender", {
+            userGender: user.patient.gender,
+          }).orWhere("healthcare_token.gender IS NULL");
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.start_date <= :today", { today: today }).orWhere(
+            "healthcare_token.start_date IS NULL"
+          );
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.end_date >= :today", { today: today }).orWhere(
+            "healthcare_token.end_date IS NULL"
+          );
+        })
+      )
+      .andWhere("healthcare_token.token_type = :tokenType", { tokenType: TokenType.Special })
+      .andWhere("healthcare_token.is_active = 1")
+      .leftJoinAndSelect(
+        "healthcare_token.userTokens",
+        "user_token",
+        "user_token.user_id = :userId",
+        { userId: userId }
+      )
+      .andWhere("user_token.id IS NULL")
+
+    const tokens = await query.getMany();
+    return tokens;
+  }
+
   async receiveToken(userId: number, serviceId: number, pin: string): Promise<void> {
     const user = await this.userRepository.findOneOrFail(userId);
     const { data, totalCount } = await this.findValidTokens(
@@ -224,19 +283,16 @@ export class HealthcareTokenService {
       { relations: ["user", "healthcareToken", "user.patient"] }
     );
     if (!userToken) {
-      const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
-        serviceId
-      );
-      const user = await this.userRepository.findOneOrFail(userId, {
-        relations: ["patient"],
-      });
-      userToken = new UserToken();
-      userToken.id = null;
-      userToken.isReceived = null;
-      userToken.isTrusted = null;
-      userToken.balance = null;
-      userToken.user = user;
-      userToken.healthcareToken = healthcareToken;
+      throw new BadRequestException("This service is not available for this user");
+    }
+    if(userToken.balance <= 0) {
+      throw new BadRequestException(`${userToken.healthcareToken.name} is exceeded the redemption limit`);
+    }
+    if(!userToken.healthcareToken.isActive){
+      throw new BadRequestException(`${userToken.healthcareToken.name} was alredy deactivated`);
+    }
+    if(dayjs().isAfter(dayjs(userToken.healthcareToken.endDate), 'day')){
+      throw new BadRequestException(`${userToken.healthcareToken.name} is expired`);
     }
     return userToken;
   }
@@ -289,7 +345,6 @@ export class HealthcareTokenService {
     userId: number,
     patientId: number,
     serviceId: number,
-    amount: number,
     pin: string
   ): Promise<TransferRequest> {
     await this.keypairService.validatePin(userId, pin);
@@ -317,13 +372,12 @@ export class HealthcareTokenService {
 
     const patient = await this.userRepository.findOneOrFail(patientId);
     const newTransferRequest = this.transferRequestRepository.create();
-    newTransferRequest.amount = amount;
     newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
     newTransferRequest.healthcareToken = healthcareToken;
     newTransferRequest.isConfirmed = false;
     newTransferRequest.hospital = hospital;
     newTransferRequest.patient = patient;
-    newTransferRequest.amount = amount;
+    newTransferRequest.amount = healthcareToken.tokenPerPerson;
     newTransferRequest.type = TransferRequestType.SpecialToken;
     return this.transferRequestRepository.save(newTransferRequest);
   }
@@ -360,16 +414,16 @@ export class HealthcareTokenService {
         healthcareToken: { id: serviceId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
-        type: TransferRequestType.Redemption,
+        type: TransferRequestType.SpecialToken,
       },
       relations: ["hospital", "healthcareToken", "patient"],
     });
     if (!existedTransferRequest) {
-      throw new BadRequestException("There is no redeem request from hospital");
+      throw new BadRequestException("There is no special token request from hospital");
     }
+    await this.receiveToken(userId, serviceId, pin);
     existedTransferRequest.isConfirmed = true;
     await this.transferRequestRepository.save(existedTransferRequest);
-    await this.receiveToken(userId, serviceId, pin);
   }
 
   async addTrustline(userId: number, serviceId: number, pin: string) {
@@ -451,7 +505,17 @@ export class HealthcareTokenService {
         amount
       );
     });
-
     //Todo: update XDR
+  }
+
+  async getBalance(userId: number, pageOptions: PaginationOptions): Promise<Pagination<UserToken>>{
+    const [userTokens, totalCount] = await this.userTokenRepository.findAndCount({
+      where: {user: {id: userId}},
+      relations: ["healthcareToken"],
+      take: pageOptions.pageSize,
+      skip: (pageOptions.page - 1) * pageOptions.pageSize
+    }
+    );
+    return toPagination<UserToken>(userTokens, totalCount, pageOptions)
   }
 }

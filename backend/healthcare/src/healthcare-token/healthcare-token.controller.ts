@@ -16,7 +16,8 @@ import { UserRole } from "../constant/enum/user.enum";
 import { HealthcareTokenService } from "./healthcare-token.service";
 import { Pagination } from "../utils/pagination.util";
 import {
-  CreateTransferRequestDto,
+  CreateRedeemRequestDto,
+  CreateSpecialTokenRequestDto,
   HealthcareTokenDto,
   ServiceAndPinDto,
 } from "./healthcare-token.dto";
@@ -113,9 +114,9 @@ export class HealthcareTokenController {
 
   @Post("redeem-request")
   @Roles(UserRole.Hospital)
-  async requestRedeemToken(
+  async createRedeemRequest(
     @UserId() userId,
-    @Body() dto: CreateTransferRequestDto
+    @Body() dto: CreateRedeemRequestDto
   ): Promise<TransferRequest> {
     return this.healthcareTokenService.createRedeemRequest(
       userId,
@@ -135,7 +136,13 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.redeemToken(userId, dto.serviceId, dto.pin);
   }
 
-  @Post("receive-special-token")
+  @Get("special-token/valid/:userId")
+  @Roles(UserRole.Hospital)
+  async findValidSpecialTokens(@Param("userId") userId: number): Promise<HealthcareToken[]> {
+    return this.healthcareTokenService.findValidSpecialTokens(userId);
+  }
+
+  @Post("special-token/receive")
   @Roles(UserRole.Patient)
   async retreiveSpecialToken(
     @UserId() userId: number,
@@ -148,18 +155,25 @@ export class HealthcareTokenController {
     );
   }
 
-  @Post("special-token-request")
+  @Post("special-token/request")
   @Roles(UserRole.Hospital)
   async createSpecialTokenRequest(
     @UserId() userId,
-    @Body() dto: CreateTransferRequestDto
+    @Body() dto: CreateSpecialTokenRequestDto
   ): Promise<TransferRequest> {
     return this.healthcareTokenService.createSpecialTokenRequest(
       userId,
       dto.userId,
       dto.serviceId,
-      dto.amount,
       dto.pin
     );
+  }
+
+  @Get("balance")
+  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
+  @Roles(UserRole.Hospital)
+  async getBalance(@UserId() userId, @Query("page") qPage: number, @Query("pageSize") qPageSize: number): Promise<Pagination<UserToken>>{
+    return this.healthcareTokenService.getBalance(userId, {page: qPage, pageSize: qPageSize});
   }
 }

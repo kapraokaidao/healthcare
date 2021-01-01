@@ -34,7 +34,7 @@ export class HealthcareTokenDto {
   tokenPerPerson: number;
 }
 
-export class CreateTransferRequestDto {
+export class CreateSpecialTokenRequestDto {
   @ApiProperty()
   userId: number;
 
@@ -42,11 +42,15 @@ export class CreateTransferRequestDto {
   serviceId: number;
 
   @ApiProperty()
-  amount: number;
-
-  @ApiProperty()
   pin: string;
 }
+
+export class CreateRedeemRequestDto extends CreateSpecialTokenRequestDto {
+  @ApiProperty()
+  amount: number;
+}
+
+
 
 export class ServiceAndPinDto {
   @ApiProperty()

@@ -26,7 +26,7 @@ export class KeypairController {
   @Roles(UserRole.Hospital)
   @Put("change")
   async changePin(@UserId() userId: number, @Body() dto: ChangePinDto): Promise<void> {
-    return this.keypairService.changePin(userId, dto.oldPin, dto.newPin);
+    return this.keypairService.changePin(userId, dto.currentPin, dto.newPin);
   }
 
   @Roles(UserRole.Hospital, UserRole.Patient)
