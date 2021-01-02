@@ -65,7 +65,7 @@ export class KeypairService {
 
     const keypair = await this.stellarService.createAccount(
       this.stellarReceivingSecret,
-      100
+      2
     );
 
     const encryptedPrivateKey = await this.encryptedPrivateKey(
