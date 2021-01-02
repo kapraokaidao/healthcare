@@ -1,5 +1,12 @@
 import { TransferRequestType } from "src/constant/enum/token.enum";
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  DeleteDateColumn,
+} from "typeorm";
 import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
 
@@ -31,4 +38,7 @@ export class TransferRequest {
   @ManyToOne(() => User)
   @JoinColumn({ name: "hospital_id" })
   hospital: User;
+
+  @DeleteDateColumn({ name: "deleted_date" })
+  deletedDate!: Date;
 }
