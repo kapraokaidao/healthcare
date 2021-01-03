@@ -7,12 +7,13 @@ import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
 import { S3Service } from "../s3/s3.service";
+import { PatientService } from "./patient.service";
 
 @Global()
 @Module({
   imports: [TypeOrmModule.forFeature([User, Hospital, NHSO, Patient])],
-  providers: [UserService, S3Service],
-  exports: [UserService],
   controllers: [UserController],
+  providers: [UserService, PatientService, S3Service],
+  exports: [UserService, PatientService],
 })
 export class UserModule {}

@@ -1,11 +1,19 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from "@nestjs/common";
 import { UserService } from "../user/user.service";
 import { JwtService } from "@nestjs/jwt";
-import { AuthCredentialsDto, AuthResponseDto, ChangePasswordDto } from "./auth.dto";
+import { AuthCredentialsDto, AuthResponseDto, ChangePasswordDto, ResetPasswordDto } from "./auth.dto";
 import { User } from "../entities/user.entity";
 import { compareSync } from "bcryptjs";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
+import { UserRole } from "../constant/enum/user.enum";
 
 @Injectable()
 export class AuthService {
@@ -13,7 +21,9 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(ResetPasswordKYC)
+    private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {}
 
   async validateUser({
@@ -54,5 +64,22 @@ export class AuthService {
     }
     user["password"] = newPassword;
     await this.userRepository.save(user);
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<{ resetPasswordId: number }> {
+    let user: User = await this.userService.findByUsername(dto.username, false);
+    if (!user) {
+      throw new NotFoundException("Username not found")
+    }
+    if (user.role !== UserRole.Patient) {
+      throw new ForbiddenException("Only patient account allowed")
+    }
+    user = await this.userService.findById(user.id, true);
+    const resetPasswordKyc = ResetPasswordKYC.create({
+      patient: user.patient,
+      newPassword: dto.newPassword
+    })
+    const newReset = await resetPasswordKyc.save()
+    return { resetPasswordId: newReset.id }
   }
 }
