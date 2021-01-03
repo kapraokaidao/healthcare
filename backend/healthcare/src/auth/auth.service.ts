@@ -63,7 +63,8 @@ export class AuthService {
       throw new UnauthorizedException("Wrong username or password");
     }
     user["password"] = newPassword;
-    await this.userRepository.save(user);
+    const updatedUser = this.userRepository.create(user);
+    await this.userRepository.save(updatedUser);
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<{ resetPasswordId: number }> {
