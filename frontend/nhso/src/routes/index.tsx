@@ -4,7 +4,6 @@ import { PathContext } from '../App';
 import RequireAuth from '../components/RequireAuth';
 import CreateAccount from '../pages/CreateAccount';
 import KYC from '../pages/KYC';
-import KYCConfirm from '../pages/KYCConfirm';
 import ManageAccount from '../pages/ManageAccount';
 import Signin from '../pages/Signin';
 import CreateToken from './../pages/CreateToken';
@@ -42,11 +41,6 @@ const Routes = () => {
 					exact
 					path="/token"
 					component={(props: any) => <RequireAuth {...props} Component={ManageToken} />}
-				/>
-				<Route
-					exact
-					path="/kyc/:id"
-					component={(props: any) => <RequireAuth {...props} Component={KYCConfirm} />}
 				/>
 				<Route exact path="/kyc" component={(props: any) => <RequireAuth {...props} Component={KYC} />} />
 			</Switch>
