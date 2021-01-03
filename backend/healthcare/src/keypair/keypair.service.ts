@@ -134,16 +134,14 @@ export class KeypairService {
     return privateKey;
   }
 
-  // Deprecated
-  async findActiveKeypair(userId: number): Promise<Keypair> {
+  async findPublicKey(userId: number, agencyId?: number): Promise<string> {
     const keypair = await this.keypairRepository.findOneOrFail({
       where: {
         user: { id: userId },
         isActive: true,
-      },
-      select: ["publicKey"],
+      }
     });
-    return keypair;
+    return keypair.publicKey;
   }
 
   async isActive(userId: number): Promise<IsActiveResponseDto> {

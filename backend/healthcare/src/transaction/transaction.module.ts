@@ -4,9 +4,10 @@ import { TransactionController } from "./transaction.controller";
 import { Transaction } from "src/entities/transaction.entity";
 import { User } from "src/entities/user.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { HealthcareToken } from "src/entities/healthcare-token.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction, User])],
+  imports: [TypeOrmModule.forFeature([Transaction, User, HealthcareToken])],
   providers: [TransactionService],
   controllers: [TransactionController],
 })

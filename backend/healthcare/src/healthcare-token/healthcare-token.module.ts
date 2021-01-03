@@ -10,6 +10,7 @@ import { Keypair } from "src/entities/keypair.entity";
 import { UserToken } from "src/entities/user-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
 import { TransferRequest } from "src/entities/transfer-request.entity";
+import { TransactionService } from "src/transaction/transaction.service";
 
 @Module({
   imports: [
@@ -18,11 +19,10 @@ import { TransferRequest } from "src/entities/transfer-request.entity";
       User,
       Keypair,
       UserToken,
-      Transaction,
       TransferRequest,
     ]),
   ],
   controllers: [HealthcareTokenController],
-  providers: [HealthcareTokenService, StellarService, KeypairService],
+  providers: [HealthcareTokenService, StellarService, KeypairService, TransactionService],
 })
 export class HealthcareTokenModule {}

@@ -152,7 +152,8 @@ export class StellarService {
     const totalEntry = account.subentry_count;
     const balances = account.balances;
     const minimumBalance = (3 + totalEntry) * 0.5;
-    const currentBalance = balances[balances.findIndex((line) => line.asset_type === "native")].balance;
+    const currentBalance =
+      balances[balances.findIndex((line) => line.asset_type === "native")].balance;
     if (minimumBalance >= parseInt(currentBalance)) {
       try {
         const fundingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);

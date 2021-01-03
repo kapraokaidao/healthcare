@@ -1,19 +1,47 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import * as dayjs from "dayjs";
 import { TransactionType } from "src/constant/enum/transaction.enum";
+import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
 import { User } from "src/entities/user.entity";
 import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
-import { Brackets, LessThan } from "typeorm";
+import { EntityManager } from "typeorm";
 import { TransactionSearchDto, TransactionSearchResponseDto } from "./transaction.dto";
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectRepository(Transaction) private readonly transactionRepository,
-    @InjectRepository(User) private readonly userRepository
+    @InjectRepository(User) private readonly userRepository,
+    @InjectRepository(HealthcareToken) private readonly healthcareTokenRepository
   ) {}
+
+  async create(
+    sourceUserId: number,
+    sourcePublicKey: string,
+    destinationUserId: number,
+    destinationPublicKey: string,
+    serviceId: number,
+    amount: number,
+    manager?: EntityManager
+  ): Promise<Transaction> {
+    const newTransaction = new Transaction();
+    newTransaction.amount = amount;
+    newTransaction.destinationPublicKey = destinationPublicKey;
+    newTransaction.destinationUser = destinationUserId
+      ? await this.userRepository.findOne(destinationUserId)
+      : null;
+    newTransaction.healthcareToken = await this.healthcareTokenRepository.findOne(
+      serviceId
+    );
+    newTransaction.sourcePublicKey = sourcePublicKey;
+    newTransaction.sourceUser = sourceUserId
+      ? await this.userRepository.findOne(sourceUserId)
+      : null;
+    return manager
+      ? manager.save(newTransaction)
+      : this.transactionRepository.save(newTransaction);
+  }
 
   async searchGroupByService(
     userId: number,
