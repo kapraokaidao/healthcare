@@ -5,7 +5,9 @@ import './style.scss';
 
 axios.interceptors.request.use(
 	(config) => {
-		document.getElementById('spinner')?.classList.add('overlay');
+		if (config.url !== '/healthcare-token/redeem-check') {
+			document.getElementById('spinner')?.classList.add('overlay');
+		}
 		return config;
 	},
 	(error) => {

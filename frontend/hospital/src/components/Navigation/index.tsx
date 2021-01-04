@@ -17,6 +17,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import LockIcon from '@material-ui/icons/Lock';
 import MenuIcon from '@material-ui/icons/Menu';
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -200,9 +201,20 @@ const Navigation = observer(() => {
 								}}
 							>
 								<ListItemIcon>
-									<LockIcon fontSize="large" />
+									<VpnKeyIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Change Pin" />
+							</ListItem>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/password/change');
+								}}
+							>
+								<ListItemIcon>
+									<LockIcon fontSize="large" />
+								</ListItemIcon>
+								<ListItemText primary="Change Password" />
 							</ListItem>
 						</List>
 					</Drawer>

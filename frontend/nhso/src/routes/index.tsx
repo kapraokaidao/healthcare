@@ -2,9 +2,9 @@ import React, { useContext, useEffect } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { PathContext } from '../App';
 import RequireAuth from '../components/RequireAuth';
+import ChangePassword from '../pages/ChangePassword';
 import CreateAccount from '../pages/CreateAccount';
 import KYC from '../pages/KYC';
-import KYCConfirm from '../pages/KYCConfirm';
 import ManageAccount from '../pages/ManageAccount';
 import Signin from '../pages/Signin';
 import CreateToken from './../pages/CreateToken';
@@ -43,12 +43,12 @@ const Routes = () => {
 					path="/token"
 					component={(props: any) => <RequireAuth {...props} Component={ManageToken} />}
 				/>
+				<Route exact path="/kyc" component={(props: any) => <RequireAuth {...props} Component={KYC} />} />
 				<Route
 					exact
-					path="/kyc/:id"
-					component={(props: any) => <RequireAuth {...props} Component={KYCConfirm} />}
+					path="/password/change"
+					component={(props: any) => <RequireAuth {...props} Component={ChangePassword} />}
 				/>
-				<Route exact path="/kyc" component={(props: any) => <RequireAuth {...props} Component={KYC} />} />
 			</Switch>
 		</div>
 	);
