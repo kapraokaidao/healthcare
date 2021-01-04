@@ -16,6 +16,14 @@ export class RolesGuard implements CanActivate {
   canActivate(
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
+    const isPublicAPI = this.reflector.getAllAndOverride<boolean>("isPublicAPI", [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublicAPI) {
+      return true;
+    }
+
     const roles = this.reflector.getAllAndMerge<string[]>("roles", [
       context.getHandler(),
       context.getClass(),

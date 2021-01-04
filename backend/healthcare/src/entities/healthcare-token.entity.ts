@@ -3,12 +3,18 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { UserGender } from "../constant/enum/user.enum";
 import { TokenType } from "../constant/enum/token.enum";
+import { UserToken } from "./user-token.entity";
+import { Transaction } from "./transaction.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class HealthcareToken {
@@ -21,7 +27,7 @@ export class HealthcareToken {
 
   @ApiProperty()
   @Column({ name: "token_type", type: "enum", enum: TokenType })
-  token_type: TokenType;
+  tokenType: TokenType;
 
   @ApiProperty()
   @Column({ nullable: true })
@@ -48,20 +54,20 @@ export class HealthcareToken {
   receivingPublicKey: string;
 
   @ApiProperty()
-  @Column({ name: "start_time", nullable: true, default: null })
-  startTime: Date;
+  @Column("date", { name: "start_date", nullable: true, default: null })
+  startDate: Date;
 
   @ApiProperty()
-  @Column({ name: "end_time", nullable: true, default: null })
-  endTime: Date;
+  @Column("date", { name: "end_date", nullable: true, default: null })
+  endDate: Date;
 
   @ApiProperty()
-  @Column("date", { name: "start_birthdate", nullable: true, default: null })
-  startBirthdate: Date;
+  @Column({ name: "start_age", nullable: true, default: null })
+  startAge: number;
 
   @ApiProperty()
-  @Column("date", { name: "end_birthdate", nullable: true, default: null })
-  endBirthdate: Date;
+  @Column({ name: "end_age", nullable: true, default: null })
+  endAge: number;
 
   @ApiProperty()
   @Column({ type: "enum", enum: UserGender, nullable: true })
@@ -70,6 +76,18 @@ export class HealthcareToken {
   @ApiProperty()
   @Column("int", { name: "token_per_person" })
   tokenPerPerson: number;
+
+  @ApiProperty()
+  @OneToMany(() => UserToken, (userToken) => userToken.healthcareToken)
+  userTokens: UserToken[];
+
+  @ApiProperty()
+  @OneToMany(() => Transaction, (transaction) => transaction.healthcareToken)
+  transactions: Transaction[];
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: "created_by" })
+  createdBy: User;
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;

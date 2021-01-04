@@ -20,7 +20,7 @@ export type SigninType = {
 type UserMe = {
 	username: string;
 	firstname: string;
-	surname: string;
+	lastname: string;
 	role: string;
 	phone: string;
 };

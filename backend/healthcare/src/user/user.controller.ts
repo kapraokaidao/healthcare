@@ -18,11 +18,12 @@ import { User } from "../entities/user.entity";
 import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
-import { Pagination } from "../utils/pagination";
-import { KycImageType, SearchUsersDto } from "./user.dto";
+import { Pagination } from "../utils/pagination.util";
+import { KycImageType, KycQueryType, SearchUsersDto } from "./user.dto";
 import { FileUploadDto } from "../config/file.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "../s3/s3.service";
+import { isBetween } from "../utils/number.util";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -70,24 +71,33 @@ export class UserController {
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "approved", schema: { type: "string" }, required: false })
   @ApiQuery({ name: "ready", schema: { type: "string" }, required: false })
+  @ApiQuery({
+    name: "type",
+    schema: { type: "enum" },
+    enum: KycQueryType,
+    required: false,
+  })
   async find(
     @Query("page") qPage: string,
     @Query("pageSize") qPageSize: string,
-    @Query("approved") approved: string,
-    @Query("ready") qReady: string
+    @Query("approved") qApproved: string,
+    @Query("ready") qReady: string,
+    @Query("type") qType: KycQueryType
   ): Promise<Pagination<User>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
+    const approved = qApproved === "true";
     const ready = qReady && qReady === "true";
-    return this.userService.findKyc(approved, ready, { page, pageSize });
+    const type = qType ? qType : KycQueryType.All;
+    return this.userService.findKyc(approved, ready, type, { page, pageSize });
   }
 
   @Roles(UserRole.NHSO)
   @HttpCode(200)
   @Post("search")
   async searchUsers(@Body() dto: SearchUsersDto): Promise<Pagination<User>> {
-    const page = dto.page !== null ? dto.page : 1;
-    const pageSize = dto.pageSize !== null ? dto.pageSize : 10;
+    const page = dto.page ? dto.page : 1;
+    const pageSize = isBetween(dto.pageSize, 0, 1001) ? dto.pageSize : 100;
     return this.userService.search(dto.user, { page, pageSize });
   }
 
@@ -139,7 +149,7 @@ export class UserController {
   @ApiBody({ type: FileUploadDto })
   @UseInterceptors(FileInterceptor("image"))
   async uploadNationalIdImage(@UserId() id: number, @UploadedFile() image) {
-    const path = `user_${id}/kyc/national-id.jpg`;
+    const path = `user_${id}/kyc/national-id_${Date.now()}.jpg`;
     const imageUrl = await this.s3Service.uploadImage(image, path);
     await this.userService.updateImage(id, imageUrl, KycImageType.NationalId);
   }
@@ -150,7 +160,7 @@ export class UserController {
   @ApiBody({ type: FileUploadDto })
   @UseInterceptors(FileInterceptor("image"))
   async uploadSelfieImage(@UserId() id: number, @UploadedFile() image) {
-    const path = `user_${id}/kyc/selfie.jpg`;
+    const path = `user_${id}/kyc/selfie_${Date.now()}.jpg`;
     const imageUrl = await this.s3Service.uploadImage(image, path);
     await this.userService.updateImage(id, imageUrl, KycImageType.Selfie);
   }

@@ -43,3 +43,15 @@ body {
 .height-full {
     height: 100%;
 }
+
+.w-full {
+    width: 100%;
+}
+
+.text-right{
+    text-align: right;
+}
+
+.ml-10 {
+    margin-left: 10px;
+}
