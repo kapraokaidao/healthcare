@@ -1,28 +1,29 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { AuthStoreContext } from '../../stores';
-import { observer } from 'mobx-react-lite';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Button from '@material-ui/core/Button';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import { default as AccountCircle, default as AccountCircleIcon } from '@material-ui/icons/AccountCircle';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
-import { useHistory, useLocation } from 'react-router-dom';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import LockIcon from '@material-ui/icons/Lock';
+import MenuIcon from '@material-ui/icons/Menu';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import clsx from 'clsx';
+import { observer } from 'mobx-react-lite';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { PathContext, TitleContext } from '../../App';
+import { AuthStoreContext } from '../../stores';
 
 const drawerWidth = 240;
 
@@ -86,15 +87,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Navigation = observer(() => {
-	const location = useLocation();
 	const [history] = useState(useHistory());
 	const authStore = useContext(AuthStoreContext);
+	const { title } = useContext(TitleContext);
+	const { path } = useContext(PathContext);
 	const [show, setShow] = useState(true);
 	useEffect(() => {
-		if (location.pathname === '/signin') {
+		if (path === '/signin') {
 			setShow(false);
+		} else {
+			setShow(true);
 		}
-	}, [location.pathname]);
+	}, [path]);
 	const classes = useStyles();
 	const theme = useTheme();
 	const [open, setOpen] = useState(false);
@@ -130,10 +134,10 @@ const Navigation = observer(() => {
 								<MenuIcon />
 							</IconButton>
 							<Typography variant="h6" className={classes.title}>
-								Home
+								{title}
 							</Typography>
 							<div className="center">
-								<span>Username</span>
+								<span>{authStore.user?.username}</span>
 								<AccountCircle fontSize="large" className="ml-10 mr-10" />
 								<Button onClick={signout} variant="contained" color="secondary">
 									Sign Out
@@ -157,29 +161,60 @@ const Navigation = observer(() => {
 						</div>
 						<Divider />
 						<List>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/');
+								}}
+							>
 								<ListItemIcon>
 									<AccountCircleIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Home" />
 							</ListItem>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/token');
+								}}
+							>
 								<ListItemIcon>
 									<AccountBalanceWalletIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Manage Token" />
 							</ListItem>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/account');
+								}}
+							>
 								<ListItemIcon>
 									<SupervisorAccountIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Manage Account" />
 							</ListItem>
-							<ListItem button>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/kyc');
+								}}
+							>
 								<ListItemIcon>
 									<CameraAltIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="KYC" />
+							</ListItem>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/password/change');
+								}}
+							>
+								<ListItemIcon>
+									<LockIcon fontSize="large" />
+								</ListItemIcon>
+								<ListItemText primary="Change Password" />
 							</ListItem>
 						</List>
 					</Drawer>

@@ -1,0 +1,14 @@
+.table-detail {
+    border-spacing: 10px;
+    tr td:first-child{
+        font-weight: bold;
+    }
+}
+
+.filter {
+    display: flex;
+    align-items: center;
+    div {
+        margin-right: 10px;
+    }
+}

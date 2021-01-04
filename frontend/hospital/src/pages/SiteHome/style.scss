@@ -1,0 +1,11 @@
+.table-info {
+    border: 1px solid;
+    border-radius: 10px;
+    border-collapse: separate;
+    border-spacing: 15px;
+    tr td:first-child{
+        font-weight: bold;
+        font-size: 18px;
+    }
+}
+

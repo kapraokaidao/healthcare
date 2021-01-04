@@ -1,7 +1,15 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { User } from "./user.entity";
 import { UserGender } from "../constant/enum/user.enum";
 import { ApiProperty } from "@nestjs/swagger";
+import { ResetPasswordKYC } from "./reset-password-kyc.entity";
 
 @Entity()
 export class Patient {
@@ -32,4 +40,7 @@ export class Patient {
   @OneToOne(() => User, { onDelete: "CASCADE", cascade: true })
   @JoinColumn({ name: "user_id" })
   user: User;
+
+  @OneToMany(() => ResetPasswordKYC, (resetPasswordKYC) => resetPasswordKYC.patient)
+  resetPasswordKYCs: ResetPasswordKYC[];
 }

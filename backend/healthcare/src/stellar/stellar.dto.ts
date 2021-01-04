@@ -14,7 +14,24 @@ export class IssueTokenDto {
   amount: number;
 }
 
-export class CreateAccountResponse {
-  secret: string;
+export class Keypair {
+  privateKey: string;
   publicKey: string;
+}
+
+export class transferTokenDto {
+  @ApiProperty()
+  sourceSecret: string;
+
+  @ApiProperty()
+  destinationSecret: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  issuerPublicKey: string;
+
+  @ApiProperty()
+  amount: number;
 }

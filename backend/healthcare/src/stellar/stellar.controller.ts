@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { StellarService } from "./stellar.service";
 import { PublicAPI } from "../decorators/public-api.decorator";
 import { ApiTags } from "@nestjs/swagger";
-import { CreateAccountResponse, IssueTokenDto } from "./stellar.dto";
+import { IssueTokenDto, transferTokenDto } from "./stellar.dto";
 import { Horizon } from "stellar-sdk";
 import BalanceLine = Horizon.BalanceLine;
 
@@ -12,22 +12,30 @@ import BalanceLine = Horizon.BalanceLine;
 export class StellarController {
   constructor(private readonly stellarService: StellarService) {}
 
-  @Post("account")
-  async createAccount(): Promise<CreateAccountResponse> {
-    return await this.stellarService.createAccount();
-  }
-
   @Get("balance/:secret")
   async getBalanceBySecret(@Param("secret") secret: string): Promise<BalanceLine[]> {
-    return await this.stellarService.getBalanceBySecret(secret);
+    return await this.stellarService.getBalance(secret);
   }
 
   @Post("service")
-  async issueToken(@Body() dto: IssueTokenDto): Promise<void> {
+  async issueToken(
+    @Body() dto: IssueTokenDto
+  ): Promise<{ issuingPublicKey: string; receivingPublicKey: string }> {
     return this.stellarService.issueToken(
       dto.issueingSecret,
       dto.receivingSecret,
       dto.serviceName,
+      dto.amount
+    );
+  }
+
+  @Post("transfer")
+  async transferToken(@Body() dto: transferTokenDto): Promise<void> {
+    return this.stellarService.allowTrustAndTransferToken(
+      dto.sourceSecret,
+      dto.destinationSecret,
+      dto.name,
+      dto.issuerPublicKey,
       dto.amount
     );
   }

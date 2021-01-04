@@ -18,13 +18,11 @@ export type SigninType = {
 };
 
 type UserMe = {
-	data: {
-		username: string;
-		firstname: string;
-		surname: string;
-		role: string;
-		phone: string;
-	};
+	username: string;
+	firstname: string;
+	lastname: string;
+	role: string;
+	phone: string;
 };
 
 class AuthStore {
@@ -76,7 +74,6 @@ class AuthStore {
 
 	async signout() {
 		this.clearAccessToken();
-		await axios.post('/auth/logout');
 		return true;
 	}
 

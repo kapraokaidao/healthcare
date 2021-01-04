@@ -11,3 +11,16 @@ export class AuthCredentialsDto {
 export class AuthResponseDto {
   access_token: string;
 }
+
+export class ChangePasswordDto extends AuthCredentialsDto {
+  @ApiProperty()
+  newPassword: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  newPassword: string;
+}

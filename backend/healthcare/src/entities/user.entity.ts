@@ -5,9 +5,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import { hashSync } from "bcryptjs";
 import { ApiProperty } from "@nestjs/swagger";
@@ -15,6 +18,9 @@ import { UserRole } from "../constant/enum/user.enum";
 import { NHSO } from "./nhso.entity";
 import { Hospital } from "./hospital.entity";
 import { Patient } from "./patient.entity";
+import { Keypair } from "./keypair.entity";
+import { UserToken } from "./user-token.entity";
+import { Transaction } from "./transaction.entity";
 
 @Entity()
 export class User {
@@ -35,7 +41,7 @@ export class User {
 
   @ApiProperty({ required: true })
   @Column()
-  surname: string;
+  lastname: string;
 
   @ApiProperty({ enum: UserRole, required: true, default: "" })
   @Column({ type: "enum", enum: UserRole, update: false })
@@ -54,12 +60,25 @@ export class User {
   nhso: NHSO;
 
   @ApiProperty()
-  @OneToOne(() => Hospital, (hospital) => hospital.user)
+  @ManyToOne(() => Hospital, (hospital) => hospital.users)
+  @JoinColumn({ name: "hospital_code9" })
   hospital: Hospital;
 
   @ApiProperty()
   @OneToOne(() => Patient, (patient) => patient.user)
   patient: Patient;
+
+  @OneToMany(() => Keypair, (keyPair) => keyPair.user)
+  keypairs: Keypair[];
+
+  @OneToMany(() => UserToken, (UserToken) => UserToken.user)
+  userTokens: UserToken[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.sourceUser)
+  sourceUserTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.destinationUser)
+  destinationUserTransactions: Transaction[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;
@@ -70,11 +89,22 @@ export class User {
   @DeleteDateColumn({ name: "deleted_date" })
   deletedDate!: Date;
 
+  @Column({
+    name: "password_changed_date",
+    type: "datetime",
+    precision: 6,
+    nullable: false,
+    select: false,
+    default: () => "CURRENT_TIMESTAMP(6)",
+  })
+  passwordChangedDate: Date;
+
   @BeforeInsert()
   @BeforeUpdate()
-  private hashPassword() {
+  private hashPasswordAndStampTime() {
     if (this.password && this.password.slice(0, 7) !== "$2a$10$") {
       this.password = hashSync(this.password);
+      this.passwordChangedDate = new Date();
     }
   }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -11,30 +11,42 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
+import { useHistory } from 'react-router-dom';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions';
 
 const useStyles = makeStyles((theme) => ({
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
-  }));
+	formControl: {
+		margin: theme.spacing(1),
+		minWidth: 120,
+	},
+	selectEmpty: {
+		marginTop: theme.spacing(2),
+	},
+}));
 
 const GenerateToken = observer(() => {
     const classes = useStyles();
     const [token, setToken] = React.useState({
-        name: '',
-        type: 'Normal',
-        rule: "",
-        quantity: '',
+        name: String(),
+        type: "Normal",
+        ageMin: Number(),
+        ageMax: Number(),
+        gender: Array(String()),
+        tokenPerPerson: Number(),
+        quantity: String(),
+        activated: Date(),
         expired: Date(),
-        detail: '',
+        detail: String(),
         transfer: true,
     });
-    const handleCheckChange = (event: { target: { checked: any; }; }) => {
-        setToken({...token, ["transfer"]: event.target.checked})
+    const [confirm, setConfirm] = useState(false);
+    const [history] = useState(useHistory());
+    
+    const handleCheckChange = (props: string)=>(event: { target: { checked: any; }; }) => {
+        setToken({...token, [props]: event.target.checked})
     };
     const handleInputChange = (props: any)=>(event: { target: { value: any; }; }) => {
         setToken({...token, [props]:event.target.value});
@@ -42,12 +54,15 @@ const GenerateToken = observer(() => {
     const generateToken = () => {
         console.log(token)
     };
+    function cancelGenerateToken(){
+        //history.push('/token-list')
+    }
 
-    return (
-        <>
-            <div className="sitehome">
-                <div className="mt-15">
-                    <Typography variant="h2" gutterBottom align="left">
+	return (
+		<>
+			<div className="sitehome">
+				<div className="mt-15">
+					<Typography variant="h2" gutterBottom align="left">
 						Generate Token
 					</Typography>
                 </div>
@@ -65,6 +80,7 @@ const GenerateToken = observer(() => {
                                 variant="outlined"
                                 value={token.name}
                                 onChange={handleInputChange("name")}
+                                required
                                 fullWidth
                             />
                         </Grid>
@@ -80,6 +96,7 @@ const GenerateToken = observer(() => {
                                     value={token.type}
                                     onChange={handleInputChange("type")}
                                     variant="outlined"
+                                    required
                                     inputProps={{
                                         name: 'type',
                                         id: 'type-native-helper',
@@ -90,25 +107,68 @@ const GenerateToken = observer(() => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
-                            <Typography variant="h5" gutterBottom align="left" display="inline">
-                                Rule
+                            <Typography variant="h5" gutterBottom align="left">
+                                Age range
                             </Typography>
                         </Grid>
-                        <Grid item xs={8}>
+                        <Grid item xs={3}>
+                            <TextField 
+                                id="outlined-token-detail-input" 
+                                label="min age" 
+                                variant="outlined" 
+                                value={token.ageMin}
+                                onChange={handleInputChange("ageMin")}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextField 
+                                id="outlined-token-detail-input" 
+                                label="max age" 
+                                variant="outlined" 
+                                value={token.ageMax}
+                                onChange={handleInputChange("ageMax")}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left" display="inline">
+                                Gender transfer
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
                             <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="rule-native-helper">Rule</InputLabel>
+                                <InputLabel htmlFor="gender-native-helper">Gender transfer</InputLabel>
                                 <NativeSelect
-                                    value={token.rule}
-                                    onChange={handleInputChange("rule")}
+                                    value={token.gender}
+                                    onChange={handleInputChange("gender")}
                                     variant="outlined"
+                                    required
                                     inputProps={{
-                                        name: 'rule',
-                                        id: 'rule-native-helper',
+                                        name: 'gender',
+                                        id: 'gender-native-helper',
                                     }}>
-                                    <option value={'admin'}>Admin</option>
-                                    <option value={'hospital'}>Hospital</option>
+                                    <option value={['male','female']}>All</option>
+                                    <option value={['male']}>Male</option>
+                                    <option value={['female']}>Female</option>
                                 </NativeSelect>
                             </FormControl>
+                        </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left">
+                                Token per person
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField 
+                                id="outlined-token-per-person-input" 
+                                label="Token per person" 
+                                variant="outlined" 
+                                value={token.tokenPerPerson}
+                                onChange={handleInputChange("tokenPerPerson")}
+                                required
+                                fullWidth
+                            />
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -122,8 +182,21 @@ const GenerateToken = observer(() => {
                                 variant="outlined" 
                                 value={token.quantity}
                                 onChange={handleInputChange("quantity")}
+                                required
                                 fullWidth
                             />
+                        </Grid>
+                        <Grid item xs={4} container alignItems="flex-end">
+                            <Typography variant="h5" gutterBottom align="left">
+                                Activated date
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Input
+								type="date"
+                                onChange={handleInputChange("activated")}
+                                required
+							/>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
@@ -133,7 +206,8 @@ const GenerateToken = observer(() => {
                         <Grid item xs={6}>
                             <Input
 								type="date"
-								onChange={handleInputChange("expired")}
+                                onChange={handleInputChange("expired")}
+                                required
 							/>
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
@@ -153,7 +227,7 @@ const GenerateToken = observer(() => {
                         </Grid>
                         <Grid item xs={4} container alignItems="flex-end">
                             <Typography variant="h5" gutterBottom align="left">
-                                Transfer after generating
+                                Transfer after generate
                             </Typography>
                         </Grid>
                         <Grid item xs={6}>
@@ -161,9 +235,10 @@ const GenerateToken = observer(() => {
                             control={
                             <Checkbox
                                 checked={token.transfer}
-                                onChange={handleCheckChange}
+                                onChange={handleCheckChange("tranfer")}
                                 name="checkedB"
                                 color="primary"
+                                required
                                 inputProps={{ 'aria-label': 'primary checkbox' }}
                             />
                             }
@@ -176,18 +251,56 @@ const GenerateToken = observer(() => {
                     <Grid container spacing={2}>
                         <Grid item xs={8}></Grid>
                         <Grid item xs={2}>
-                            <Button color="primary" size="large">
-                                Cancel
+                            <Button
+                                onClick={cancelGenerateToken}
+                                color="primary" 
+                                size="large"
+                            >
+                                    Cancel
                             </Button>
                         </Grid>
                         <Grid item xs={2}>
-                            <Button onClick={generateToken} variant="contained" color="primary" size="large">
+                            <Button 
+                                onClick={() => {
+                                    setConfirm(true);
+                                }}  
+                                variant="contained" 
+                                color="primary" 
+                                size="large"
+                            >
                                 Generate
                             </Button>
                         </Grid>
                     </Grid>
                 </div>
             </div>
+            <Dialog
+				open={confirm}
+				keepMounted
+				onClose={() => {
+					setConfirm(false);
+				}}
+			>
+				<DialogContent>
+					<DialogContentText>
+						<h1>Confirm to generate token?</h1>
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button
+						onClick={() => {
+							setConfirm(false);
+						}}
+						variant="contained"
+						color="primary"
+					>
+						NO
+					</Button>
+					<Button onClick={generateToken} variant="contained" color="secondary">
+						YES
+					</Button>
+				</DialogActions>
+			</Dialog>
         </>
     );
 });

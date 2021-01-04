@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthStoreContext } from '../../stores';
 import { observer } from 'mobx-react-lite';
 import { SigninType } from '../../stores/AuthStore';
@@ -7,6 +7,7 @@ import nhso from '../../images/nhso.png';
 import Button from '@material-ui/core/Button';
 import './style.scss';
 import TextField from '@material-ui/core/TextField';
+import { TitleContext } from '../../App';
 
 const initialValue: SigninType = {
 	username: '',
@@ -14,6 +15,10 @@ const initialValue: SigninType = {
 };
 
 const Signin = observer(() => {
+	const { setTitle } = useContext(TitleContext);
+	useEffect(() => {
+		setTitle('Signin');
+	}, [setTitle]);
 	const authStore = useContext(AuthStoreContext);
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -21,7 +26,7 @@ const Signin = observer(() => {
 
 	const signin = useCallback(async () => {
 		const res = await authStore.signin({ username, password });
-		if (res) history.push('/home');
+		if (res) history.push('/');
 	}, [history, username, password]);
 
 	return (
