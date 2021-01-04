@@ -1,4 +1,5 @@
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -33,7 +34,7 @@ const Scanner = () => {
 	const [serviceId, setServiceId] = useState(0);
 	const scanPatient = useCallback(async () => {
 		setUserId(230);
-		setServiceId(319);
+		setServiceId(320);
 	}, []);
 
 	const [scan, setScan] = useState<ScanPatient | null>(null);
@@ -89,6 +90,7 @@ const Scanner = () => {
 		}
 	}, [userId, serviceId, amount, pin]);
 
+	const [timer, setTimer] = useState<NodeJS.Timeout>();
 	useEffect(() => {
 		if (pollingId) {
 			const timer = setInterval(async () => {
@@ -104,8 +106,17 @@ const Scanner = () => {
 					clearInterval(timer);
 				}
 			}, 5000);
+			setTimer(timer);
 		}
 	}, [pollingId]);
+
+	const cancelRequestRedeem = useCallback(async () => {
+		if (timer) clearInterval(timer);
+		if (pollingId) {
+			await axios.delete('/healthcare-token/redeem-request', { data: { id: pollingId } });
+			setPollingId(0);
+		}
+	}, [pollingId, timer]);
 
 	return (
 		<>
@@ -387,19 +398,14 @@ const Scanner = () => {
 				<DialogTitle>Waiting Patient Enter the PIN</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<div className="waiting">
-							<iframe
-								src="https://giphy.com/embed/tXL4FHPSnVJ0A"
-								width="100%"
-								height="100%"
-								style={{ position: 'absolute' }}
-								frameBorder="0"
-								allowFullScreen
-							></iframe>
+						<div className="center">
+							<CircularProgress />
 						</div>
-						<p>
-							<a href="https://giphy.com/gifs/kim-novak-tXL4FHPSnVJ0A">via GIPHY</a>
-						</p>
+						<div className="align-right mt-15">
+							<Button onClick={cancelRequestRedeem} variant="contained" color="secondary" size="large">
+								Cancel Request Redeem
+							</Button>
+						</div>
 					</DialogContentText>
 				</DialogContent>
 			</Dialog>
