@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
@@ -25,7 +30,9 @@ export class UserService {
     @InjectRepository(NHSO)
     private readonly nhsoRepository: Repository<NHSO>,
     @InjectRepository(Patient)
-    private readonly patientRepository: Repository<Patient>
+    private readonly patientRepository: Repository<Patient>,
+    @InjectRepository(ResetPasswordKYC)
+    private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {}
 
   async find(
@@ -70,6 +77,15 @@ export class UserService {
     }
   }
 
+  async findPasswordChangedDate(id: number): Promise<Date> {
+    const query = this.userRepository
+      .createQueryBuilder()
+      .where("id = :id", { id })
+      .addSelect("password_changed_date", "User_password_changed_date");
+    const user = await query.getOne();
+    return user.passwordChangedDate;
+  }
+
   async findKyc(
     approved: boolean,
     ready: boolean,
@@ -77,21 +93,41 @@ export class UserService {
     pageOptions: PaginationOptions
   ): Promise<any> {
     const page = pageOptions.page;
-    let pageSize = pageOptions.pageSize
+    let pageSize = pageOptions.pageSize;
     switch (type) {
       case KycQueryType.All:
         pageSize = Math.ceil(pageSize / 2);
-        const [ registerKyc, registerKycCount ] = await this.findRegisterKyc(approved, ready, { page, pageSize });
-        const [ resetPasswordKyc, resetPasswordKycCount ] = await this.findResetPasswordKyc(ready, { page, pageSize });
-        const combinedKYCs = [ ...registerKyc, ...resetPasswordKyc ];
+        const [registerKyc, registerKycCount] = await this.findRegisterKyc(
+          approved,
+          ready,
+          { page, pageSize }
+        );
+        const [
+          resetPasswordKyc,
+          resetPasswordKycCount,
+        ] = await this.findResetPasswordKyc(ready, { page, pageSize });
+        const combinedKYCs = [...registerKyc, ...resetPasswordKyc];
         const totalCount = registerKycCount + resetPasswordKycCount;
-        return toPagination<KYC>(combinedKYCs, totalCount, { page, pageSize })
+        return toPagination<KYC>(combinedKYCs, totalCount, { page, pageSize });
       case KycQueryType.Register:
-        const [ onlyRegisterKyc, onlyRegisterKycCount ] = await this.findRegisterKyc(approved, ready, pageOptions);
-        return toPagination<KYC>(onlyRegisterKyc, onlyRegisterKycCount, { page, pageSize });
+        const [onlyRegisterKyc, onlyRegisterKycCount] = await this.findRegisterKyc(
+          approved,
+          ready,
+          pageOptions
+        );
+        return toPagination<KYC>(onlyRegisterKyc, onlyRegisterKycCount, {
+          page,
+          pageSize,
+        });
       case KycQueryType.ResetPassword:
-        const [ onlyResetPasswordKyc, onlyResetPasswordKycCount ] = await this.findResetPasswordKyc(ready, { page, pageSize });
-        return toPagination<KYC>(onlyResetPasswordKyc, onlyResetPasswordKycCount, { page, pageSize });
+        const [
+          onlyResetPasswordKyc,
+          onlyResetPasswordKycCount,
+        ] = await this.findResetPasswordKyc(ready, { page, pageSize });
+        return toPagination<KYC>(onlyResetPasswordKyc, onlyResetPasswordKycCount, {
+          page,
+          pageSize,
+        });
       default:
         throw new BadRequestException(`Invalid KYC type [${type}]`);
     }
@@ -116,21 +152,21 @@ export class UserService {
       query = query.andWhere("patient.approved = :approved", { approved });
     }
     const [users, totalCount] = await query.getManyAndCount();
-    const KYCs: KYC[] = users.map(user => ({
+    const KYCs: KYC[] = users.map((user) => ({
       type: "RegisterKyc",
       id: user.id,
       user,
       nationalIdImage: user.patient.nationalIdImage,
-      selfieImage: user.patient.selfieImage
-    }))
-    return [KYCs, totalCount]
+      selfieImage: user.patient.selfieImage,
+    }));
+    return [KYCs, totalCount];
   }
 
   async findResetPasswordKyc(
     ready: boolean,
     pageOptions: PaginationOptions
   ): Promise<[KYC[], number]> {
-    let query = ResetPasswordKYC
+    let query = this.resetPasswordKycRepository
       .createQueryBuilder("reset_password_kyc")
       .leftJoinAndSelect("reset_password_kyc.patient", "patient")
       .leftJoinAndSelect("patient.user", "user")
@@ -141,17 +177,17 @@ export class UserService {
       query = query.andWhere("reset_password_kyc.selfieImage is not null");
     }
     const [resetPasswordKYCs, totalCount] = await query.getManyAndCount();
-    const KYCs: KYC[] = resetPasswordKYCs.map(rp => {
+    const KYCs: KYC[] = resetPasswordKYCs.map((rp) => {
       const user = this.patientService.getUserObject(rp.patient);
       return {
         type: "ResetPasswordKyc",
         id: rp.id,
         nationalIdImage: rp.nationalIdImage,
         selfieImage: rp.selfieImage,
-        user
-      }
-    })
-    return [KYCs, totalCount]
+        user,
+      };
+    });
+    return [KYCs, totalCount];
   }
 
   async approveKyc(id: number): Promise<void> {

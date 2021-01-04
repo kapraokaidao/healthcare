@@ -15,7 +15,7 @@ import { UserModule } from "../user/user.module";
 @Module({
   imports: [
     UserModule,
-    TypeOrmModule.forFeature([User, ResetPasswordKYC]),
+    TypeOrmModule.forFeature([User, Patient, ResetPasswordKYC]),
     PassportModule.register({
       defaultStrategy: "jwt",
       property: "user",

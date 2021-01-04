@@ -25,9 +25,9 @@ export class PatientService {
     if (!patient.user) {
       throw new Error("Patient object not containing user object");
     }
-    const user = patient.user
-    delete patient.user
-    user["patient"] = patient
+    const user = patient.user;
+    delete patient.user;
+    user["patient"] = patient;
     return user;
   }
 }

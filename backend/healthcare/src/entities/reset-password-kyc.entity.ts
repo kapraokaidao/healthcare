@@ -3,17 +3,19 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
-  CreateDateColumn, DeleteDateColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn, UpdateDateColumn
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Patient } from "./patient.entity";
 import { hashSync } from "bcryptjs";
 
 @Entity({ name: "reset_password_kyc" })
-export class ResetPasswordKYC extends BaseEntity {
+export class ResetPasswordKYC {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,11 +28,9 @@ export class ResetPasswordKYC extends BaseEntity {
   @Column()
   newPassword: string;
 
-  @ManyToOne(
-    () => Patient,
-    (patient) => patient.resetPasswordKYCs,
-    { onDelete: "CASCADE" }
-  )
+  @ManyToOne(() => Patient, (patient) => patient.resetPasswordKYCs, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "patient_id" })
   patient: Patient;
 

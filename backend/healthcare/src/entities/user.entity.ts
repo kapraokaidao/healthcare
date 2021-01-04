@@ -89,11 +89,22 @@ export class User {
   @DeleteDateColumn({ name: "deleted_date" })
   deletedDate!: Date;
 
+  @Column({
+    name: "password_changed_date",
+    type: "datetime",
+    precision: 6,
+    nullable: false,
+    select: false,
+    default: () => "CURRENT_TIMESTAMP(6)",
+  })
+  passwordChangedDate: Date;
+
   @BeforeInsert()
   @BeforeUpdate()
-  private hashPassword() {
+  private hashPasswordAndStampTime() {
     if (this.password && this.password.slice(0, 7) !== "$2a$10$") {
       this.password = hashSync(this.password);
+      this.passwordChangedDate = new Date();
     }
   }
 }

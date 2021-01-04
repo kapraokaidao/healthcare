@@ -14,7 +14,7 @@ export class SearchUsersDto {
 }
 
 export class KYC {
-  type: "RegisterKyc" | "ResetPasswordKyc"
+  type: "RegisterKyc" | "ResetPasswordKyc";
   id: number;
   user: User;
   nationalIdImage: string;
@@ -31,5 +31,5 @@ export enum KycImageType {
 export enum KycQueryType {
   All = "All",
   Register = "RegisterKyc",
-  ResetPassword = "ResetPasswordKyc"
+  ResetPassword = "ResetPasswordKyc",
 }
