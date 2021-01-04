@@ -309,7 +309,18 @@ export class HealthcareTokenService {
 
   async checkConfirmRedeemRequest(id: number): Promise<{ isConfirmed: boolean }> {
     const transferRequest = await this.transferRequestRepository.findOne(id);
+    if (!transferRequest) {
+      throw new BadRequestException(`Cannot found redeem request id: ${id}`);
+    }
     return { isConfirmed: transferRequest.isConfirmed };
+  }
+
+  async deleteRedeemRequest(id: number): Promise<void> {
+    await this.transferRequestRepository.softDelete({
+      id: id,
+      isConfirmed: false,
+      type: TransferRequestType.Redemption,
+    });
   }
 
   async createSpecialTokenRequest(

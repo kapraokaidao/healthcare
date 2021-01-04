@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
@@ -13,14 +8,16 @@ import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
-import { KycImageType } from "./user.dto";
+import { KYC, KycImageType, KycQueryType } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
-import { Roles } from "src/decorators/roles.decorator";
+import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
+import { PatientService } from "./patient.service";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly s3Service: S3Service,
+    private readonly patientService: PatientService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Hospital)
@@ -32,9 +29,10 @@ export class UserService {
   ) {}
 
   async find(
-    { role }: Partial<User>,
+    user: Partial<User>,
     pageOptions: PaginationOptions
   ): Promise<Pagination<User>> {
+    const { role } = user;
     let query = this.userRepository
       .createQueryBuilder("u")
       .leftJoinAndSelect("u.nhso", "n")
@@ -49,17 +47,17 @@ export class UserService {
     return toPagination<User>(users, totalCount, pageOptions);
   }
 
-  async findById(id: number, role = false): Promise<User> {
+  async findById(id: number, relation = false): Promise<User> {
     try {
       const user = await this.userRepository.findOneOrFail(id);
-      if (role) {
+      if (relation) {
         switch (user.role) {
           case UserRole.NHSO:
-            return this.userRepository.findOne(id, { relations: ["nhso"] });
+            return this.userRepository.findOneOrFail(id, { relations: ["nhso"] });
           case UserRole.Hospital:
-            return this.userRepository.findOne(id, { relations: ["hospital"] });
+            return this.userRepository.findOneOrFail(id, { relations: ["hospital"] });
           case UserRole.Patient:
-            return this.userRepository.findOne(id, { relations: ["patient"] });
+            return this.userRepository.findOneOrFail(id, { relations: ["patient"] });
         }
       }
       return user;
@@ -73,10 +71,37 @@ export class UserService {
   }
 
   async findKyc(
-    approved: string,
+    approved: boolean,
+    ready: boolean,
+    type: KycQueryType,
+    pageOptions: PaginationOptions
+  ): Promise<any> {
+    const page = pageOptions.page;
+    let pageSize = pageOptions.pageSize
+    switch (type) {
+      case KycQueryType.All:
+        pageSize = Math.ceil(pageSize / 2);
+        const [ registerKyc, registerKycCount ] = await this.findRegisterKyc(approved, ready, { page, pageSize });
+        const [ resetPasswordKyc, resetPasswordKycCount ] = await this.findResetPasswordKyc(ready, { page, pageSize });
+        const combinedKYCs = [ ...registerKyc, ...resetPasswordKyc ];
+        const totalCount = registerKycCount + resetPasswordKycCount;
+        return toPagination<KYC>(combinedKYCs, totalCount, { page, pageSize })
+      case KycQueryType.Register:
+        const [ onlyRegisterKyc, onlyRegisterKycCount ] = await this.findRegisterKyc(approved, ready, pageOptions);
+        return toPagination<KYC>(onlyRegisterKyc, onlyRegisterKycCount, { page, pageSize });
+      case KycQueryType.ResetPassword:
+        const [ onlyResetPasswordKyc, onlyResetPasswordKycCount ] = await this.findResetPasswordKyc(ready, { page, pageSize });
+        return toPagination<KYC>(onlyResetPasswordKyc, onlyResetPasswordKycCount, { page, pageSize });
+      default:
+        throw new BadRequestException(`Invalid KYC type [${type}]`);
+    }
+  }
+
+  async findRegisterKyc(
+    approved: boolean,
     ready: boolean,
     pageOptions: PaginationOptions
-  ): Promise<Pagination<User>> {
+  ): Promise<[KYC[], number]> {
     let query = this.userRepository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.patient", "patient")
@@ -88,11 +113,45 @@ export class UserService {
       query = query.andWhere("patient.selfieImage is not null");
     }
     if (approved) {
-      const bool = approved === "true";
-      query = query.andWhere("patient.approved = :approved", { approved: bool });
+      query = query.andWhere("patient.approved = :approved", { approved });
     }
     const [users, totalCount] = await query.getManyAndCount();
-    return toPagination<User>(users, totalCount, pageOptions);
+    const KYCs: KYC[] = users.map(user => ({
+      type: "RegisterKyc",
+      id: user.id,
+      user,
+      nationalIdImage: user.patient.nationalIdImage,
+      selfieImage: user.patient.selfieImage
+    }))
+    return [KYCs, totalCount]
+  }
+
+  async findResetPasswordKyc(
+    ready: boolean,
+    pageOptions: PaginationOptions
+  ): Promise<[KYC[], number]> {
+    let query = ResetPasswordKYC
+      .createQueryBuilder("reset_password_kyc")
+      .leftJoinAndSelect("reset_password_kyc.patient", "patient")
+      .leftJoinAndSelect("patient.user", "user")
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
+    if (ready) {
+      query = query.andWhere("reset_password_kyc.nationalIdImage is not null");
+      query = query.andWhere("reset_password_kyc.selfieImage is not null");
+    }
+    const [resetPasswordKYCs, totalCount] = await query.getManyAndCount();
+    const KYCs: KYC[] = resetPasswordKYCs.map(rp => {
+      const user = this.patientService.getUserObject(rp.patient);
+      return {
+        type: "ResetPasswordKyc",
+        id: rp.id,
+        nationalIdImage: rp.nationalIdImage,
+        selfieImage: rp.selfieImage,
+        user
+      }
+    })
+    return [KYCs, totalCount]
   }
 
   async approveKyc(id: number): Promise<void> {

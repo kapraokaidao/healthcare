@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   UseGuards,
+  Delete,
 } from "@nestjs/common";
 import { RolesGuard } from "../guards/roles.guard";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -110,6 +111,13 @@ export class HealthcareTokenController {
     @Query("serviceId") qServiceId: number
   ): Promise<UserToken> {
     return this.healthcareTokenService.getVerificationInfo(qUserId, qServiceId);
+  }
+
+  @Delete("redeem-request")
+  @Roles(UserRole.Hospital)
+  @ApiQuery({ name: "id", schema: { type: "integer" }, required: true })
+  async deleteRedeemRequest(@Query("id") id: number): Promise<void> {
+    return this.healthcareTokenService.deleteRedeemRequest(id);
   }
 
   @Get("redeem-check")
