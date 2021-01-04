@@ -71,7 +71,12 @@ export class UserController {
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "approved", schema: { type: "string" }, required: false })
   @ApiQuery({ name: "ready", schema: { type: "string" }, required: false })
-  @ApiQuery({ name: "type", schema: { type: "enum" }, enum: KycQueryType, required: false })
+  @ApiQuery({
+    name: "type",
+    schema: { type: "enum" },
+    enum: KycQueryType,
+    required: false,
+  })
   async find(
     @Query("page") qPage: string,
     @Query("pageSize") qPageSize: string,
@@ -83,7 +88,7 @@ export class UserController {
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     const approved = qApproved === "true";
     const ready = qReady && qReady === "true";
-    const type = qType ? qType : KycQueryType.All
+    const type = qType ? qType : KycQueryType.All;
     return this.userService.findKyc(approved, ready, type, { page, pageSize });
   }
 
