@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionType } from "src/constant/enum/transaction.enum";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
-import { User } from "src/entities/user.entity";
 import { UserService } from "src/user/user.service";
 import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
 import { EntityManager } from "typeorm";

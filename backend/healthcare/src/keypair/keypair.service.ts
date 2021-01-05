@@ -27,7 +27,7 @@ export class KeypairService {
     );
   }
 
-  async encryptedPrivateKey(
+  async encryptPrivateKey(
     userId: number,
     pin: string,
     privateKey: string
@@ -65,7 +65,7 @@ export class KeypairService {
       2
     );
 
-    const encryptedPrivateKey = await this.encryptedPrivateKey(
+    const encryptedPrivateKey = await this.encryptPrivateKey(
       userId,
       dto.pin,
       keypair.privateKey
@@ -159,7 +159,7 @@ export class KeypairService {
 
     for (const keypair of keypairs) {
       const pk = await this.decryptPrivateKeyFromKeypair(userId, currentPin, keypair);
-      const newEncryptedPrivateKey = await this.encryptedPrivateKey(userId, newPin, pk);
+      const newEncryptedPrivateKey = await this.encryptPrivateKey(userId, newPin, pk);
       keypair.encryptedPrivateKey = newEncryptedPrivateKey;
       const newHashPin = hashSync(newPin);
       keypair.hashPin = newHashPin;

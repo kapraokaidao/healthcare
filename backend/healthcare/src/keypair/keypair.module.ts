@@ -9,5 +9,6 @@ import { StellarService } from "src/stellar/stellar.service";
   imports: [TypeOrmModule.forFeature([Keypair])],
   providers: [KeypairService, StellarService],
   controllers: [KeypairController],
+  exports: [KeypairService]
 })
 export class KeypairModule {}

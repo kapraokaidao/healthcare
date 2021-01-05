@@ -70,7 +70,7 @@ export class HealthcareTokenService {
     if (endDate.isBefore(startDate)) {
       throw new BadRequestException("endDate cannot be before startDate");
     }
-    const public_keys = await this.stellarService.issueToken(
+    const publicKeys = await this.stellarService.issueToken(
       this.stellarIssuingSecret,
       this.stellarReceivingSecret,
       dto.name,
@@ -78,7 +78,7 @@ export class HealthcareTokenService {
     );
     const newToken = await this.healthcareTokenRepository.create({
       ...dto,
-      ...public_keys,
+      ...publicKeys,
     });
     newToken.remainingToken = dto.totalToken;
     newToken.createdBy = user;
