@@ -34,7 +34,7 @@ const Scanner = () => {
 	const [serviceId, setServiceId] = useState(0);
 	const scanPatient = useCallback(async () => {
 		setUserId(230);
-		setServiceId(320);
+		setServiceId(319);
 	}, []);
 
 	const [scan, setScan] = useState<ScanPatient | null>(null);
@@ -111,10 +111,10 @@ const Scanner = () => {
 	}, [pollingId]);
 
 	const cancelRequestRedeem = useCallback(async () => {
-		if (timer) clearInterval(timer);
 		if (pollingId) {
-			await axios.delete('/healthcare-token/redeem-request', { data: { id: pollingId } });
+			await axios.delete('/healthcare-token/redeem-request', { params: { id: pollingId } });
 			setPollingId(0);
+			if (timer) clearInterval(timer);
 		}
 	}, [pollingId, timer]);
 
