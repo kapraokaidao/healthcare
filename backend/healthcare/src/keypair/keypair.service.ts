@@ -7,9 +7,9 @@ import { Repository } from "typeorm";
 import { CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
 import { AES, enc, SHA256 } from "crypto-js";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
-import { User } from "src/entities/user.entity";
 import StellarSdk from "stellar-sdk";
 import { UserRole } from "src/constant/enum/user.enum";
+import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class KeypairService {
@@ -18,9 +18,8 @@ export class KeypairService {
   constructor(
     @InjectRepository(Keypair)
     private readonly keypairRepository: Repository<Keypair>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly stellarService: StellarService,
+    private readonly userService: UserService,
     private readonly configService: ConfigService
   ) {
     this.stellarReceivingSecret = this.configService.get<string>(
@@ -33,13 +32,11 @@ export class KeypairService {
     pin: string,
     privateKey: string
   ): Promise<string> {
-    let user = await this.userRepository.findOneOrFail(userId);
+    const user = await this.userService.findById(userId, true);
     let userSalt: string;
     if (user.role === UserRole.Hospital) {
-      user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
       userSalt = user.hospital.code9;
     } else if (user.role === UserRole.Patient) {
-      user = await this.userRepository.findOne(userId, { relations: ["patient"] });
       userSalt = user.patient.nationalId;
     } else {
       throw new BadRequestException(`${user.role} role can't create keypair`);
@@ -52,7 +49,7 @@ export class KeypairService {
   }
 
   async createKeypair(userId: number, dto: CreateKeypairDto): Promise<void> {
-    let user = await this.userRepository.findOneOrFail(userId);
+    const user = await this.userService.findById(userId);
     const [, activeKeypairsCount] = await this.keypairRepository.findAndCount({
       where: [{ user: user, isActive: true }],
     });
@@ -99,13 +96,11 @@ export class KeypairService {
       throw new BadRequestException("PIN must be 6 digits");
     }
 
-    let user = await this.userRepository.findOneOrFail(userId);
+    const user = await this.userService.findById(userId);
     let userSalt: string;
     if (user.role === UserRole.Hospital) {
-      user = await this.userRepository.findOne(userId, { relations: ["hospital"] });
       userSalt = user.hospital.code9;
     } else if (user.role === UserRole.Patient) {
-      user = await this.userRepository.findOne(userId, { relations: ["patient"] });
       userSalt = user.patient.nationalId;
     } else {
       throw new BadRequestException(`${user.role} role doesn't have keypair`);

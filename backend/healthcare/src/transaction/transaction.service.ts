@@ -4,6 +4,7 @@ import { TransactionType } from "src/constant/enum/transaction.enum";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
 import { User } from "src/entities/user.entity";
+import { UserService } from "src/user/user.service";
 import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
 import { EntityManager } from "typeorm";
 import { TransactionSearchDto, TransactionSearchResponseDto } from "./transaction.dto";
@@ -12,8 +13,8 @@ import { TransactionSearchDto, TransactionSearchResponseDto } from "./transactio
 export class TransactionService {
   constructor(
     @InjectRepository(Transaction) private readonly transactionRepository,
-    @InjectRepository(User) private readonly userRepository,
-    @InjectRepository(HealthcareToken) private readonly healthcareTokenRepository
+    @InjectRepository(HealthcareToken) private readonly healthcareTokenRepository,
+    private readonly userService: UserService
   ) {}
 
   async create(
@@ -29,14 +30,14 @@ export class TransactionService {
     newTransaction.amount = amount;
     newTransaction.destinationPublicKey = destinationPublicKey;
     newTransaction.destinationUser = destinationUserId
-      ? await this.userRepository.findOne(destinationUserId)
+      ? await this.userService.findById(destinationUserId)
       : null;
     newTransaction.healthcareToken = await this.healthcareTokenRepository.findOne(
       serviceId
     );
     newTransaction.sourcePublicKey = sourcePublicKey;
     newTransaction.sourceUser = sourceUserId
-      ? await this.userRepository.findOne(sourceUserId)
+      ? await this.userService.findById(sourceUserId)
       : null;
     return manager
       ? manager.save(newTransaction)

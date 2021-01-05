@@ -15,7 +15,6 @@ import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 import { TokenType, TransferRequestType } from "src/constant/enum/token.enum";
 import { TransactionService } from "src/transaction/transaction.service";
-import { Transaction } from "src/entities/transaction.entity";
 import { UserService } from "src/user/user.service";
 
 @Injectable()
@@ -26,8 +25,6 @@ export class HealthcareTokenService {
   constructor(
     @InjectRepository(HealthcareToken)
     private readonly healthcareTokenRepository: Repository<HealthcareToken>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     @InjectRepository(UserToken)
     private readonly userTokenRepository: Repository<UserToken>,
     @InjectRepository(TransferRequest)
@@ -60,7 +57,7 @@ export class HealthcareTokenService {
   }
 
   async createToken(userId: number, dto: HealthcareTokenDto): Promise<HealthcareToken> {
-    const user = await this.userRepository.findOneOrFail(userId);
+    const user = await this.userService.findById(userId);
     const existedToken = await this.healthcareTokenRepository.findOne({ name: dto.name });
     if (existedToken) {
       throw new BadRequestException(`Token name '${dto.name} is already existed'`);
@@ -115,7 +112,7 @@ export class HealthcareTokenService {
     pageOptions: PaginationOptions,
     serviceId?: number
   ): Promise<Pagination<HealthcareToken>> {
-    const user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+    const user = await this.userService.findById(userId, true);
     const now = dayjs();
     const userAge = now.diff(user.patient.birthDate, "year");
     const today = now.format("YYYY-MM-DD");
@@ -176,7 +173,7 @@ export class HealthcareTokenService {
   }
 
   async findValidSpecialTokens(userId: number): Promise<HealthcareToken[]> {
-    const user = await this.userRepository.findOne(userId, { relations: ["patient"] });
+    const user = await this.userService.findById(userId, true);
     const now = dayjs();
     const userAge = now.diff(user.patient.birthDate, "year");
     const today = now.format("YYYY-MM-DD");
@@ -284,9 +281,7 @@ export class HealthcareTokenService {
     pin: string
   ): Promise<TransferRequest> {
     await this.keypairService.validatePin(userId, pin);
-    const hospital = await this.userRepository.findOneOrFail({
-      where: { id: userId, role: UserRole.Hospital },
-    });
+    const hospital = await this.userService.findById(userId)
     const userToken = await this.userTokenRepository.findOne({
       where: { user: { id: userId }, healthcareToken: { id: serviceId } },
     });
@@ -307,7 +302,7 @@ export class HealthcareTokenService {
     }
 
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
-    const patient = await this.userRepository.findOneOrFail(patientId);
+    const patient = await this.userService.findById(patientId);
     const newTransferRequest = this.transferRequestRepository.create();
     newTransferRequest.amount = amount;
     newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
@@ -374,9 +369,7 @@ export class HealthcareTokenService {
         `${healthcareToken.name} is not a special token type`
       );
     }
-    const hospital = await this.userRepository.findOneOrFail({
-      where: { id: userId, role: UserRole.Hospital },
-    });
+    const hospital = await this.userService.findById(userId);
     const existedTransferRequest = await this.transferRequestRepository.findOne({
       where: {
         patient: { id: patientId },
@@ -390,7 +383,7 @@ export class HealthcareTokenService {
       throw new BadRequestException("Special token request was already created");
     }
 
-    const patient = await this.userRepository.findOneOrFail(patientId);
+    const patient = await this.userService.findById(patientId);
     const newTransferRequest = this.transferRequestRepository.create();
     newTransferRequest.expiredDate = dayjs().add(10, "minute").toDate();
     newTransferRequest.healthcareToken = healthcareToken;
@@ -490,7 +483,7 @@ export class HealthcareTokenService {
   }
 
   private async addTrustline(userId: number, serviceId: number, pin: string) {
-    const user = await this.userRepository.findOneOrFail(userId);
+    const user = await this.userService.findById(userId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
     const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
     const newUserToken = this.userTokenRepository.create();
@@ -518,7 +511,7 @@ export class HealthcareTokenService {
     amount: number,
     pin: string
   ) {
-    const sourceUser = await this.userRepository.findOneOrFail(sourceUserId);
+    const sourceUser = await this.userService.findById(sourceUserId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
     const sourceUserBalance = await this.userTokenRepository.findOneOrFail({
       where: { user: sourceUser, healthcareToken: healthcareToken },
@@ -571,7 +564,7 @@ export class HealthcareTokenService {
   }
 
   private async transferTokenFromNHSO(userId: number, serviceId: number, pin: string) {
-    const user = await this.userRepository.findOneOrFail(userId);
+    const user = await this.userService.findById(userId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
       serviceId,
       { relations: ["createdBy"] }
