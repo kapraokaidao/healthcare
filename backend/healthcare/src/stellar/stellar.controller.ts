@@ -28,15 +28,4 @@ export class StellarController {
       dto.amount
     );
   }
-
-  @Post("transfer")
-  async transferToken(@Body() dto: transferTokenDto): Promise<void> {
-    return this.stellarService.allowTrustAndTransferToken(
-      dto.sourceSecret,
-      dto.destinationSecret,
-      dto.name,
-      dto.issuerPublicKey,
-      dto.amount
-    );
-  }
 }

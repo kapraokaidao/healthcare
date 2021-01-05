@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
-import { HealthcareTokenDto } from "./healthcare-token.dto";
+import { HealthcareTokenDto, Slip } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brackets, Connection, MoreThan, Repository } from "typeorm";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
@@ -15,6 +15,8 @@ import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 import { TokenType, TransferRequestType } from "src/constant/enum/token.enum";
 import { TransactionService } from "src/transaction/transaction.service";
+import { Transaction } from "src/entities/transaction.entity";
+import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -33,6 +35,7 @@ export class HealthcareTokenService {
     private readonly stellarService: StellarService,
     private readonly keypairService: KeypairService,
     private readonly transactionService: TransactionService,
+    private readonly userService: UserService,
     private readonly configService: ConfigService,
     private connection: Connection
   ) {
@@ -425,6 +428,65 @@ export class HealthcareTokenService {
     await this.transferTokenFromNHSO(userId, serviceId, pin);
     existedTransferRequest.isConfirmed = true;
     await this.transferRequestRepository.save(existedTransferRequest);
+  }
+
+  async withDraw(
+    userId: number,
+    serviceId: number,
+    destinationPublicKey: string,
+    amount: number,
+    pin: string
+  ): Promise<Slip> {
+    const user = await this.userService.findById(userId, true);
+    const healthcareToken = await this.healthcareTokenRepository.findOne(serviceId);
+    const userToken = await this.userTokenRepository.findOne({
+      where: { user: { id: userId }, healthcareToken: { id: serviceId } },
+    });
+    if (amount < 0) {
+      throw new BadRequestException(`Amount must be greater than 0`);
+    }
+    if (amount > userToken.balance) {
+      throw new BadRequestException(
+        `Amount must not be greater than ${healthcareToken.name} token balance`
+      );
+    }
+    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
+    const publicKey = await this.keypairService.findPublicKey(userId);
+
+    let stellarTxId: string;
+    await this.connection.transaction(async (manager) => {
+      await this.transactionService.create(
+        userId,
+        publicKey,
+        null,
+        destinationPublicKey,
+        serviceId,
+        amount,
+        manager
+      );
+      await manager.decrement(
+        UserToken,
+        { user: { id: userId }, healthcareToken: { id: serviceId } },
+        "balance",
+        amount
+      );
+      stellarTxId = await this.stellarService.transferToken(
+        privateKey,
+        destinationPublicKey,
+        healthcareToken.name,
+        healthcareToken.issuingPublicKey,
+        amount
+      );
+    });
+
+    const slip = new Slip();
+    slip.amount = amount;
+    slip.destinationPublicKey = destinationPublicKey;
+    slip.healthcareToken = healthcareToken;
+    slip.hospital = user.hospital;
+    slip.sourcePublicKey = publicKey;
+    slip.transactionId = stellarTxId;
+    return slip;
   }
 
   private async addTrustline(userId: number, serviceId: number, pin: string) {

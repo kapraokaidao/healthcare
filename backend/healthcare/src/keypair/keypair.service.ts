@@ -139,7 +139,7 @@ export class KeypairService {
       where: {
         user: { id: userId },
         isActive: true,
-      }
+      },
     });
     return keypair.publicKey;
   }

@@ -20,6 +20,7 @@ import { TransactionService } from "src/transaction/transaction.service";
       Keypair,
       UserToken,
       TransferRequest,
+      Transaction,
     ]),
   ],
   controllers: [HealthcareTokenController],
