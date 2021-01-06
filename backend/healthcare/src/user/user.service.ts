@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
@@ -12,11 +7,12 @@ import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
-import { EntityNotFoundError } from "typeorm/error/EntityNotFoundError";
-import { KYC, KycImageType, KycQueryType } from "./user.dto";
+import { KYC } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { PatientService } from "./patient.service";
+import { KycImageType, KycQueryType } from "../constant/enum/kyc.enum";
+import { Agency } from "../entities/agency.entity";
 
 @Injectable()
 export class UserService {
@@ -25,6 +21,8 @@ export class UserService {
     private readonly patientService: PatientService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Agency)
+    private readonly agencyRepository: Repository<Agency>,
     @InjectRepository(Hospital)
     private readonly hospitalRepository: Repository<Hospital>,
     @InjectRepository(NHSO)
@@ -55,26 +53,13 @@ export class UserService {
   }
 
   async findById(id: number, relation = false): Promise<User> {
-    try {
-      const user = await this.userRepository.findOneOrFail(id);
-      if (relation) {
-        switch (user.role) {
-          case UserRole.NHSO:
-            return this.userRepository.findOneOrFail(id, { relations: ["nhso"] });
-          case UserRole.Hospital:
-            return this.userRepository.findOneOrFail(id, { relations: ["hospital"] });
-          case UserRole.Patient:
-            return this.userRepository.findOneOrFail(id, { relations: ["patient"] });
-        }
-      }
-      return user;
-    } catch (e) {
-      if (e instanceof EntityNotFoundError) {
-        throw new NotFoundException(`User's ID ${id} cannot be found`, e.name);
-      } else {
-        throw new InternalServerErrorException(e.message, e.name);
-      }
+    const user = await this.userRepository.findOneOrFail(id);
+    if (relation) {
+      return this.userRepository.findOneOrFail(id, {
+        relations: [user.role.toLowerCase()],
+      });
     }
+    return user;
   }
 
   async findPasswordChangedDate(id: number): Promise<Date> {
@@ -153,7 +138,7 @@ export class UserService {
     }
     const [users, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = users.map((user) => ({
-      type: "RegisterKyc",
+      type: KycQueryType.Register,
       id: user.id,
       user,
       nationalIdImage: user.patient.nationalIdImage,
@@ -180,7 +165,7 @@ export class UserService {
     const KYCs: KYC[] = resetPasswordKYCs.map((rp) => {
       const user = this.patientService.getUserObject(rp.patient);
       return {
-        type: "ResetPasswordKyc",
+        type: KycQueryType.ResetPassword,
         id: rp.id,
         nationalIdImage: rp.nationalIdImage,
         selfieImage: rp.selfieImage,
@@ -228,7 +213,7 @@ export class UserService {
     user: User,
     @TransactionManager() entityManager?: EntityManager
   ): Promise<User> {
-    const newUser = this.userRepository.create(user);
+    const newUser = this.userRepository.create(this.excludeUserRoleFields(user));
     switch (user.role) {
       case UserRole.Hospital:
         const hospital = await this.hospitalRepository.findOne({
@@ -245,6 +230,12 @@ export class UserService {
         const nhso = await this.nhsoRepository.create(user.nhso);
         nhso.user = newUser;
         await entityManager.save(nhso);
+        return newUser;
+
+      case UserRole.Agency:
+        const agency = await this.agencyRepository.create(user.agency);
+        agency.user = newUser;
+        await entityManager.save(agency);
         return newUser;
 
       case UserRole.Patient:
@@ -359,5 +350,10 @@ export class UserService {
 
   async restore(id: number): Promise<void> {
     await this.userRepository.restore(id);
+  }
+
+  private excludeUserRoleFields(user: User) {
+    const { nhso, agency, hospital, patient, ...dto } = user;
+    return dto;
   }
 }

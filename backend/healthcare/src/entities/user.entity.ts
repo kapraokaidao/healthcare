@@ -21,6 +21,7 @@ import { Patient } from "./patient.entity";
 import { Keypair } from "./keypair.entity";
 import { UserToken } from "./user-token.entity";
 import { Transaction } from "./transaction.entity";
+import { Agency } from "./agency.entity";
 
 @Entity()
 export class User {
@@ -58,6 +59,10 @@ export class User {
   @ApiProperty()
   @OneToOne(() => NHSO, (nhso) => nhso.user)
   nhso: NHSO;
+
+  @ApiProperty()
+  @OneToOne(() => Agency, (agency) => agency.user)
+  agency: Agency;
 
   @ApiProperty()
   @ManyToOne(() => Hospital, (hospital) => hospital.users)
