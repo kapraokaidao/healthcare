@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/node";
 import { AppModule } from "./app.module";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { SentryInterceptor } from "./interceptors/sentry.interceptor";
+import { EntityNotFoundFilter } from "./exception-filters/entity-not-found.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,7 @@ async function bootstrap() {
     enabled: configService.get<boolean>("sentry.enable"),
   });
   app.useGlobalInterceptors(new SentryInterceptor());
+  app.useGlobalFilters(new EntityNotFoundFilter());
 
   app.use(helmet());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
