@@ -11,6 +11,7 @@ import { HealthcareTokenModule } from "./healthcare-token/healthcare-token.modul
 import { HospitalModule } from "./hospital/hospital.module";
 import { KeypairModule } from "./keypair/keypair.module";
 import { TransactionModule } from "./transaction/transaction.module";
+import { ConstantModule } from "./constant/constant.module";
 
 @Module({
   imports: [
@@ -31,7 +32,6 @@ import { TransactionModule } from "./transaction/transaction.module";
         database: configService.get<string>("db.database"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
         synchronize: configService.get<string>("node_env") !== "production",
-        timezone: "utc+7",
       }),
     }),
     AuthModule,
@@ -41,6 +41,7 @@ import { TransactionModule } from "./transaction/transaction.module";
     HospitalModule,
     KeypairModule,
     TransactionModule,
+    ConstantModule,
   ],
   controllers: [AppController],
   providers: [AppService],
