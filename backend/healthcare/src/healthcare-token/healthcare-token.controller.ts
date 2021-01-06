@@ -21,11 +21,14 @@ import {
   CreateSpecialTokenRequestDto,
   HealthcareTokenDto,
   ServiceAndPinDto,
+  Slip,
+  WithdrawDto,
 } from "./healthcare-token.dto";
 import { TokenType } from "src/constant/enum/token.enum";
 import { UserId } from "src/decorators/user-id.decorator";
 import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserToken } from "src/entities/user-token.entity";
+import { Transaction } from "src/entities/transaction.entity";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
@@ -201,5 +204,17 @@ export class HealthcareTokenController {
       page: qPage,
       pageSize: qPageSize,
     });
+  }
+
+  @Post("withdraw")
+  @Roles(UserRole.Hospital)
+  async withdraw(@UserId() userId: number, @Body() dto: WithdrawDto): Promise<Slip> {
+    return this.healthcareTokenService.withDraw(
+      userId,
+      dto.serviceId,
+      dto.destinationPublicKey,
+      dto.amount,
+      dto.pin
+    );
   }
 }
