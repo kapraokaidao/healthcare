@@ -10,6 +10,7 @@ import Scanner from '../pages/Scanner';
 import Signin from '../pages/Signin';
 import { AuthStoreContext } from '../stores';
 import SiteHome from './../pages/SiteHome';
+import Balance from '../pages/ManageBalance';
 
 type IsActive = {
 	isActive: boolean;
@@ -54,6 +55,11 @@ const Routes = () => {
 					exact
 					path="/scanner"
 					component={(props: any) => <RequireAuth {...props} Component={Scanner} />}
+				/>
+				<Route 
+					exact 
+					path="/balance" 
+					component={(props: any) => <RequireAuth {...props} Component={Balance} />} 
 				/>
 			</Switch>
 		</div>
