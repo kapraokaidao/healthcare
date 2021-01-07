@@ -94,7 +94,7 @@ const Balance = observer(() => {
 					size="large" 
 					onClick={withdrawnToken}
 				>
-					Approve
+					Withdrawn
 				</Button>
 				<Button 
 					className="button-pin"

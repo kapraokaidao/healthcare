@@ -11,6 +11,7 @@ import Signin from '../pages/Signin';
 import { AuthStoreContext } from '../stores';
 import SiteHome from './../pages/SiteHome';
 import Balance from '../pages/ManageBalance';
+import LogHistory from '../pages/History';
 
 type IsActive = {
 	isActive: boolean;
@@ -60,6 +61,11 @@ const Routes = () => {
 					exact 
 					path="/balance" 
 					component={(props: any) => <RequireAuth {...props} Component={Balance} />} 
+				/>
+				<Route 
+					exact 
+					path="/history" 
+					component={(props: any) => <RequireAuth {...props} Component={LogHistory} />} 
 				/>
 			</Switch>
 		</div>
