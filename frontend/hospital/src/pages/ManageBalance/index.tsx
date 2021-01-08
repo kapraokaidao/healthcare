@@ -3,7 +3,6 @@ import Button from "@material-ui/core/Button";
 import axios from "axios";
 import { observer } from "mobx-react-lite";
 import React, {useCallback, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 import { TitleContext } from "../../App";
 import { BalanceDetail } from "../../types";
 import Table from "@material-ui/core/Table";
@@ -25,7 +24,6 @@ const Balance = observer(() => {
 	const [balance, setBalance] = useState<BalanceDetail[]>([]);
 	const [withdrawn, setWithdrawn] = useState<BalanceDetail[]>([]);
 	const [open, setOpen] = useState(false);
-	const [history] = useState(useHistory());
 	const [fetchData, setFetchData] = useState(false);
 	const [pin, setPin] = useState("");
 
@@ -33,7 +31,7 @@ const Balance = observer(() => {
 		axios.get('/healthcare-token/balance', {
 			params: {
 				page,
-				pageSize: 2,
+				pageSize: 20,
 			},
 		}).then(({ data }) => {
 			setBalance(data.data)
@@ -62,7 +60,9 @@ const Balance = observer(() => {
 	};
 
 	const withdrawnToken = useCallback(async () => {
-		//axios.post('/healthcare-token/withdraw');
+		axios.post('/healthcare-token/withdraw',{
+			pin
+		});
 		setFetchData(true)
 		handleClose()
 	}, []);

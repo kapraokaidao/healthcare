@@ -58,6 +58,7 @@ const LogHistory = observer(() => {
 
     const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
         setValue(newValue);
+        setOpen(newValue);
       };
     
 	useEffect(() => {
@@ -81,7 +82,7 @@ const LogHistory = observer(() => {
     },[]);
 
     function body(){
-        if( open == 1 ){
+        if( open === 1 ){
             setUse(debit);
         }
         else{
