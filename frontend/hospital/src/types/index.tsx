@@ -57,3 +57,9 @@ export type BalanceDetail = {
 	balance: number;
 	healthcareToken: TokenDetail;
 };
+
+export type HistoryTransaction = {
+	id: number;
+	name: string;
+	date: Date;
+};

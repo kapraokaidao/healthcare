@@ -8,6 +8,12 @@ import PropTypes from 'prop-types';
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import axios from "axios";
+import Table from "@material-ui/core/Table";
+import TableHead from "@material-ui/core/TableHead";
+import TableCell from "@material-ui/core/TableCell";
+import TableBody from "@material-ui/core/TableBody";
+import TableRow from "@material-ui/core/TableRow";
+import { HistoryTransaction } from "../../types";
 
 function TabPanel(props: { [x: string]: any; children: any; value: any; index: any; }) {
     const { children, value, index, ...other } = props;
@@ -45,8 +51,10 @@ function a11yProps(index: number) {
 const LogHistory = observer(() => {
     const { setTitle } = useContext(TitleContext);
     const [value, setValue] = useState(0);
-    const [debit, setDebit] = useState('history');
-    const [credit, setCredit] = useState('history');
+    const [debit, setDebit] = useState<HistoryTransaction[]>([]);
+    const [credit, setCredit] = useState<HistoryTransaction[]>([]);
+    const [open, setOpen] = useState(0);
+    const [use, setUse] = useState<HistoryTransaction[]>([]);
 
     const handleChange = (event: any, newValue: React.SetStateAction<number>) => {
         setValue(newValue);
@@ -56,30 +64,56 @@ const LogHistory = observer(() => {
 		setTitle('History');
 	}, [setTitle]);
 
-    // useEffect(() => {
-    //     axios.post('/transaction​/search​/group-by-service', {
-    //         "page": 0,
-    //         "pageSize": 0,
-    //         "type": "Debit",
-    //         "startDate": "2021-01-07T16:37:56.896Z",
-    //         "endDate": "",
-    //     }).then(({ data }) => setDebit(data));
-    // },[]);
+    useEffect(() => {
+        axios.post('/transaction​/search​/group-by-service', {
+            "page": 0,
+            "pageSize": 0,
+            "type": "Debit"
+        }).then(({ data }) => setDebit(data));
+    },[]);
 
-    // useEffect(() => {
-    //     axios.post('/transaction​/search​/group-by-service', {
-    //         "page": 0,
-    //         "pageSize": 0,
-    //         "type": "Credit",
-    //         "startDate": "2021-01-07T16:37:56.896Z",
-    //         "endDate": "",
-    //     }).then(({ data }) => setCredit(data));
-    // },[]);
+    useEffect(() => {
+        axios.post('/transaction​/search​/group-by-service', {
+            "page": 0,
+            "pageSize": 0,
+            "type": "Credit"
+        }).then(({ data }) => setCredit(data));
+    },[]);
 
-    const body = (
-        <>
-        </>
-    );
+    function body(){
+        if( open == 1 ){
+            setUse(debit);
+        }
+        else{
+            setUse(credit);
+        }
+        return(
+            <>
+                <div style={{ height: 700, width: '100%' }}>
+                    <Table className="table-pin">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>ID</TableCell>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Date</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {use.map((u) => {
+                                return (
+                                    <TableRow>
+                                        <TableCell>{u.id}</TableCell>
+                                        <TableCell>{u.name}</TableCell>
+                                        <TableCell>{u.date}</TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        </TableBody>
+                    </Table>
+                </div>
+            </>
+        )
+    };
 
     return(
         <>

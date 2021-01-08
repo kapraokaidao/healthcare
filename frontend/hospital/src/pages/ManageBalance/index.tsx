@@ -13,7 +13,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Pagination from '@material-ui/lab/Pagination';
 import './style.scss';
-import { Dialog } from "@material-ui/core";
+import { Dialog, TextField } from "@material-ui/core";
 
 const Balance = observer(() => {
     const { setTitle } = useContext(TitleContext);
@@ -23,14 +23,17 @@ const Balance = observer(() => {
 	const [pageCount, setPageCount] = useState(1);
 	const [page, setPage] = useState(1);
 	const [balance, setBalance] = useState<BalanceDetail[]>([]);
+	const [withdrawn, setWithdrawn] = useState<BalanceDetail[]>([]);
 	const [open, setOpen] = useState(false);
 	const [history] = useState(useHistory());
 	const [fetchData, setFetchData] = useState(false);
+	const [pin, setPin] = useState("");
+
 	useEffect(() => {
 		axios.get('/healthcare-token/balance', {
 			params: {
 				page,
-				pageSize: 20,
+				pageSize: 2,
 			},
 		}).then(({ data }) => {
 			setBalance(data.data)
@@ -39,13 +42,16 @@ const Balance = observer(() => {
 		});
 	}, [page, fetchData]);
 
-	// const redeemToken = useCallback(async () => {
-	// 	if (selectedUser) {
-	// 		await axios.delete(`/user/${selectedUser.id}`);
-	// 		setFetchData(!fetchData);
-	// 		setConfirm(false);
-	// 	}
-	// }, [selectedUser, page]);
+	useEffect(() => {
+		axios.get('/healthcare-token/balance', {
+			params: {
+				page: 0,
+				pageSize: 0,
+			},
+		}).then(({ data }) => {
+			setWithdrawn(data.data)
+		});
+	}, []);
 
 	const handleClose = () => {
 		setOpen(false);
@@ -74,20 +80,34 @@ const Balance = observer(() => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{balance.map((b) => {
+						{withdrawn.map((w) => {
 							return (
 								<TableRow>
-									<TableCell>{b.healthcareToken.name}</TableCell>
-									<TableCell>{b.balance}</TableCell>
-									<TableCell>{b.balance * 5} bahts</TableCell>
+									<TableCell>{w.healthcareToken.name}</TableCell>
+									<TableCell>{w.balance}</TableCell>
+									<TableCell>{w.balance * 5} bahts</TableCell>
 								</TableRow>
 							);
 						})}
 					</TableBody>
 				</Table>
 			</div>
+			<div className="mt-15">
+				<TextField
+					className="button-pin"
+					label="6 Digit PINs"
+					variant="outlined"
+					value={pin}
+					onChange={(e) => {
+						const regex = /^([0-9]){0,6}$/i;
+						if (regex.test(e.target.value)) {
+							setPin(e.target.value);
+						}
+					}}
+				/>
+			</div>
 			<div className="mt-20 text-right">
-				<Button 
+				<Button
 					className="button-pin"
 					variant="contained" 
 					color="primary" 
@@ -96,7 +116,7 @@ const Balance = observer(() => {
 				>
 					Withdrawn
 				</Button>
-				<Button 
+				<Button
 					className="button-pin"
 					variant="contained" 
 					color="secondary" 
@@ -163,9 +183,10 @@ const Balance = observer(() => {
 				</div>
 			</div>
 			<Dialog
-				className="paper"
 				open={open}
 				onClose={handleClose}
+				fullWidth={true} 
+        		maxWidth={'sm'}
         		aria-labelledby="simple-modal-title"
         		aria-describedby="simple-modal-description"
 			>
