@@ -90,7 +90,7 @@ export class HealthcareTokenService {
     pageOptions: PaginationOptions
   ): Promise<Pagination<UserToken>> {
     const [userTokens, totalCount] = await this.userTokenRepository.findAndCount({
-      where: { user: { id: userId } },
+      where: { user: { id: userId }, balance: MoreThan(0) },
       relations: ["healthcareToken"],
       take: pageOptions.pageSize,
       skip: (pageOptions.page - 1) * pageOptions.pageSize,

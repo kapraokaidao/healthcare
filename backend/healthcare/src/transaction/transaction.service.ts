@@ -46,11 +46,9 @@ export class TransactionService {
   async searchGroupByService(
     userId: number,
     dto: TransactionSearchDto
-  ): Promise<Pagination<TransactionSearchResponseDto>> {
+  ): Promise<TransactionSearchResponseDto[]> {
     let query = this.transactionRepository
       .createQueryBuilder("tx")
-      .take(dto.pageSize)
-      .skip((dto.page - 1) * dto.pageSize)
       .leftJoinAndSelect(
         "tx.healthcareToken",
         "healthcareToken",
@@ -90,7 +88,7 @@ export class TransactionService {
     }
 
     const queryResult = await query.getRawMany();
-    const transactons: TransactionSearchResponseDto[] = queryResult.map((e) => {
+    const transactions: TransactionSearchResponseDto[] = queryResult.map((e) => {
       const transaction: TransactionSearchResponseDto = {
         id: e.healthcareToken_id,
         name: e.healthcareToken_name,
@@ -98,9 +96,6 @@ export class TransactionService {
       };
       return transaction;
     });
-    return toPagination<TransactionSearchResponseDto>(transactons, transactons.length, {
-      page: dto.page,
-      pageSize: dto.pageSize,
-    });
+    return transactions;
   }
 }

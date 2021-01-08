@@ -20,7 +20,7 @@ export class TransactionController {
   async searchGroupByService(
     @UserId() userId,
     @Body() dto: TransactionSearchDto
-  ): Promise<Pagination<TransactionSearchResponseDto>> {
+  ): Promise<TransactionSearchResponseDto[]> {
     return this.transactionService.searchGroupByService(userId, dto);
   }
 }
