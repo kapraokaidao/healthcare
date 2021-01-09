@@ -7,10 +7,14 @@ import { AppModule } from "./app.module";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { SentryInterceptor } from "./interceptors/sentry.interceptor";
 import { EntityNotFoundFilter } from "./exception-filters/entity-not-found.filter";
+import { ValidationPipe } from "@nestjs/common";
+import { SanitizationPipe } from "./pipes/sanitization.pipe";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService: ConfigService = app.get(ConfigService);
+  app.use(helmet());
+  app.enableCors();
 
   Sentry.init({
     dsn: configService.get<string>("sentry.dsn"),
@@ -18,10 +22,13 @@ async function bootstrap() {
   });
   app.useGlobalInterceptors(new SentryInterceptor());
   app.useGlobalFilters(new EntityNotFoundFilter());
-
-  app.use(helmet());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
-  app.enableCors();
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+    new SanitizationPipe()
+  );
 
   const options = new DocumentBuilder()
     .setTitle("Healthcare Backend")
