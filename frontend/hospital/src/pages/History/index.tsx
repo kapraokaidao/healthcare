@@ -66,55 +66,56 @@ const LogHistory = observer(() => {
 	}, [setTitle]);
 
     useEffect(() => {
-        axios.post('/transaction​/search​/group-by-service', {
-            "page": 0,
-            "pageSize": 0,
-            "type": "Debit"
-        }).then(({ data }) => setDebit(data));
-    },[]);
+        if(debit){
+            axios.post('/transaction/search/group-by-service', {
+                type: "Debit"
+            })
+        }
+    },[debit]);
 
     useEffect(() => {
-        axios.post('/transaction​/search​/group-by-service', {
-            "page": 0,
-            "pageSize": 0,
-            "type": "Credit"
-        }).then(({ data }) => setCredit(data));
-    },[]);
+        if(credit){
+            axios.post('/transaction/search/group-by-service', {
+                type: "Credit"
+            })
+        }
+    },[credit]);
 
-    function body(){
+    useEffect(()=>{
         if( open === 1 ){
             setUse(debit);
         }
         else{
             setUse(credit);
         }
-        return(
-            <>
-                <div style={{ height: 700, width: '100%' }}>
-                    <Table className="table-pin">
+    }, [value]);
+
+    const body = (
+        <>
+            <div style={{ height: 700, width: '100%' }}>
+                <Table className="table-pin">
                         <TableHead>
-                            <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Date</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {use.map((u) => {
-                                return (
-                                    <TableRow>
-                                        <TableCell>{u.id}</TableCell>
-                                        <TableCell>{u.name}</TableCell>
-                                        <TableCell>{u.date}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </div>
-            </>
-        )
-    };
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Amount</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {use.map((u) => {
+                            return (
+                                <TableRow>
+                                    <TableCell>{u.id}</TableCell>
+                                    <TableCell>{u.name}</TableCell>
+                                    <TableCell>{u.amount}</TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </div>
+        </>
+    );
 
     return(
         <>

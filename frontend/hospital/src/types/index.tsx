@@ -61,5 +61,5 @@ export type BalanceDetail = {
 export type HistoryTransaction = {
 	id: number;
 	name: string;
-	date: Date;
+	amount: string;
 };

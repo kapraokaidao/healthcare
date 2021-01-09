@@ -24,6 +24,7 @@ const Balance = observer(() => {
 	const [balance, setBalance] = useState<BalanceDetail[]>([]);
 	const [withdrawn, setWithdrawn] = useState<BalanceDetail[]>([]);
 	const [open, setOpen] = useState(false);
+	const [confirm, setConfirm] = useState(false);
 	const [fetchData, setFetchData] = useState(false);
 	const [pin, setPin] = useState("");
 
@@ -53,6 +54,10 @@ const Balance = observer(() => {
 
 	const handleClose = () => {
 		setOpen(false);
+	};
+
+	const handleConfirm = () => {
+		setConfirm(false);
 	};
 
 	const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -92,27 +97,15 @@ const Balance = observer(() => {
 					</TableBody>
 				</Table>
 			</div>
-			<div className="mt-15">
-				<TextField
-					className="button-pin"
-					label="6 Digit PINs"
-					variant="outlined"
-					value={pin}
-					onChange={(e) => {
-						const regex = /^([0-9]){0,6}$/i;
-						if (regex.test(e.target.value)) {
-							setPin(e.target.value);
-						}
-					}}
-				/>
-			</div>
 			<div className="mt-20 text-right">
 				<Button
 					className="button-pin"
 					variant="contained" 
 					color="primary" 
 					size="large" 
-					onClick={withdrawnToken}
+					onClick={(e)=>{
+						setConfirm(true);
+					}}
 				>
 					Withdrawn
 				</Button>
@@ -128,6 +121,51 @@ const Balance = observer(() => {
 					Cancel
 				</Button>
 			</div>
+			<Dialog
+				open={confirm}
+				onClose={handleConfirm}
+				fullWidth={true} 
+        		maxWidth={'xs'}
+        		aria-labelledby="simple-modal-title"
+        		aria-describedby="simple-modal-description"
+			>
+				<h1> Please enter the pin. </h1>
+				<div className="mt-15">
+					<TextField
+						className="button-pin"
+						label="6 Digit PINs"
+						variant="outlined"
+						value={pin}
+						onChange={(e) => {
+							const regex = /^([0-9]){0,6}$/i;
+							if (regex.test(e.target.value)) {
+								setPin(e.target.value);
+							}
+						}}
+					/>
+					<Button
+						className="button-pin"
+						variant="contained" 
+						color="secondary" 
+						size="large" 
+						onClick={withdrawnToken}
+					>
+					Confirm
+					</Button>
+					<Button
+						className="button-pin"
+						variant="contained" 
+						color="secondary" 
+						size="large" 
+						onClick={()=>{
+							handleConfirm()
+						}}
+					>
+					Cancel
+					</Button>
+				</div>
+
+			</Dialog>
 		</>
 	);
 
