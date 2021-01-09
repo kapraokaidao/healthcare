@@ -96,7 +96,7 @@ export class KeypairService {
       throw new BadRequestException("PIN must be 6 digits");
     }
 
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.findById(userId, true);
     let userSalt: string;
     if (user.role === UserRole.Hospital) {
       userSalt = user.hospital.code9;
