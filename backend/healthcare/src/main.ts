@@ -21,7 +21,7 @@ async function bootstrap() {
     enabled: configService.get<boolean>("sentry.enable"),
   });
   app.useGlobalInterceptors(new SentryInterceptor());
-  app.useGlobalFilters(new EntityNotFoundFilter());
+  // app.useGlobalFilters(new EntityNotFoundFilter());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
   app.useGlobalPipes(
     new ValidationPipe({

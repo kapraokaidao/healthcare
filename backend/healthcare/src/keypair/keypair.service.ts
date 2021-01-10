@@ -48,7 +48,7 @@ export class KeypairService {
     return `${salt}$$$${encryptedPrivateKey}`;
   }
 
-  async createKeypair(userId: number, dto: CreateKeypairDto, agencyId?: number): Promise<void> {
+  async createKeypair(userId: number, pin: string, agencyId?: number): Promise<void> {
     const user = await this.userService.findById(userId);
     const existedKeypair = await this.keypairRepository.findOne({
       where: [{ user: {id: userId}, isActive: true, agency: {id: agencyId} }],
@@ -56,7 +56,7 @@ export class KeypairService {
     if (existedKeypair) {
       throw new BadRequestException("Keypair is already existed");
     }
-    if (!/^\d{6}$/.test(dto.pin)) {
+    if (!/^\d{6}$/.test(pin)) {
       throw new BadRequestException("PIN must be 6 digits");
     }
 
@@ -67,7 +67,7 @@ export class KeypairService {
 
     const encryptedPrivateKey = await this.encryptPrivateKey(
       userId,
-      dto.pin,
+      pin,
       keypair.privateKey
     );
     const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
@@ -76,7 +76,7 @@ export class KeypairService {
       receivingKeys.publicKey()
     );
 
-    const hashPin = hashSync(dto.pin);
+    const hashPin = hashSync(pin);
 
     const newKeypair = new Keypair();
     newKeypair.encryptedPrivateKey = encryptedPrivateKey;
@@ -141,11 +141,12 @@ export class KeypairService {
     return keypair.publicKey;
   }
 
-  async isActive(userId: number): Promise<IsActiveResponseDto> {
+  async isActive(userId: number, agencyId?: number): Promise<IsActiveResponseDto> {
     const keypair = await this.keypairRepository.findOne({
       where: {
         user: { id: userId },
         isActive: true,
+        agency: {id: agencyId?agencyId:null}
       },
     });
     return { isActive: !!keypair };

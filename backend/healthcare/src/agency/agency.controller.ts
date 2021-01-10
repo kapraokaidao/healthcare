@@ -7,7 +7,7 @@ import { HealthcareToken } from 'src/entities/healthcare-token.entity';
 import { Member } from 'src/entities/member.entity';
 import { User } from 'src/entities/user.entity';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { AddMemberDto, CreateServiceDto } from './agency.dto';
+import { AddMemberDto, ConfirmTransferDto, CreateServiceDto } from './agency.dto';
 import { AgencyService } from './agency.service';
 
 @ApiBearerAuth()
@@ -33,5 +33,11 @@ export class AgencyController {
     @Roles(UserRole.Agency)
     async addMember(@UserId() userId, @Body() dto: AddMemberDto): Promise<Member> {
         return this.agencyService.addMember(userId, dto);
+    }
+
+    @Post("confirm-transfer")
+    @Roles(UserRole.Agency)
+    async confirmTransfer(@UserId() userId, @Body() dto: ConfirmTransferDto): Promise<void> {
+        return this.agencyService.confirmTransfer(userId, dto.serviceId, dto.nationalId);
     }
 }

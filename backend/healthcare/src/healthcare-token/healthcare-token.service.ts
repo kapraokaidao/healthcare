@@ -16,6 +16,7 @@ import { UserRole } from "src/constant/enum/user.enum";
 import { TokenType, TransferRequestType } from "src/constant/enum/token.enum";
 import { TransactionService } from "src/transaction/transaction.service";
 import { UserService } from "src/user/user.service";
+import { AgencyService } from "src/agency/agency.service";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -33,6 +34,7 @@ export class HealthcareTokenService {
     private readonly keypairService: KeypairService,
     private readonly transactionService: TransactionService,
     private readonly userService: UserService,
+    private readonly agencyService: AgencyService,
     private readonly configService: ConfigService,
     private connection: Connection
   ) {
@@ -76,7 +78,7 @@ export class HealthcareTokenService {
       dto.name,
       dto.totalToken
     );
-    const newToken = await this.healthcareTokenRepository.create({
+    const newToken = this.healthcareTokenRepository.create({
       ...dto,
       ...publicKeys,
     });
@@ -175,8 +177,22 @@ export class HealthcareTokenService {
     ) {
       throw new BadRequestException("This service is not valid for this user");
     }
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId, {relations: ["createdBy"]});
+    if(healthcareToken.createdBy.role === UserRole.NHSO){
+      await this.transferTokenFromNHSO(userId, serviceId, pin);
+    }
+    else if(healthcareToken.createdBy.role === UserRole.Agency){
+      const checkKeypair = await this.keypairService.isActive(userId, healthcareToken.createdBy.id)
+      if(!checkKeypair.isActive){
+        await this.keypairService.createKeypair(userId, pin, healthcareToken.createdBy.id)
+      }
+      const publicKey = await this.keypairService.findPublicKey(userId, healthcareToken.createdBy.id)
+      await this.addTrustline(userId, serviceId, pin, healthcareToken.createdBy.id);
+      await this.agencyService.notifyAddedTrustline(userId, serviceId, publicKey);
+    } else {
+      throw new BadRequestException("This service is not created by NHSO or Agency")
+    }
 
-    await this.transferTokenFromNHSO(userId, serviceId, pin);
 
   }
 
@@ -414,10 +430,10 @@ export class HealthcareTokenService {
     return slip;
   }
 
-  private async addTrustline(userId: number, serviceId: number, pin: string) {
+  private async addTrustline(userId: number, serviceId: number, pin: string, agencyId?: number) {
     const user = await this.userService.findById(userId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
-    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin);
+    const privateKey = await this.keypairService.decryptPrivateKey(userId, pin, agencyId);
     const newUserToken = this.userTokenRepository.create();
     newUserToken.isTrusted = true;
     newUserToken.balance = 0;

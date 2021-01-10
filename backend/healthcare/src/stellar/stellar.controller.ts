@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { StellarService } from "./stellar.service";
 import { PublicAPI } from "../decorators/public-api.decorator";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { IssueTokenDto, transferTokenDto } from "./stellar.dto";
 import { Horizon } from "stellar-sdk";
 import BalanceLine = Horizon.BalanceLine;
@@ -12,9 +12,16 @@ import BalanceLine = Horizon.BalanceLine;
 export class StellarController {
   constructor(private readonly stellarService: StellarService) {}
 
-  @Get("balance/:secret")
-  async getBalanceBySecret(@Param("secret") secret: string): Promise<BalanceLine[]> {
-    return await this.stellarService.getBalance(secret);
+  @Get("balance")
+  @ApiQuery({ name: "publicKey", schema: { type: "string" }, required: true })
+  @ApiQuery({ name: "name", schema: { type: "string" }, required: false })
+  @ApiQuery({ name: "issuingPublicKey", schema: { type: "string" }, required: false })
+  async getBalanceBySecret(@Query("publicKey") qPublicKey, @Query("name") qName, @Query("issuingPublicKey") qIssuingPublicKey): Promise<BalanceLine[]> {
+    if(!qName || !qIssuingPublicKey){
+      qName = null;
+      qIssuingPublicKey = null;
+    }
+    return await this.stellarService.getBalance(qPublicKey, qName, qIssuingPublicKey);
   }
 
   @Post("service")

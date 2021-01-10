@@ -20,7 +20,7 @@ export class KeypairController {
     @UserId() userId: number,
     @Body() dto: CreateKeypairDto
   ): Promise<void> {
-    return this.keypairService.createKeypair(userId, dto);
+    return this.keypairService.createKeypair(userId, dto.pin);
   }
 
   @Roles(UserRole.Hospital)

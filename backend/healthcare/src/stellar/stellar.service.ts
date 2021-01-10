@@ -49,10 +49,14 @@ export class StellarService {
     }
   }
 
-  async getBalance(publicKey: string): Promise<BalanceLine[]> {
+  async getBalance(publicKey: string, name?: string, issuingPublicKey?: string): Promise<BalanceLine[]> {
     const server = new StellarSdk.Server(this.stellarUrl);
     const account = await server.loadAccount(publicKey);
-    return account.balances;
+    let balances = account.balances;
+    if(name && issuingPublicKey){
+      balances = account.balances[account.balances.findIndex((line) => line.asset_code === name && line.asset_issuer === issuingPublicKey)]
+    }
+    return balances;
   }
 
   async issueToken(
