@@ -84,16 +84,10 @@ export class HealthcareTokenController {
 
   @Get("valid")
   @Roles(UserRole.Patient)
-  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
-  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   async findValidToken(
     @UserId() userId: number,
-    @Query("page") qPage: string,
-    @Query("pageSize") qPageSize: string
-  ): Promise<Pagination<HealthcareToken>> {
-    const page = qPage ? parseInt(qPage) : 1;
-    const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    return this.healthcareTokenService.findValidTokens(userId, { page, pageSize });
+  ): Promise<HealthcareToken[]> {
+    return this.healthcareTokenService.findValidGeneralTokens(userId);
   }
 
   @Post("receive")
@@ -102,7 +96,7 @@ export class HealthcareTokenController {
     @UserId() userId: number,
     @Body() dto: ServiceAndPinDto
   ): Promise<void> {
-    return this.healthcareTokenService.receiveToken(userId, dto.serviceId, dto.pin);
+    return this.healthcareTokenService.receiveGeneralToken(userId, dto.serviceId, dto.pin);
   }
 
   @Get("verify")

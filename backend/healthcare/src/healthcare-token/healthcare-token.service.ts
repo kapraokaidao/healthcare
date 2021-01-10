@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
 import { HealthcareTokenDto, Slip } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Brackets, Connection, MoreThan, Repository } from "typeorm";
+import { Brackets, Connection, MoreThan, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
 import * as dayjs from "dayjs";
 import { StellarService } from "src/stellar/stellar.service";
@@ -107,118 +107,51 @@ export class HealthcareTokenService {
     return this.healthcareTokenRepository.save(token);
   }
 
-  async findValidTokens(
+  async findValidGeneralTokens(
     userId: number,
-    pageOptions: PaginationOptions,
-    serviceId?: number
-  ): Promise<Pagination<HealthcareToken>> {
+  ): Promise<HealthcareToken[]> {
     const user = await this.userService.findById(userId, true);
-    const now = dayjs();
-    const userAge = now.diff(user.patient.birthDate, "year");
-    const today = now.format("YYYY-MM-DD");
 
-    let query = this.healthcareTokenRepository
-      .createQueryBuilder("healthcare_token")
-      .take(pageOptions.pageSize)
-      .skip((pageOptions.page - 1) * pageOptions.pageSize)
-      .where(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.start_age <= :userAge", {
-            userAge: userAge,
-          }).orWhere("healthcare_token.start_age IS NULL");
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.end_age >= :userAge", { userAge: userAge }).orWhere(
-            "healthcare_token.end_age IS NULL"
-          );
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.gender = :userGender", {
-            userGender: user.patient.gender,
-          }).orWhere("healthcare_token.gender IS NULL");
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.start_date <= :today", { today: today }).orWhere(
-            "healthcare_token.start_date IS NULL"
-          );
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.end_date >= :today", { today: today }).orWhere(
-            "healthcare_token.end_date IS NULL"
-          );
-        })
-      )
+    let query = this.basicRulesQuery(user)
       .andWhere("healthcare_token.is_active = 1")
+      .andWhere("healthcare_token.token_type = :tokenType", {
+        tokenType: TokenType.General,
+      })
       .leftJoinAndSelect(
         "healthcare_token.userTokens",
         "user_token",
         "user_token.user_id = :userId",
         { userId: userId }
-      );
+      )
+      .leftJoinAndSelect(
+        "healthcare_token.members",
+        "member",
+        "member.patient_id = :userId",
+        { userId: userId }
+      )
+      .leftJoinAndSelect(
+        "healthcare_token.createdBy",
+        "created_by"
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("created_by.role = :NHSO", {NHSO: UserRole.NHSO})
+          .orWhere("created_by.role = :AGENCY AND member.id IS NOT NULL", {AGENCY: UserRole.Agency})
+        })
+      )
+      .andWhere("user_token.id IS NULL");
 
-    if (serviceId) {
-      query.andWhere("healthcare_token.id = :serviceId", { serviceId: serviceId });
-    }
-
-    const [tokens, totalCount] = await query.getManyAndCount();
-    return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
+    const tokens= await query.getMany();
+    return tokens;
   }
 
   async findValidSpecialTokens(userId: number): Promise<HealthcareToken[]> {
     const user = await this.userService.findById(userId, true);
-    const now = dayjs();
-    const userAge = now.diff(user.patient.birthDate, "year");
-    const today = now.format("YYYY-MM-DD");
-
-    let query = this.healthcareTokenRepository
-      .createQueryBuilder("healthcare_token")
-      .where(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.start_age <= :userAge", {
-            userAge: userAge,
-          }).orWhere("healthcare_token.start_age IS NULL");
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.end_age >= :userAge", { userAge: userAge }).orWhere(
-            "healthcare_token.end_age IS NULL"
-          );
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.gender = :userGender", {
-            userGender: user.patient.gender,
-          }).orWhere("healthcare_token.gender IS NULL");
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.start_date <= :today", { today: today }).orWhere(
-            "healthcare_token.start_date IS NULL"
-          );
-        })
-      )
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where("healthcare_token.end_date >= :today", { today: today }).orWhere(
-            "healthcare_token.end_date IS NULL"
-          );
-        })
-      )
+    let query = this.basicRulesQuery(user)
+      .andWhere("healthcare_token.is_active = 1")
       .andWhere("healthcare_token.token_type = :tokenType", {
         tokenType: TokenType.Special,
       })
-      .andWhere("healthcare_token.is_active = 1")
       .leftJoinAndSelect(
         "healthcare_token.userTokens",
         "user_token",
@@ -231,22 +164,20 @@ export class HealthcareTokenService {
     return tokens;
   }
 
-  async receiveToken(userId: number, serviceId: number, pin: string): Promise<void> {
-    const { data, totalCount } = await this.findValidTokens(
-      userId,
-      { page: 0, pageSize: 0 },
-      serviceId
+  async receiveGeneralToken(userId: number, serviceId: number, pin: string): Promise<void> {
+    const validGeneralTokens = await this.findValidGeneralTokens(
+      userId
     );
-    if (totalCount === 0) {
-      throw new BadRequestException("This service is not available for this user");
-    }
-    if (data[0].userTokens.length > 0) {
-      throw new BadRequestException("This service was received before");
+    if (
+      validGeneralTokens.findIndex(
+        (validGeneralToken) => validGeneralToken.id === serviceId
+      ) === -1
+    ) {
+      throw new BadRequestException("This service is not valid for this user");
     }
 
     await this.transferTokenFromNHSO(userId, serviceId, pin);
 
-    //Todo: update XDR
   }
 
   async getVerificationInfo(userId: number, serviceId: number): Promise<UserToken> {
@@ -470,6 +401,8 @@ export class HealthcareTokenService {
         amount
       );
     });
+    
+    //Todo: update XDR
 
     const slip = new Slip();
     slip.amount = amount;
@@ -626,5 +559,52 @@ export class HealthcareTokenService {
       );
     });
     //Todo: update XDR
+  }
+
+  private basicRulesQuery(user: User): SelectQueryBuilder<HealthcareToken> {
+    const now = dayjs();
+    const userAge = now.diff(user.patient.birthDate, "year");
+    const today = now.format("YYYY-MM-DD");
+    let query = this.healthcareTokenRepository
+      .createQueryBuilder("healthcare_token")
+      .where(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.start_age <= :userAge", {
+            userAge: userAge,
+          }).orWhere("healthcare_token.start_age IS NULL");
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.end_age >= :userAge", { userAge: userAge }).orWhere(
+            "healthcare_token.end_age IS NULL"
+          );
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.gender = :userGender", {
+            userGender: user.patient.gender,
+          }).orWhere("healthcare_token.gender IS NULL");
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.start_date <= :today", { today: today }).orWhere(
+            "healthcare_token.start_date IS NULL"
+          );
+        })
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("healthcare_token.end_date >= :today", { today: today }).orWhere(
+            "healthcare_token.end_date IS NULL"
+          );
+        })
+      )
+      .andWhere(
+        "healthcare_token.remaining_token > 0"
+      )
+      return query
   }
 }

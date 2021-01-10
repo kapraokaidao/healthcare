@@ -15,6 +15,7 @@ import { TokenType } from "../constant/enum/token.enum";
 import { UserToken } from "./user-token.entity";
 import { Transaction } from "./transaction.entity";
 import { User } from "./user.entity";
+import { Member } from "./member.entity";
 
 @Entity()
 export class HealthcareToken {
@@ -84,6 +85,11 @@ export class HealthcareToken {
   @ApiProperty()
   @OneToMany(() => Transaction, (transaction) => transaction.healthcareToken)
   transactions: Transaction[];
+
+  @ApiProperty()
+  @OneToMany(() => Member, (member) => member.healthcareToken)
+  members: Member[];
+
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
 
@@ -30,4 +30,8 @@ export class Keypair {
   @ManyToOne(() => User, (user) => user.keypairs)
   @JoinColumn({ name: "user_id" })
   user: User;
+
+  @OneToOne(() => User)
+  @JoinColumn({ name: "agency_id" })
+  agency: User;
 }
