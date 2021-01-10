@@ -9914,6 +9914,13 @@ react-spinners@^0.9.0:
   dependencies:
     "@emotion/core" "^10.0.15"
 
+react-to-print@^2.12.2:
+  version "2.12.2"
+  resolved "https://registry.yarnpkg.com/react-to-print/-/react-to-print-2.12.2.tgz#1c6323ed6d2eafab4b833a66d1ff83ae74881a62"
+  integrity sha512-uF5tRTmwG9pnakb0Eko1O/+7plrUc3vcG3hKPkT1R7pGqvA9eDmilkRaV+WT66iD9Ii+3WZojlvgEdoPs/+aMw==
+  dependencies:
+    prop-types "^15.7.2"
+
 react-transition-group@^4.4.0:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.1.tgz#63868f9325a38ea5ee9535d828327f85773345c9"
