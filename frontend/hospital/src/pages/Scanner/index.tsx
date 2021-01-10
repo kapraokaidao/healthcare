@@ -34,12 +34,14 @@ const Scanner = () => {
 	const [userId, setUserId] = useState(0);
 	const [serviceId, setServiceId] = useState(0);
 	const [openQR, setOpenQR] = useState(false);
-	const scanPatient = useCallback(async (qrString: string) => {
-		const qr = JSON.parse(qrString);
-		if (qr.userId && qr.serviceId) {
-			setUserId(qr.userId);
-			setServiceId(qr.serviceId);
-			setOpenQR(false);
+	const scanPatient = useCallback((data: string|null) => {
+		if(data){
+			const qr = JSON.parse(data);
+			if(qr.userId && qr.serviceId) {
+				setUserId(qr.userId);
+				setServiceId(qr.serviceId);
+				setOpenQR(false);
+			}
 		}
 	}, []);
 
@@ -145,8 +147,8 @@ const Scanner = () => {
 						className="qr-image-wrapper"
 						showViewFinder={false}
 						delay={300}
-						onError={() => {}}
-						onScan={() => {}}
+						onError={(e) => {console.log(e)}}
+						onScan={scanPatient}
 						style={{ width: '100%' }}
 					/>
 				)}
