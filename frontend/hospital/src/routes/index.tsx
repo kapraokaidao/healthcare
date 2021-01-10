@@ -5,9 +5,11 @@ import { PathContext } from '../App';
 import RequireAuth from '../components/RequireAuth';
 import ChangePassword from '../pages/ChangePassword';
 import ChangePin from '../pages/ChangePin';
+import LogHistory from '../pages/History';
 import Pin from '../pages/Pin';
 import Scanner from '../pages/Scanner';
 import Signin from '../pages/Signin';
+import Wallet from '../pages/Wallet';
 import { AuthStoreContext } from '../stores';
 import SiteHome from './../pages/SiteHome';
 
@@ -54,6 +56,12 @@ const Routes = () => {
 					exact
 					path="/scanner"
 					component={(props: any) => <RequireAuth {...props} Component={Scanner} />}
+				/>
+				<Route exact path="/wallet" component={(props: any) => <RequireAuth {...props} Component={Wallet} />} />
+				<Route
+					exact
+					path="/history"
+					component={(props: any) => <RequireAuth {...props} Component={LogHistory} />}
 				/>
 			</Switch>
 		</div>
