@@ -66,7 +66,8 @@ const Balance = observer(() => {
 
 	const withdrawnToken = useCallback(async () => {
 		axios.post('/healthcare-token/withdraw',{
-			pin
+			pin : pin,
+			destinationPublicKey : "GABBELJSL5WXRGMYOYHFKJ74MRRIQELNVDDTZC7TYHZ5Y44T7YWYXJ4V"
 		});
 		setFetchData(true)
 		handleClose()
@@ -132,7 +133,6 @@ const Balance = observer(() => {
 				<h1> Please enter the pin. </h1>
 				<div className="mt-15">
 					<TextField
-						className="button-pin"
 						label="6 Digit PINs"
 						variant="outlined"
 						value={pin}
@@ -143,17 +143,16 @@ const Balance = observer(() => {
 							}
 						}}
 					/>
+					<></>
 					<Button
-						className="button-pin"
 						variant="contained" 
-						color="secondary" 
+						color="primary" 
 						size="large" 
 						onClick={withdrawnToken}
 					>
 					Confirm
 					</Button>
 					<Button
-						className="button-pin"
 						variant="contained" 
 						color="secondary" 
 						size="large" 
