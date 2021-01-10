@@ -18,7 +18,7 @@ import './style.scss';
 const Wallet = () => {
 	const { setTitle } = useContext(TitleContext);
 	useEffect(() => {
-		setTitle('Manage Balance');
+		setTitle('Wallet');
 	}, [setTitle]);
 	const [balance, setBalance] = useState<BalanceDetail[]>([]);
 	const [selectedBalance, setSelectedBalance] = useState<BalanceDetail>();

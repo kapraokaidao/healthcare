@@ -14,6 +14,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import axios from 'axios';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import QrReader from 'react-qr-reader';
 import { TitleContext } from '../../App';
 import { TokenDetail, User } from '../../types';
 import './style.scss';
@@ -32,9 +33,14 @@ const Scanner = () => {
 
 	const [userId, setUserId] = useState(0);
 	const [serviceId, setServiceId] = useState(0);
-	const scanPatient = useCallback(async () => {
-		setUserId(230);
-		setServiceId(319);
+	const [openQR, setOpenQR] = useState(false);
+	const scanPatient = useCallback(async (qrString: string) => {
+		const qr = JSON.parse(qrString);
+		if (qr.userId && qr.serviceId) {
+			setUserId(qr.userId);
+			setServiceId(qr.serviceId);
+			setOpenQR(false);
+		}
 	}, []);
 
 	const [scan, setScan] = useState<ScanPatient | null>(null);
@@ -123,10 +129,27 @@ const Scanner = () => {
 			<h1>Scan Patient Info</h1>
 			<div>
 				<div className="center">
-					<Button onClick={scanPatient} variant="contained" color="primary" size="large">
+					<Button
+						onClick={() => {
+							setOpenQR(true);
+						}}
+						variant="contained"
+						color="primary"
+						size="large"
+					>
 						Scan
 					</Button>
 				</div>
+				{openQR && (
+					<QrReader
+						className="qr-image-wrapper"
+						showViewFinder={false}
+						delay={300}
+						onError={() => {}}
+						onScan={() => {}}
+						style={{ width: '100%' }}
+					/>
+				)}
 				<div className="patient-info mt-15">
 					<div>
 						<h2>Patient Info</h2>
