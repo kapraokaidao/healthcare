@@ -426,7 +426,6 @@ export class HealthcareTokenService {
   async withDraw(
     userId: number,
     serviceId: number,
-    destinationPublicKey: string,
     amount: number,
     pin: string
   ): Promise<Slip> {
@@ -452,7 +451,7 @@ export class HealthcareTokenService {
         userId,
         publicKey,
         null,
-        destinationPublicKey,
+        healthcareToken.issuingPublicKey,
         serviceId,
         amount,
         manager
@@ -465,7 +464,7 @@ export class HealthcareTokenService {
       );
       stellarTxId = await this.stellarService.transferToken(
         privateKey,
-        destinationPublicKey,
+        healthcareToken.issuingPublicKey,
         healthcareToken.name,
         healthcareToken.issuingPublicKey,
         amount
@@ -474,7 +473,7 @@ export class HealthcareTokenService {
 
     const slip = new Slip();
     slip.amount = amount;
-    slip.destinationPublicKey = destinationPublicKey;
+    slip.destinationPublicKey = healthcareToken.issuingPublicKey;
     slip.healthcareToken = healthcareToken;
     slip.hospital = user.hospital;
     slip.sourcePublicKey = publicKey;

@@ -212,7 +212,6 @@ export class HealthcareTokenController {
     return this.healthcareTokenService.withDraw(
       userId,
       dto.serviceId,
-      dto.destinationPublicKey,
       dto.amount,
       dto.pin
     );

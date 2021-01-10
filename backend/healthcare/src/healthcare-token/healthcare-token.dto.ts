@@ -62,9 +62,6 @@ export class ServiceAndPinDto {
 
 export class WithdrawDto extends ServiceAndPinDto {
   @ApiProperty()
-  destinationPublicKey: string;
-
-  @ApiProperty()
   amount: number;
 }
 
