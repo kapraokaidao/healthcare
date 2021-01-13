@@ -51,3 +51,7 @@ body {
 .align-right {
     text-align: right;
 }
+
+.p-10 {
+    padding: 10px;
+}
