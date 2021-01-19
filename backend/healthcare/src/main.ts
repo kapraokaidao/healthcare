@@ -24,10 +24,10 @@ async function bootstrap() {
   app.useGlobalFilters(new EntityNotFoundFilter());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
   app.useGlobalPipes(
+    new SanitizationPipe(),
     new ValidationPipe({
       transform: true,
-    }),
-    new SanitizationPipe()
+    })
   );
 
   const options = new DocumentBuilder()
