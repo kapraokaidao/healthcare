@@ -22,7 +22,7 @@ class NavItems extends ChangeNotifier {
   // By default first one is selected
   int selectedIndex = 0;
 
-  void chnageNavIndex({int index}) {
+  void changeNavIndex({int index}) {
     selectedIndex = index;
     // if any changes made it notify widgets that use the value
     notifyListeners();
