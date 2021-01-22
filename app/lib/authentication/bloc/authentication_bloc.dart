@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -48,18 +49,26 @@ class AuthenticationBloc
       yield await _mapAuthenticationStepChangedToState(event);
     } else if (event is AuthenticationLogoutRequested) {
       _authenticationRepository.logOut();
-    } else if (event is AuthenticationTelNoChanged) {
-      yield _mapTelNoChangedToState(event, state);
-    } else if (event is AuthenticationOTPChanged) {
-      yield _mapOTPChangedToState(event, state);
-    } else if (event is AuthenticationOTPRequested) {
-      yield state.copyWith(status: AuthenticationStatus.authenticating);
+    // } else if (event is AuthenticationTelNoChanged) {
+    //   yield _mapTelNoChangedToState(event, state);
+    // } else if (event is AuthenticationOTPChanged) {
+    //   yield _mapOTPChangedToState(event, state);
+    // } else if (event is AuthenticationOTPRequested) {
+    //   yield state.copyWith(status: AuthenticationStatus.authenticating);
       // yield await _mapOTPRequestedToState(event, state);
-    } else if (event is AuthenticationOTPSubmitted) {
-      yield state.copyWith(status: AuthenticationStatus.authenticating);
+    // } else if (event is AuthenticationOTPSubmitted) {
+    //   yield state.copyWith(status: AuthenticationStatus.authenticating);
       // yield await _mapOTPSubmittedToState(event, state);
     } else if (event is AuthenticationPatientProfileUpdated) {
       yield _mapNewPatientProfileUpdatedToState(event, state);
+      // re-work starts here
+    } else if (event is AuthenticationNationalIdChanged) {
+      yield _mapNationalIdChangedToState(event, state);
+    } else if (event is AuthenticationPinChanged) {
+      yield _mapPinChangedToState(event, state);
+    } else if (event is AuthenticationCredentialsSubmitted) {
+      yield state.copyWith(status: AuthenticationStatus.authenticating);
+      yield await _mapCredentialsLoginRequestToState(event, state);
     }
   }
 
@@ -105,19 +114,29 @@ class AuthenticationBloc
     }
   }
 
-  AuthenticationState _mapTelNoChangedToState(
-      AuthenticationTelNoChanged event, AuthenticationState state) {
-    final telNo = event.telNo;
-
-    return state.copyWith(telNo: telNo);
+  AuthenticationState _mapNationalIdChangedToState(AuthenticationNationalIdChanged event, AuthenticationState state) {
+    final nationalId = event.nationalId;
+    return state.copyWith(nationalId: nationalId);
   }
 
-  AuthenticationState _mapOTPChangedToState(
-      AuthenticationOTPChanged event, AuthenticationState state) {
-    final otp = event.otp;
-
-    return state.copyWith(otp: otp);
+  AuthenticationState _mapPinChangedToState(AuthenticationPinChanged event, AuthenticationState state) {
+    final pin = event.pin;
+    return state.copyWith(pin: pin);
   }
+
+  // AuthenticationState _mapTelNoChangedToState(
+  //     AuthenticationTelNoChanged event, AuthenticationState state) {
+  //   final telNo = event.telNo;
+  //
+  //   return state.copyWith(telNo: telNo);
+  // }
+  //
+  // AuthenticationState _mapOTPChangedToState(
+  //     AuthenticationOTPChanged event, AuthenticationState state) {
+  //   final otp = event.otp;
+  //
+  //   return state.copyWith(otp: otp);
+  // }
 
   // Future<AuthenticationState> _mapOTPRequestedToState(
   //     AuthenticationOTPRequested event, AuthenticationState state) async {
@@ -133,6 +152,22 @@ class AuthenticationBloc
   //   }
   //   return state.copyWith(status: AuthenticationStatus.unauthenticated);
   // }
+
+  Future<AuthenticationState> _mapCredentialsLoginRequestToState(AuthenticationCredentialsSubmitted event, AuthenticationState state) async {
+    String nationalId = state.nationalId;
+    String pin = state.pin;
+    Map<String, dynamic> result = await this
+        ._authenticationRepository
+        .login(nationalId: nationalId, pin: pin);
+    if (result != null) {
+      String accessToken = result['access_token'];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', accessToken);
+      User user = await _tryGetUser();
+      return state.copyWith(status: AuthenticationStatus.authenticated, user: user);
+    }
+    return state.copyWith(status: AuthenticationStatus.unauthenticated);
+  }
 
   // Future<AuthenticationState> _mapOTPSubmittedToState(
   //     AuthenticationOTPSubmitted event, AuthenticationState state) async {
@@ -168,9 +203,12 @@ class AuthenticationBloc
     return state.copyWith(
         user: state.user.copyWith(
           patient: current.copyWith(
-            name: event.name,
-            birthDate: event.birthDate,
+            nationalId: event.nationalId,
             gender: event.gender,
+            birthDate: event.birthDate,
+            approved: event.approved,
+            nationalIdImage: event.nationalIdImage,
+            selfieImage: event.selfieImage
           ),
         )
     );

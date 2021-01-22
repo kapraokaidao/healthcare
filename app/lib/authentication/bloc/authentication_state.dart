@@ -4,14 +4,13 @@ class AuthenticationState extends Equatable {
   final AuthenticationStatus status;
   final AuthenticationStep step;
   final User user;
-  final String otp;
-  final String ref;
-  final String telNo;
+  final String nationalId;
+  final String pin;
 
   const AuthenticationState(
-      {this.otp = '',
-        this.ref = '',
-        this.telNo = '',
+      {
+        this.nationalId = '',
+        this.pin = '',
         this.user,
         this.status = AuthenticationStatus.unknown,
         this.step = AuthenticationStep.inputCredential});
@@ -26,21 +25,21 @@ class AuthenticationState extends Equatable {
       : this(status: AuthenticationStatus.unauthenticated);
 
   AuthenticationState copyWith(
-      {String otp,
-        String ref,
-        String telNo,
+      {
+        String nationalId,
+        String pin,
         User user,
         AuthenticationStep step,
-        AuthenticationStatus status}) {
+        AuthenticationStatus status
+      }) {
     return AuthenticationState(
-        otp: otp ?? this.otp,
-        ref: ref ?? this.ref,
-        telNo: telNo ?? this.telNo,
+        nationalId: nationalId ?? this.nationalId,
+        pin: pin ?? this.pin,
         status: status ?? this.status,
         user: user ?? this.user,
         step: step ?? this.step);
   }
 
   @override
-  List<Object> get props => [status, user, otp, ref, telNo, step];
+  List<Object> get props => [status, user, step];
 }

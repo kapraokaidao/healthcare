@@ -43,6 +43,15 @@ class AuthenticationRepository {
     return null;
   }
 
+  Future<dynamic> login(
+      {
+        @required String nationalId,
+        @required String pin}) async {
+    Map<String, dynamic> response = await HttpClient.post(
+        '/auth/login', {'username': nationalId, 'password': pin});
+
+    return response;
+  }
 
   void logOut() {
     _statusController.add(AuthenticationStatus.unauthenticated);

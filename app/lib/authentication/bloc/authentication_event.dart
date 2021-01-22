@@ -27,39 +27,72 @@ class AuthenticationStepChanged extends AuthenticationEvent {
 
 class AuthenticationLogoutRequested extends AuthenticationEvent {}
 
-class AuthenticationTelNoChanged extends AuthenticationEvent {
-  final String telNo;
+class AuthenticationNationalIdChanged extends AuthenticationEvent {
+  final String nationalId;
 
-  const AuthenticationTelNoChanged(this.telNo);
-
-  @override
-  List<Object> get props => [telNo];
-}
-
-class AuthenticationOTPChanged extends AuthenticationEvent {
-  final String otp;
-
-  const AuthenticationOTPChanged(this.otp);
+  const AuthenticationNationalIdChanged(this.nationalId);
 
   @override
-  List<Object> get props => [otp];
+  List<Object> get props => [nationalId];
 }
 
-class AuthenticationOTPRequested extends AuthenticationEvent {
-  const AuthenticationOTPRequested();
+class AuthenticationPinChanged extends AuthenticationEvent {
+  final String pin;
+
+  const AuthenticationPinChanged(this.pin);
+
+  @override
+  List<Object> get props => [pin];
+}
+// class AuthenticationTelNoChanged extends AuthenticationEvent {
+//   final String telNo;
+//
+//   const AuthenticationTelNoChanged(this.telNo);
+//
+//   @override
+//   List<Object> get props => [telNo];
+// }
+//
+// class AuthenticationOTPChanged extends AuthenticationEvent {
+//   final String otp;
+//
+//   const AuthenticationOTPChanged(this.otp);
+//
+//   @override
+//   List<Object> get props => [otp];
+// }
+
+class AuthenticationCredentialsSubmitted extends AuthenticationEvent {
+  const AuthenticationCredentialsSubmitted();
 }
 
-class AuthenticationOTPSubmitted extends AuthenticationEvent {
-  const AuthenticationOTPSubmitted();
-}
+// class AuthenticationOTPRequested extends AuthenticationEvent {
+//   const AuthenticationOTPRequested();
+// }
+//
+// class AuthenticationOTPSubmitted extends AuthenticationEvent {
+//   const AuthenticationOTPSubmitted();
+// }
 
 class AuthenticationPatientProfileUpdated extends AuthenticationEvent {
-  final String name;
-  final String birthDate;
+  final int id;
+  final String nationalId;
   final String gender;
+  final String birthDate;
+  final bool approved;
+  final String nationalIdImage;
+  final String selfieImage;
 
-  AuthenticationPatientProfileUpdated({ this.name, this.birthDate, this.gender });
+  AuthenticationPatientProfileUpdated({
+    this.id,
+    this.nationalId,
+    this.gender,
+    this.birthDate,
+    this.approved,
+    this.nationalIdImage,
+    this.selfieImage
+  });
 
   @override
-  List<Object> get props => [name, birthDate, gender];
+  List<Object> get props => [id, nationalId, birthDate, gender, approved, nationalIdImage, selfieImage];
 }

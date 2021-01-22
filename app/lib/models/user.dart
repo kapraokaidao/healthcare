@@ -3,55 +3,83 @@ import 'package:healthcare_app/models/patient.dart';
 
 class User extends Equatable {
   final int id;
-  final String telNo;
-  final String email;
+  final String username;
+  final String firstname;
+  final String lastname;
+  final String role;
+  final String phone;
+  final String address;
   final Patient patient;
-  final bool isRegistered;
-  final bool isAcceptedTerm;
 
   const User(
       {this.id,
-        this.email,
-        this.telNo,
-        this.patient,
-        this.isRegistered,
-        this.isAcceptedTerm});
-
+        this.username,
+        this.firstname,
+        this.lastname,
+        this.role,
+        this.phone,
+        this.address,
+        this.patient});
+/*
+* "id": 231,
+  "username": "patient",
+  "firstname": "patient",
+  "lastname": "",
+  "role": "Patient",
+  "phone": "patient",
+  "address": "patient",
+  "createdDate": "2020-12-17T17:59:18.718Z",
+  "updatedDate": "2021-01-04T12:51:01.000Z",
+  "deletedDate": null,
+* */
   factory User.fromJSON(dynamic json) {
     return User(
       id: json["id"],
-      telNo: json["telNo"],
-      email: json["email"],
+      username: json["username"],
+      firstname: json["firstname"],
+      lastname: json["lastname"],
+      role: json["role"],
+      phone: json["phone"],
+      address: json["address"],
       patient: json["patient"] != null ? Patient.fromJSON(json["patient"]) : null,
-      isRegistered: json["isRegistered"] ?? false,
-      isAcceptedTerm: json["isAcceptedTerm"] ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
     var map = <String, dynamic>{};
-    map["email"] = email;
-    map["telNo"] = telNo;
+    map["id"] = id;
+    map["username"] = username;
+    map["firstname"] = firstname;
+    map["lastname"] = lastname;
+    map["role"] = role;
+    map["phone"] = phone;
+    map["address"] = address;
     map["patient"] = patient != null ? patient.toJson() : null;
 
     return map;
   }
 
   User copyWith({
-    String email,
-    String telNo,
+    String username,
+    String firstname,
+    String lastname,
+    String role,
+    String phone,
+    String address,
     Patient patient,
   }) {
     return User(
       id: this.id,
-      email: email ?? this.email,
-      telNo: telNo ??this.telNo,
+      username: username ?? this.username,
+      firstname: firstname ?? this.firstname,
+      lastname: lastname ?? this.lastname,
+      role: role ?? this.role,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
       patient: patient ?? this.patient,
-      isRegistered: this.isRegistered,
-      isAcceptedTerm: this.isAcceptedTerm,
     );
   }
 
   @override
-  List<Object> get props => [id, telNo, email, patient, isRegistered, isAcceptedTerm];
+  List<Object> get props => [id, username, firstname, lastname, role, phone, address, patient];
 }

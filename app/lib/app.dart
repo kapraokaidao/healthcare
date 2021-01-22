@@ -1,4 +1,7 @@
+import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/repositories/index.dart';
+import 'package:healthcare_app/screens/main_menu.dart';
+import 'package:healthcare_app/theme/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
@@ -80,24 +83,56 @@ class AppView extends StatefulWidget {
 }
 
 class _AppViewState extends State<AppView> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  NavigatorState get _navigator => _navigatorKey.currentState;
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => NavItems(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Healthcare App',
-        theme: ThemeData(
-          // backgroundColor: Colors.white,
-          scaffoldBackgroundColor: Colors.white,
-          // We apply this to our appBarTheme because most of our appBar have this style
-          appBarTheme: AppBarTheme(color: Colors.white, elevation: 0),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: StartScreen(),
-      ),
-    );
+    return GestureDetector(
+        onTap: () {
+          WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
+        },
+        child: MaterialApp(
+          navigatorKey: _navigatorKey,
+          title: 'Healthcare App',
+          theme: defaultTheme,
+          builder: (context, child) {
+            return BlocListener<AuthenticationBloc, AuthenticationState>(
+              listenWhen: (previous, current) =>
+              previous.status != current.status ||
+                  previous.step != current.step,
+              listener: (context, state) {
+                if (state.status != AuthenticationStatus.authenticated) {
+                   _navigator.push(AuthenticationPage.route(MainMenu.route()));
+                }
+              },
+              child: child,
+            );
+          },
+          onGenerateRoute: (s) {
+            return MainMenu.route();
+          },
+        ));
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return ChangeNotifierProvider(
+  //     create: (context) => NavItems(),
+  //     child: MaterialApp(
+  //       debugShowCheckedModeBanner: false,
+  //       title: 'Healthcare App',
+  //       theme: ThemeData(
+  //         // backgroundColor: Colors.white,
+  //         scaffoldBackgroundColor: Colors.white,
+  //         // We apply this to our appBarTheme because most of our appBar have this style
+  //         appBarTheme: AppBarTheme(color: Colors.white, elevation: 0),
+  //         visualDensity: VisualDensity.adaptivePlatformDensity,
+  //       ),
+  //       home: StartScreen(),
+  //     ),
+  //   );
+  // }
 }
 
   // @override
