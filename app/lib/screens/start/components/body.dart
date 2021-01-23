@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/agreement/agreement_screen.dart';
+import 'package:healthcare_app/screens/login/login_screen.dart';
 
 class Body extends StatelessWidget {
   @override
@@ -16,15 +17,26 @@ class Body extends StatelessWidget {
                 Text('Healthcare Token'),
               ],
             ),
-            OutlineButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AgreementScreen()),
-                );
-              },
-              child: Text('Next'),
-            )
+            Column(children: [
+              OutlineButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AgreementScreen()),
+                  );
+                },
+                child: Text('Register'),
+              ),
+              OutlineButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+                child: Text('Login'),
+              )
+            ])
           ],
         ),
       ),

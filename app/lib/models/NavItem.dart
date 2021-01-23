@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/account/prrofile_screen.dart';
+import 'package:healthcare_app/screens/account/account_screen.dart';
+import 'package:healthcare_app/screens/token/token_screen.dart';
 
 class NavItem {
   final int id;
@@ -29,10 +30,7 @@ class NavItems extends ChangeNotifier {
   }
 
   List<NavItem> items = [
-    NavItem(
-      id: 1,
-      icon: "assets/icons/home.svg",
-    ),
+    NavItem(id: 1, icon: "assets/icons/home.svg", destination: TokenScreen()),
     NavItem(
       id: 2,
       icon: "assets/icons/list.svg",

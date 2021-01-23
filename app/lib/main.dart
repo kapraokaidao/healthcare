@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/account/prrofile_screen.dart';
+import 'package:healthcare_app/screens/login/login_screen.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:healthcare_app/models/NavItem.dart';
