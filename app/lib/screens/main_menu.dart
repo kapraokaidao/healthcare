@@ -25,8 +25,6 @@ class _MainMenuState extends State<MainMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthenticationBloc, AuthenticationState>(builder: (ctx, state) {
-      return Text(state.user.username);
-    });
+    return StartScreen();
   }
 }

@@ -5,6 +5,7 @@ import 'package:healthcare_app/components/styled_text_form_field.dart';
 
 import 'package:healthcare_app/components/round_button.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
+import 'package:healthcare_app/repositories/authentication_repository.dart';
 
 class AuthenticationLogin extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -41,18 +42,18 @@ class AuthenticationLogin extends StatelessWidget {
                       Expanded(
                         child: Container(
                             child: StyledTextFormField(
-                              keyboardType: TextInputType.phone,
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'กรุณากรอกเลขประจำตัวประชาชน';
-                                }
-                                if (!_nationalIdRegex.hasMatch(value)) {
-                                  return 'กรุณากรอกเลขประจำตัวประชาชนให้ถูกต้อง';
-                                }
-                                return null;
-                              },
+                              // keyboardType: TextInputType.phone,
+                              // validator: (value) {
+                              //   if (value.isEmpty) {
+                              //     return 'กรุณากรอกเลขประจำตัวประชาชน';
+                              //   }
+                              //   if (!_nationalIdRegex.hasMatch(value)) {
+                              //     return 'กรุณากรอกเลขประจำตัวประชาชนให้ถูกต้อง';
+                              //   }
+                              //   return null;
+                              // },
                               onChanged: (nationalId) => context
-                                  .watch<AuthenticationBloc>()
+                                  .read<AuthenticationBloc>()
                                   .add(AuthenticationNationalIdChanged(nationalId)),
                             )),
                       )
@@ -70,19 +71,19 @@ class AuthenticationLogin extends StatelessWidget {
                       Expanded(
                         child: Container(
                             child: StyledTextFormField(
-                              keyboardType: TextInputType.phone,
+                              // keyboardType: TextInputType.phone,
                               obscureText: true,
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'กรุณากรอก pin';
-                                }
-                                if (!_pinRegExp.hasMatch(value)) {
-                                  return 'กรุณากรอก pin ให้ถูกต้อง';
-                                }
-                                return null;
-                              },
+                              // validator: (value) {
+                              //   if (value.isEmpty) {
+                              //     return 'กรุณากรอก pin';
+                              //   }
+                              //   if (!_pinRegExp.hasMatch(value)) {
+                              //     return 'กรุณากรอก pin ให้ถูกต้อง';
+                              //   }
+                              //   return null;
+                              // },
                               onChanged: (pin) => context
-                                  .watch<AuthenticationBloc>()
+                                  .read<AuthenticationBloc>()
                                   .add(AuthenticationPinChanged(pin)),
                             )),
                       )
@@ -99,7 +100,10 @@ class AuthenticationLogin extends StatelessWidget {
                             onPressed: () {
                               if (_formKey.currentState.validate()) {
                                 context
-                                    .watch<AuthenticationBloc>()
+                                    .read<AuthenticationBloc>()
+                                    .add(AuthenticationStatusChanged(AuthenticationStatus.authenticating));
+                                context
+                                    .read<AuthenticationBloc>()
                                     .add(AuthenticationCredentialsSubmitted());
                               }
                             },

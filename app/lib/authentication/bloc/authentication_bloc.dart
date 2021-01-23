@@ -63,12 +63,11 @@ class AuthenticationBloc
       yield _mapNewPatientProfileUpdatedToState(event, state);
       // re-work starts here
     } else if (event is AuthenticationNationalIdChanged) {
-      yield _mapNationalIdChangedToState(event, state);
+      yield _mapNationalIdChangedToState(event);
     } else if (event is AuthenticationPinChanged) {
-      yield _mapPinChangedToState(event, state);
+      yield _mapPinChangedToState(event);
     } else if (event is AuthenticationCredentialsSubmitted) {
-      yield state.copyWith(status: AuthenticationStatus.authenticating);
-      yield await _mapCredentialsLoginRequestToState(event, state);
+      yield await _mapCredentialsLoginRequestToState(event);
     }
   }
 
@@ -114,46 +113,17 @@ class AuthenticationBloc
     }
   }
 
-  AuthenticationState _mapNationalIdChangedToState(AuthenticationNationalIdChanged event, AuthenticationState state) {
+  AuthenticationState _mapNationalIdChangedToState(AuthenticationNationalIdChanged event) {
     final nationalId = event.nationalId;
     return state.copyWith(nationalId: nationalId);
   }
 
-  AuthenticationState _mapPinChangedToState(AuthenticationPinChanged event, AuthenticationState state) {
+  AuthenticationState _mapPinChangedToState(AuthenticationPinChanged event) {
     final pin = event.pin;
     return state.copyWith(pin: pin);
   }
 
-  // AuthenticationState _mapTelNoChangedToState(
-  //     AuthenticationTelNoChanged event, AuthenticationState state) {
-  //   final telNo = event.telNo;
-  //
-  //   return state.copyWith(telNo: telNo);
-  // }
-  //
-  // AuthenticationState _mapOTPChangedToState(
-  //     AuthenticationOTPChanged event, AuthenticationState state) {
-  //   final otp = event.otp;
-  //
-  //   return state.copyWith(otp: otp);
-  // }
-
-  // Future<AuthenticationState> _mapOTPRequestedToState(
-  //     AuthenticationOTPRequested event, AuthenticationState state) async {
-  //   String telNo = state.telNo;
-  //   telNo = telNo.replaceFirst(new RegExp(r'0'), '+66');
-  //
-  //   Map<String, dynamic> result =
-  //   await this._authenticationRepository.requestOTP(telNo: telNo);
-  //
-  //   if (result != null && result['status'] == 'success') {
-  //     return state.copyWith(
-  //         ref: result['ref'], step: AuthenticationStep.inputOTP, status: AuthenticationStatus.unknown);
-  //   }
-  //   return state.copyWith(status: AuthenticationStatus.unauthenticated);
-  // }
-
-  Future<AuthenticationState> _mapCredentialsLoginRequestToState(AuthenticationCredentialsSubmitted event, AuthenticationState state) async {
+  Future<AuthenticationState> _mapCredentialsLoginRequestToState(AuthenticationCredentialsSubmitted event) async {
     String nationalId = state.nationalId;
     String pin = state.pin;
     Map<String, dynamic> result = await this
@@ -168,31 +138,6 @@ class AuthenticationBloc
     }
     return state.copyWith(status: AuthenticationStatus.unauthenticated);
   }
-
-  // Future<AuthenticationState> _mapOTPSubmittedToState(
-  //     AuthenticationOTPSubmitted event, AuthenticationState state) async {
-  //   if (state.otp.length >= 6) {
-  //     FirebaseMessaging firebaseMessaging = FirebaseMessaging();
-  //     String deviceToken = await firebaseMessaging.getToken();
-  //
-  //     String telNo = state.telNo;
-  //     telNo = telNo.replaceFirst(new RegExp(r'0'), '+66');
-  //
-  //     Map<String, dynamic> result = await this
-  //         ._authenticationRepository
-  //         .submitOTP(otp: state.otp, ref: state.ref, telNo: telNo, deviceToken: deviceToken);
-  //
-  //     if (result != null && result['status'] == 'success') {
-  //       String accessToken = result['access_token'];
-  //       SharedPreferences prefs = await SharedPreferences.getInstance();
-  //       await prefs.setString('accessToken', accessToken);
-  //
-  //       User userProfile = await _tryGetUser();
-  //       return state.copyWith(status: AuthenticationStatus.authenticated, user: userProfile);
-  //     }
-  //   }
-  //   return state.copyWith(status: AuthenticationStatus.unauthenticated);
-  // }
 
   AuthenticationState _mapNewPatientProfileUpdatedToState(AuthenticationPatientProfileUpdated event, AuthenticationState state) {
     Patient current = state?.user?.patient;

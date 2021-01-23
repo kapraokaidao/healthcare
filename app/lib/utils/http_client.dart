@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpClient {
   // static final String baseUrl = 'http://localhost:3000'; // Local
-  static final String baseUrl = 'https://api-xjdddpc5ya-an.a.run.app'; // Prod
+  static final String baseUrl = 'https://dev-healthcare-backend.kaoths.dev'; // Dev
 
   static Future<Map<String, String>> _getDefaultHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
