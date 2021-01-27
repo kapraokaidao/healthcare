@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
-import 'package:healthcare_app/authentication/authentication_login.dart';
 import 'package:healthcare_app/repositories/index.dart';
+import 'package:healthcare_app/screens/login/authentication_login.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -80,20 +80,29 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   case AuthenticationStep.inputCredential:
                     content = AuthenticationLogin();
                     break;
-                  // case AuthenticationStep.inputOTP:
-                  //   content = AuthenticationOTP();
-                  //   break;
                   default:
                     content = Container(child: Text('Something went wrong'));
                     break;
                 }
 
-                return ModalProgressHUD(
-                  inAsyncCall: state.status == AuthenticationStatus.authenticating,
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(32, 64, 32, 64),
-                    child: content,
+                return Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/background.png'),
+                      fit: BoxFit.cover
+                      // fit: BoxFit.scaleDown
+                    )
                   ),
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: ModalProgressHUD(
+                      inAsyncCall: state.status == AuthenticationStatus.authenticating,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+                        child: content,
+                      ),
+                    ),
+                  )
                 );
               }
           ),
