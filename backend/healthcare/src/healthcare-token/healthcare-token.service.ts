@@ -41,10 +41,6 @@ export class HealthcareTokenService {
       "stellar.receivingSecret"
     );
   }
-
-  async findById(serviceId: number): Promise<HealthcareToken>{
-    return this.healthcareTokenRepository.findOneOrFail(serviceId)
-  }
   
   async find(
     conditions,
@@ -100,6 +96,21 @@ export class HealthcareTokenService {
       skip: (pageOptions.page - 1) * pageOptions.pageSize,
     });
     return toPagination<UserToken>(userTokens, totalCount, pageOptions);
+  }
+
+  async getBalanceByServiceId(
+    userId: number,
+    serviceId: number
+  ): Promise<UserToken> {
+    const query = this.userTokenRepository.createQueryBuilder(
+      "user_token"
+    ).where(
+      "user_token.user_id = :userId AND user_token.healthcare_token_id = :serviceId", { userId: userId, serviceId: serviceId }
+    ).leftJoinAndSelect(
+      "user_token.healthcareToken",
+      "healthcare_token"
+    )
+    return query.getOneOrFail()
   }
 
   async deactivateToken(id: number): Promise<HealthcareToken> {

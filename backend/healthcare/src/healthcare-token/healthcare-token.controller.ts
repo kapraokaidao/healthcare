@@ -36,14 +36,6 @@ import { UserToken } from "src/entities/user-token.entity";
 export class HealthcareTokenController {
   constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
 
-  @Get("/:serviceId")
-  @Roles(UserRole.Hospital, UserRole.Patient, UserRole.NHSO)
-  async (
-    @Param("serviceId") serviceId: number
-  ): Promise<HealthcareToken> {
-    return this.healthcareTokenService.findById(serviceId);
-  }
-
   @Get()
   @Roles(UserRole.NHSO, UserRole.Hospital)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
@@ -211,6 +203,15 @@ export class HealthcareTokenController {
       page: qPage,
       pageSize: qPageSize,
     });
+  }
+
+  @Get("/balance/:serviceId")
+  @Roles(UserRole.Patient)
+  async getBalanceByServiceId(
+    @UserId() userId,
+    @Param("serviceId") serviceId: number
+  ): Promise<UserToken> {
+    return this.healthcareTokenService.getBalanceByServiceId(userId, serviceId);
   }
 
   @Post("withdraw")
