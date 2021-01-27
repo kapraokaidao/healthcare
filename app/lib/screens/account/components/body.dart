@@ -20,13 +20,6 @@ class Body extends StatelessWidget {
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
 
-  _logout(context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('access_token');
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => StartScreen()));
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -98,7 +91,6 @@ class Body extends StatelessWidget {
                               width: 1,
                             ))),
                     OutlineButton(
-                      onPressed: () => _logout(context),
                       child: Text('Logout'),
                     )
                   ],

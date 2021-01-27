@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsEnum, IsNumberString, Length, Min } from "class-validator";
 import { UserGender } from "src/constant/enum/user.enum";
 
 export class CreateServiceDto {
@@ -9,6 +10,7 @@ export class CreateServiceDto {
   description: string;
 
   @ApiProperty()
+  @Min(0)
   totalToken: number;
 
   @ApiProperty()
@@ -18,15 +20,19 @@ export class CreateServiceDto {
   endDate: Date;
 
   @ApiProperty()
+  @Min(0)
   startAge: number;
 
   @ApiProperty()
+  @Min(0)
   endAge: number;
 
   @ApiProperty()
+  @IsEnum(UserGender)
   gender: UserGender;
 
   @ApiProperty()
+  @Min(0)
   tokenPerPerson: number;
 
   @ApiProperty()
@@ -35,6 +41,8 @@ export class CreateServiceDto {
 
 export class AddMemberDto {
   @ApiProperty()
+  @Length(13)
+  @IsNumberString()
   nationalId: string;
 
   @ApiProperty()
@@ -46,6 +54,8 @@ export class AddMemberDto {
 
 export class ConfirmTransferDto {
   @ApiProperty()
+  @Length(13)
+  @IsNumberString()
   nationalId: string;
 
   @ApiProperty()

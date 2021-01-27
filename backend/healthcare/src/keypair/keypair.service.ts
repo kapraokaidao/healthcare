@@ -56,9 +56,6 @@ export class KeypairService {
     if (activeKeypairsCount > 0) {
       throw new BadRequestException("Keypair is already existed");
     }
-    if (!/^\d{6}$/.test(dto.pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
-    }
 
     const keypair = await this.stellarService.createAccount(
       this.stellarReceivingSecret,
@@ -92,9 +89,6 @@ export class KeypairService {
     pin: string,
     keypair: Keypair
   ): Promise<string> {
-    if (!/^\d{6}$/.test(pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
-    }
 
     const user = await this.userService.findById(userId, true);
     let userSalt: string;
@@ -116,10 +110,6 @@ export class KeypairService {
   }
 
   async decryptPrivateKey(userId: number, pin: string): Promise<string> {
-    if (!/^\d{6}$/.test(pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
-    }
-
     const keypair = await this.keypairRepository.findOneOrFail({
       where: [{ user: { id: userId }, isActive: true }],
     });
