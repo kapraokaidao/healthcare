@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UploadedFile,
@@ -44,18 +46,16 @@ export class UserController {
 
   @Roles(UserRole.NHSO)
   @Get()
-  @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
-  @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
-  @ApiQuery({ name: "role", schema: { type: "string" }, required: false, enum: UserRole })
+  @ApiQuery({ name: "page", schema: { type: "integer" }})
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" }})
+  @ApiQuery({ name: "role", schema: { type: "string" }, enum: UserRole })
   async findAll(
-    @Query("page") qPage: string,
-    @Query("pageSize") qPageSize: string,
-    @Query("role") qRole: UserRole
+    @Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query("pageSize", new DefaultValuePipe(10), ParseIntPipe) pageSize: number,
+    @Query("role") role: UserRole
   ): Promise<Pagination<User>> {
-    const page = qPage ? parseInt(qPage) : 1;
-    const pageSize = qPageSize ? parseInt(qPageSize) : 10;
     const conditions = {};
-    if (qRole) conditions["role"] = qRole;
+    if (role) conditions["role"] = role;
     return this.userService.find(conditions, { page, pageSize });
   }
 
