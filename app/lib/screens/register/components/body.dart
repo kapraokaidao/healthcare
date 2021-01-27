@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/kyc/agreement_screen.dart';
+import 'package:healthcare_app/screens/kyc/kyc_screen.dart';
 
 class Body extends StatelessWidget {
   @override

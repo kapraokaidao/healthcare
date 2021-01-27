@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/account/account_screen.dart';
+import 'package:healthcare_app/screens/health/health_screen.dart';
+import 'package:healthcare_app/screens/history/history_screen.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
 
 class NavItem {
@@ -34,10 +36,12 @@ class NavItems extends ChangeNotifier {
     NavItem(
       id: 3,
       icon: "assets/icons/health.svg",
+      destination: HealthScreen(),
     ),
     NavItem(
       id: 4,
       icon: "assets/icons/history.svg",
+      destination: HistoryScreen(),
     ),
     NavItem(
       id: 5,
