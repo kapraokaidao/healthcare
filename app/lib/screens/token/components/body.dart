@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
-import 'package:healthcare_app/utils/http_client.dart';
+import 'package:healthcare_app/utils/index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class Body extends StatelessWidget {
   Future<dynamic> fetchUser() async {
@@ -36,38 +35,57 @@ class Body extends StatelessWidget {
                     "balance": data['balance'].toString(),
                   });
                 }
-                return DataTable(
-                  headingRowColor:
-                      MaterialStateColor.resolveWith((states) => Colors.orange),
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text(
-                        'Token name',
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Quality',
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                  rows: show.map(
-                    (user) {
-                      return DataRow(cells: <DataCell>[
-                        DataCell(Text(user["name"]), onTap: () {
-                          _viewTokenDetail(context, user["serviceId"]);
-                        }),
-                        DataCell(Text(user["balance"])),
-                      ]);
-                    },
-                  ).toList(),
-                );
+                return Container(
+                    alignment: Alignment.topCenter,
+                    margin: EdgeInsets.symmetric(vertical: 70, horizontal: 0),
+                    child: ConstrainedBox(
+                        constraints: BoxConstraints(minWidth: 500),
+                        child: DataTable(
+                          headingRowColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.orange),
+                          columns: const <DataColumn>[
+                            DataColumn(
+                              label: Text(
+                                'Token name',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            DataColumn(
+                              label: Text(
+                                'Quality',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                          rows: show.map(
+                            (user) {
+                              return DataRow(cells: <DataCell>[
+                                DataCell(
+                                    Text(user["name"],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        )), onTap: () {
+                                  _viewTokenDetail(context, user["serviceId"]);
+                                }),
+                                DataCell(
+                                    Text(user["balance"],
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        )), onTap: () {
+                                  _viewTokenDetail(context, user["serviceId"]);
+                                }),
+                              ]);
+                            },
+                          ).toList(),
+                        )));
               } else {
                 return Center(child: CircularProgressIndicator());
               }
