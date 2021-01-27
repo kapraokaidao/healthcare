@@ -148,7 +148,17 @@ class _RegisterPageState extends State<RegisterPage> {
                 RoundButton(
                   title: "submit",
                   onPressed: () {
-                    print('firstname ${firstnameController.value.text}');
+                    Map<String, dynamic> user = _createRegisterBody(
+                      firstname: firstnameController.value.text,
+                      lastname: lastnameController.value.text,
+                      nationalId: nationalIdController.value.text,
+                      pin: pinController.value.text,
+                      phone: phoneController.value.text,
+                      address: addressController.value.text,
+                      birthdate: birthdateController.value.text,
+                      gender: gender,
+                    );
+                    print(user);
                   },
                 )
               ],
@@ -159,7 +169,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  FutureBuilder
   Map<String, dynamic> _createRegisterBody({
     String firstname,
     String lastname,
@@ -173,8 +182,20 @@ class _RegisterPageState extends State<RegisterPage> {
     var user = <String, dynamic>{};
     var patient = <String, dynamic>{};
     user["username"] = nationalId;
+    user["password"] = pin;
     user["firstname"] = firstname;
     user["lastname"] = lastname;
+    user["role"] = "Patient";
+    user["phone"] = phone;
+    user["address"] = address;
+
+    patient["nationalId"] = nationalId;
+    patient["gender"] = gender;
+    patient["birthDate"] = birthdate;
+
+    user["patient"] = patient;
+
+    return user;
   }
   /*
   *   final _formKey = GlobalKey<FormState>();
