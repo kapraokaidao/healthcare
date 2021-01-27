@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { AuthCredentialsDto, ChangePasswordDto, ResetPasswordDto } from "./auth.dto";
+import { AuthCredentialsDto, ChangePasswordDto, PatientAuthCredentialsDto, ResetPasswordDto } from "./auth.dto";
 import { User } from "../entities/user.entity";
 import { PublicAPI } from "../decorators/public-api.decorator";
 import { FileUploadDto } from "../config/file.dto";
@@ -28,6 +28,12 @@ export class AuthController {
   @PublicAPI()
   @Post("login")
   async login(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential);
+  }
+
+  @PublicAPI()
+  @Post("patient/login")
+  async patientLogin(@Body() credential: PatientAuthCredentialsDto) {
     return this.authService.login(credential);
   }
 

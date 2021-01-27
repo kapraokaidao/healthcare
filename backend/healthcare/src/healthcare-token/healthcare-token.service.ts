@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
 import { HealthcareTokenDto, Slip } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -40,10 +40,6 @@ export class HealthcareTokenService {
     this.stellarReceivingSecret = this.configService.get<string>(
       "stellar.receivingSecret"
     );
-  }
-
-  async findById(serviceId: number): Promise<HealthcareToken>{
-    return this.healthcareTokenRepository.findOneOrFail(serviceId)
   }
   
   async find(
@@ -100,6 +96,21 @@ export class HealthcareTokenService {
       skip: (pageOptions.page - 1) * pageOptions.pageSize,
     });
     return toPagination<UserToken>(userTokens, totalCount, pageOptions);
+  }
+
+  async getBalanceByServiceId(
+    userId: number,
+    serviceId: number
+  ): Promise<UserToken> {
+    const query = this.userTokenRepository.createQueryBuilder(
+      "user_token"
+    ).where(
+      "user_token.user_id = :userId AND user_token.healthcare_token_id = :serviceId", { userId: userId, serviceId: serviceId }
+    ).leftJoinAndSelect(
+      "user_token.healthcareToken",
+      "healthcare_token"
+    )
+    return query.getOneOrFail()
   }
 
   async deactivateToken(id: number): Promise<HealthcareToken> {
@@ -277,6 +288,21 @@ export class HealthcareTokenService {
     return userToken;
   }
 
+  async findActiveRedeemRequest(userId: number): Promise<TransferRequest> {
+    const redeemRequest = await this.transferRequestRepository.findOne({
+      where: {
+        patient: { id: userId },
+        expiredDate: MoreThan(dayjs().toDate()),
+        isConfirmed: false,
+        type: TransferRequestType.Redemption,
+      },
+    });
+    if(!redeemRequest){ 
+      throw new NotFoundException("No active redeem request")
+    }
+    return redeemRequest
+  }
+  
   async createRedeemRequest(
     userId: number,
     patientId: number,
