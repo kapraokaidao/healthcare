@@ -1,14 +1,15 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/start/start_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:healthcare_app/utils/index.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 class Body extends StatelessWidget {
   Future<dynamic> fetchToken() async {
     final response = await HttpClient.get(path: '/healthcare-token/${30}');
     return response;
+  }
+
+  _sendPin(String pin) async {
+    print(pin);
   }
 
   final rowSpacer =
@@ -27,21 +28,25 @@ class Body extends StatelessWidget {
                     Container(
                         margin: EdgeInsets.all(20),
                         padding: EdgeInsets.all(20),
-                        child: Table(
+                        child: Column(
                           children: [
-                            TableRow(children: [
-                              Text('Name',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              Text(token["name"])
-                            ]),
-                            rowSpacer,
-                            TableRow(children: [
-                              Text('Description',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              Text("description")
-                            ]),
+                            Table(
+                              children: [
+                                TableRow(children: [
+                                  Text('Name',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text("123")
+                                ]),
+                                rowSpacer,
+                                TableRow(children: [
+                                  Text('Description',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text("description")
+                                ]),
+                              ],
+                            ),
                           ],
                         ),
                         width: double.infinity,
@@ -53,10 +58,14 @@ class Body extends StatelessWidget {
                               style: BorderStyle.solid,
                               width: 1,
                             ))),
-                    QrImage(
-                      data: "{\"userId\":230,\"serviceId\":319}",
-                      version: QrVersions.auto,
-                      size: 200.0,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: PinEntryTextField(
+                        fields: 6,
+                        isTextObscure: true,
+                        showFieldAsBox: true,
+                        onSubmit: _sendPin,
+                      ),
                     ),
                   ],
                 );
