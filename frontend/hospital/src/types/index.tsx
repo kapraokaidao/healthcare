@@ -44,10 +44,22 @@ export type User = {
 export type TokenDetail = {
 	id: number;
 	name: string;
+	remainingToken: number;
 	tokenType: Token;
 	description: string;
 	token: number;
 	startAge: number | null;
 	endAge: number | null;
 	gender: Gender | null;
+};
+
+export type BalanceDetail = {
+	balance: number;
+	healthcareToken: TokenDetail;
+};
+
+export type HistoryTransaction = {
+	id: number;
+	name: string;
+	amount: string;
 };

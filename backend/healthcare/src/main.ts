@@ -1,36 +1,34 @@
 import { NestFactory, Reflector } from "@nestjs/core";
 import { ConfigService } from "@nestjs/config";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { ExpressAdapter } from "@nestjs/platform-express";
-import * as express from "express";
 import * as helmet from "helmet";
 import * as Sentry from "@sentry/node";
-import * as Tracing from "@sentry/tracing";
 import { AppModule } from "./app.module";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { SentryInterceptor } from "./interceptors/sentry.interceptor";
+import { EntityNotFoundFilter } from "./exception-filters/entity-not-found.filter";
+import { ValidationPipe } from "@nestjs/common";
+import { SanitizationPipe } from "./pipes/sanitization.pipe";
 
 async function bootstrap() {
-  const expressApp = express();
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+  const app = await NestFactory.create(AppModule);
   const configService: ConfigService = app.get(ConfigService);
+  app.use(helmet());
+  app.enableCors();
 
   Sentry.init({
     dsn: configService.get<string>("sentry.dsn"),
     enabled: configService.get<boolean>("sentry.enable"),
-    integrations: [
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Tracing.Integrations.Express({ app: expressApp }),
-    ],
-    tracesSampleRate: 1.0,
   });
-  app.use(Sentry.Handlers.requestHandler() as express.RequestHandler);
-  app.use(Sentry.Handlers.tracingHandler());
   app.useGlobalInterceptors(new SentryInterceptor());
-
-  app.use(helmet());
+  app.useGlobalFilters(new EntityNotFoundFilter());
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)));
-  app.enableCors();
+  app.useGlobalPipes(
+    new SanitizationPipe(),
+    new ValidationPipe({
+      transform: true,
+    })
+  );
 
   const options = new DocumentBuilder()
     .setTitle("Healthcare Backend")

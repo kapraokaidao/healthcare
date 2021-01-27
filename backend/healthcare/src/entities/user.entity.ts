@@ -21,28 +21,40 @@ import { Patient } from "./patient.entity";
 import { Keypair } from "./keypair.entity";
 import { UserToken } from "./user-token.entity";
 import { Transaction } from "./transaction.entity";
+import { Agency } from "./agency.entity";
+import { IsEnum, IsString, Length } from "class-validator";
+import { Trim } from "class-sanitizer";
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Trim()
+  @IsString()
   @ApiProperty({ required: true })
   @Column()
   username: string;
 
+  @Trim()
+  @IsString()
   @ApiProperty({ required: true })
   @Column({ select: false })
   password: string;
 
+  @Trim()
+  @IsString()
   @ApiProperty({ required: true })
   @Column()
   firstname: string;
 
+  @Trim()
+  @IsString()
   @ApiProperty({ required: true })
   @Column()
   lastname: string;
 
+  @IsEnum(UserRole)
   @ApiProperty({ enum: UserRole, required: true, default: "" })
   @Column({ type: "enum", enum: UserRole, update: false })
   role: UserRole;
@@ -51,6 +63,8 @@ export class User {
   @Column()
   phone: string;
 
+  @IsString()
+  @Length(0, 150)
   @ApiProperty()
   @Column()
   address: string;
@@ -58,6 +72,10 @@ export class User {
   @ApiProperty()
   @OneToOne(() => NHSO, (nhso) => nhso.user)
   nhso: NHSO;
+
+  @ApiProperty()
+  @OneToOne(() => Agency, (agency) => agency.user)
+  agency: Agency;
 
   @ApiProperty()
   @ManyToOne(() => Hospital, (hospital) => hospital.users)

@@ -19,11 +19,12 @@ import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { Pagination } from "../utils/pagination.util";
-import { KycImageType, KycQueryType, SearchUsersDto } from "./user.dto";
+import { SearchUsersDto } from "./user.dto";
 import { FileUploadDto } from "../config/file.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "../s3/s3.service";
 import { isBetween } from "../utils/number.util";
+import { KycImageType, KycQueryType } from "../constant/enum/kyc.enum";
 
 @ApiBearerAuth()
 @ApiTags("User")
@@ -35,7 +36,7 @@ export class UserController {
     private readonly s3Service: S3Service
   ) {}
 
-  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
+  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient, UserRole.Agency)
   @Get("me")
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);

@@ -9,10 +9,13 @@ import { Patient } from "../entities/patient.entity";
 import { S3Service } from "../s3/s3.service";
 import { PatientService } from "./patient.service";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
+import { Agency } from "../entities/agency.entity";
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Hospital, NHSO, Patient, ResetPasswordKYC])],
+  imports: [
+    TypeOrmModule.forFeature([User, Agency, Hospital, NHSO, Patient, ResetPasswordKYC]),
+  ],
   controllers: [UserController],
   providers: [UserService, PatientService, S3Service],
   exports: [UserService, PatientService],
