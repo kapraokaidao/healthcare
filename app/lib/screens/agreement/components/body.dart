@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
 import 'package:healthcare_app/screens/register/register_screen.dart';
 
 class Body extends StatelessWidget {
@@ -24,7 +25,7 @@ class Body extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  RedeemScreen.route(),
                 );
               },
               child: Text('Next'),

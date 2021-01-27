@@ -28,7 +28,6 @@ import { TokenType } from "src/constant/enum/token.enum";
 import { UserId } from "src/decorators/user-id.decorator";
 import { TransferRequest } from "src/entities/transfer-request.entity";
 import { UserToken } from "src/entities/user-token.entity";
-import { Transaction } from "src/entities/transaction.entity";
 
 @ApiBearerAuth()
 @ApiTags("Healthcare Token")
@@ -36,6 +35,14 @@ import { Transaction } from "src/entities/transaction.entity";
 @UseGuards(RolesGuard)
 export class HealthcareTokenController {
   constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
+
+  @Get("/:serviceId")
+  @Roles(UserRole.Hospital, UserRole.Patient, UserRole.NHSO)
+  async (
+    @Param("serviceId") serviceId: number
+  ): Promise<HealthcareToken> {
+    return this.healthcareTokenService.findById(serviceId);
+  }
 
   @Get()
   @Roles(UserRole.NHSO, UserRole.Hospital)
@@ -194,7 +201,7 @@ export class HealthcareTokenController {
   @Get("balance")
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.Patient)
   async getBalance(
     @UserId() userId,
     @Query("page") qPage: number,

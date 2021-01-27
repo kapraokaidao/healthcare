@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/account/prrofile_screen.dart';
+import 'package:healthcare_app/screens/account/account_screen.dart';
+import 'package:healthcare_app/screens/token/token_screen.dart';
 
 class NavItem {
   final int id;
@@ -22,17 +23,14 @@ class NavItems extends ChangeNotifier {
   // By default first one is selected
   int selectedIndex = 0;
 
-  void chnageNavIndex({int index}) {
+  void changeNavIndex({int index}) {
     selectedIndex = index;
     // if any changes made it notify widgets that use the value
     notifyListeners();
   }
 
   List<NavItem> items = [
-    NavItem(
-      id: 1,
-      icon: "assets/icons/home.svg",
-    ),
+    NavItem(id: 1, icon: "assets/icons/home.svg", destination: TokenScreen()),
     NavItem(
       id: 2,
       icon: "assets/icons/list.svg",

@@ -43,6 +43,13 @@ export class TransactionService {
       : this.transactionRepository.save(newTransaction);
   }
 
+  async findTokens(userId: number): Promise<Transaction[]> {
+    return this.transactionRepository.find({
+      where: { sourceUser: { id: userId } },
+      relations: ["healthcareToken", "destinationUser", "destinationUser.hospital"],
+    });
+  }
+
   async searchGroupByService(
     userId: number,
     dto: TransactionSearchDto

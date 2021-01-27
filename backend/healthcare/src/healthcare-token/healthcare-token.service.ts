@@ -42,6 +42,10 @@ export class HealthcareTokenService {
     );
   }
 
+  async findById(serviceId: number): Promise<HealthcareToken>{
+    return this.healthcareTokenRepository.findOneOrFail(serviceId)
+  }
+  
   async find(
     conditions,
     pageOptions: PaginationOptions

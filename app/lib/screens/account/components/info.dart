@@ -6,14 +6,17 @@ import '../../../size_config.dart';
 class Info extends StatelessWidget {
   const Info({
     Key key,
+    this.name,
+    this.email,
     this.image,
   }) : super(key: key);
-  final String image;
+  final String name, email, image;
 
   @override
   Widget build(BuildContext context) {
     double defaultSize = SizeConfig.defaultSize;
     return SizedBox(
+      height: defaultSize * 24, // 240
       child: Stack(
         children: <Widget>[
           ClipPath(
@@ -43,6 +46,21 @@ class Info extends StatelessWidget {
                     ),
                   ),
                 ),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: defaultSize * 2.2, // 22
+                    color: kTextColor,
+                  ),
+                ),
+                SizedBox(height: defaultSize / 2), //5
+                Text(
+                  email,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF8492A2),
+                  ),
+                )
               ],
             ),
           )
