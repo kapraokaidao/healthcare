@@ -29,22 +29,20 @@ class AuthenticationLogin extends StatelessWidget {
                     height: MediaQuery.of(context).size.width * 0.25,
                     margin: EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/logo.png')
-                      )
+                        image: DecorationImage(
+                            image: AssetImage('assets/images/logo.png'))),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 40, horizontal: 0),
+                    child: Text(
+                      "เข้าสู่ระบบ+",
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 30,
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.none),
                     ),
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.symmetric(vertical: 40, horizontal: 0),
-                  //   child: Text(
-                  //     "เข้าสู่ระบบ+",
-                  //     style: TextStyle(
-                  //         color: Theme.of(context).primaryColor,
-                  //         fontSize: 30,
-                  //         fontWeight: FontWeight.normal,
-                  //         decoration: TextDecoration.none),
-                  //   ),
-                  // ),
                   FractionallySizedBox(
                     child: Text("เลขประจำตัวประชาชน"),
                     widthFactor: 1,
@@ -105,8 +103,7 @@ class AuthenticationLogin extends StatelessWidget {
                     children: <Widget>[
                       Expanded(
                         child: Container(
-                          margin:
-                              EdgeInsets.symmetric(vertical: 24),
+                          margin: EdgeInsets.symmetric(vertical: 24),
                           child: RoundButton(
                             title: "เข้าสู่ระบบ",
                             onPressed: () {
@@ -132,8 +129,7 @@ class AuthenticationLogin extends StatelessWidget {
                         child: Container(
                           child: RoundButton(
                             title: "ลงทะเบียน",
-                            onPressed: () {
-                            },
+                            onPressed: () {},
                             // color: Color(0xff0c96e4),
                             textColor: Colors.white,
                           ),
