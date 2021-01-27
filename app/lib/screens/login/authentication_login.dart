@@ -7,6 +7,7 @@ import 'package:healthcare_app/components/styled_text_form_field.dart';
 import 'package:healthcare_app/components/round_button.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/authentication_repository.dart';
+import 'package:healthcare_app/screens/register/authentication_register.dart';
 
 class AuthenticationLogin extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -16,8 +17,7 @@ class AuthenticationLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-        buildWhen: (previous, current) =>
-            previous.nationalId != current.nationalId,
+        buildWhen: (previous, current) => previous.nationalId != current.nationalId,
         builder: (context, state) {
           return Form(
               key: _formKey,
@@ -28,11 +28,7 @@ class AuthenticationLogin extends StatelessWidget {
                     width: MediaQuery.of(context).size.width * 0.5,
                     height: MediaQuery.of(context).size.width * 0.25,
                     margin: EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/logo.png')
-                      )
-                    ),
+                    decoration: BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/logo.png'))),
                   ),
                   // Container(
                   //   margin: EdgeInsets.symmetric(vertical: 40, horizontal: 0),
@@ -64,9 +60,8 @@ class AuthenticationLogin extends StatelessWidget {
                             }
                             return null;
                           },
-                          onChanged: (nationalId) => context
-                              .read<AuthenticationBloc>()
-                              .add(AuthenticationNationalIdChanged(nationalId)),
+                          onChanged: (nationalId) =>
+                              context.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalId)),
                         )),
                       )
                     ],
@@ -94,9 +89,7 @@ class AuthenticationLogin extends StatelessWidget {
                             }
                             return null;
                           },
-                          onChanged: (pin) => context
-                              .read<AuthenticationBloc>()
-                              .add(AuthenticationPinChanged(pin)),
+                          onChanged: (pin) => context.read<AuthenticationBloc>().add(AuthenticationPinChanged(pin)),
                         )),
                       )
                     ],
@@ -105,18 +98,15 @@ class AuthenticationLogin extends StatelessWidget {
                     children: <Widget>[
                       Expanded(
                         child: Container(
-                          margin:
-                              EdgeInsets.symmetric(vertical: 24),
+                          margin: EdgeInsets.symmetric(vertical: 24),
                           child: RoundButton(
                             title: "เข้าสู่ระบบ",
                             onPressed: () {
                               if (_formKey.currentState.validate()) {
-                                context.read<AuthenticationBloc>().add(
-                                    AuthenticationStatusChanged(
-                                        AuthenticationStatus.authenticating));
                                 context
                                     .read<AuthenticationBloc>()
-                                    .add(AuthenticationCredentialsSubmitted());
+                                    .add(AuthenticationStatusChanged(AuthenticationStatus.authenticating));
+                                context.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
                               }
                             },
                             // color: Color(0xff0c96e4),
@@ -133,6 +123,13 @@ class AuthenticationLogin extends StatelessWidget {
                           child: RoundButton(
                             title: "ลงทะเบียน",
                             onPressed: () {
+                              context
+                                  .read<AuthenticationBloc>()
+                                  .add(AuthenticationStatusChanged(AuthenticationStatus.unknown));
+                              context
+                                  .read<AuthenticationBloc>()
+                                  .add(AuthenticationStepChanged(AuthenticationStep.register));
+                              Navigator.push(context, RegisterPage.route());
                             },
                             // color: Color(0xff0c96e4),
                             textColor: Colors.white,

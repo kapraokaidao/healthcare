@@ -36,7 +36,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   void initState() {
     super.initState();
     context.read<AuthenticationBloc>()
-        .add(AuthenticationStepChanged(AuthenticationStep.inputCredential));
+        .add(AuthenticationStepChanged(AuthenticationStep.login));
   }
 
   @override
@@ -77,7 +77,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               builder: (context, state) {
                 Widget content;
                 switch (state.step) {
-                  case AuthenticationStep.inputCredential:
+                  case AuthenticationStep.login:
                     content = AuthenticationLogin();
                     break;
                   default:

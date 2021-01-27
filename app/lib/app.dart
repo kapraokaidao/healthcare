@@ -2,6 +2,7 @@ import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
 import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
+import 'package:healthcare_app/screens/register/bloc/register_bloc.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
 import 'package:healthcare_app/theme/theme.dart';
 import 'package:provider/provider.dart';
@@ -12,16 +13,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 
 class MyApp extends StatelessWidget {
+  final AuthenticationRepository authenticationRepository;
+  final UserRepository userRepository;
+  // final RegisterRepository registerRepository;
+
   const MyApp({
     Key key,
     @required this.authenticationRepository,
     @required this.userRepository,
+    // @required this.registerRepository
   })  : assert(authenticationRepository != null),
         assert(userRepository != null),
+        // assert(registerRepository != null),
         super(key: key);
-
-  final AuthenticationRepository authenticationRepository;
-  final UserRepository userRepository;
 
   // This widget is the root of your application.
   @override
@@ -31,6 +35,9 @@ class MyApp extends StatelessWidget {
           RepositoryProvider<AuthenticationRepository>(
             create: (context) => AuthenticationRepository(),
           ),
+          // RepositoryProvider<RegisterRepository>(
+          //   create: (context) => RegisterRepository()
+          // )
         ],
         child: MultiBlocProvider(
           providers: [
@@ -39,6 +46,9 @@ class MyApp extends StatelessWidget {
                       authenticationRepository: authenticationRepository,
                       userRepository: userRepository,
                     )),
+            // BlocProvider<RegisterBloc>(
+            //     create: (_) => RegisterBloc(registerRepository: registerRepository)
+            // )
             // BlocProvider<HomeBloc>(
             //   create: (_) => HomeBloc(doctorRepository: doctorRepository),
             // ),
@@ -105,7 +115,8 @@ class _AppViewState extends State<AppView> {
                   previous.step != current.step,
               listener: (context, state) {
                 if (state.status == AuthenticationStatus.unauthenticated) {
-                  _navigator.push(AuthenticationPage.route(MainMenu.route()));
+                  // _navigator.
+                  // _navigator.push(AuthenticationPage.route(MainMenu.route()));
                 }
               },
               child: child,
@@ -114,7 +125,8 @@ class _AppViewState extends State<AppView> {
           onGenerateRoute: (s) {
             return MainMenu.route();
           },
-        ));
+        )
+    );
   }
 
   // @override

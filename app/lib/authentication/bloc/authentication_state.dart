@@ -13,7 +13,7 @@ class AuthenticationState extends Equatable {
         this.pin = '',
         this.user,
         this.status = AuthenticationStatus.unknown,
-        this.step = AuthenticationStep.inputCredential});
+        this.step = AuthenticationStep.login});
 
   const AuthenticationState.unknown()
       : this(status: AuthenticationStatus.unknown);
