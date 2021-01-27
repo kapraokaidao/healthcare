@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Body extends StatelessWidget {
   Future<dynamic> fetchUser() async {
     final response = await HttpClient.get(path: '/healthcare-token/balance');
-    print(response);
+    //print(response);
     return response;
   }
 
@@ -21,42 +21,45 @@ class Body extends StatelessWidget {
             future: fetchUser(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
-                final user = snapshot.data;
+                final users = snapshot.data["data"];
+                List<Map<String, dynamic>> show = new List();
+                for (var data in users) {
+                  show.add({
+                    "name": data['healthcareToken']['name'],
+                    "balance": data['balance'].toString(),
+                  });
+                }
                 return DataTable(
+                  headingRowColor:
+                      MaterialStateColor.resolveWith((states) => Colors.orange),
                   columns: const <DataColumn>[
                     DataColumn(
                       label: Text(
                         'Token name',
-                        style: TextStyle(fontStyle: FontStyle.italic),
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     DataColumn(
                       label: Text(
                         'Quality',
-                        style: TextStyle(fontStyle: FontStyle.italic),
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
-                  rows: const <DataRow>[
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Sarah')),
-                        DataCell(Text('19')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Janine')),
-                        DataCell(Text('43')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('William')),
-                        DataCell(Text('27')),
-                      ],
-                    ),
-                  ],
+                  rows: show.map(
+                    (user) {
+                      return DataRow(cells: <DataCell>[
+                        DataCell(
+                          Text(user["name"]),
+                        ),
+                        DataCell(Text(user["balance"])),
+                      ]);
+                    },
+                  ).toList(),
                 );
               } else {
                 return Center(child: CircularProgressIndicator());
