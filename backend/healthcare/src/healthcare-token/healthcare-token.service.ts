@@ -42,6 +42,10 @@ export class HealthcareTokenService {
     );
   }
 
+  async findById(serviceId: number): Promise<HealthcareToken>{
+    return this.healthcareTokenRepository.findOneOrFail(serviceId)
+  }
+  
   async find(
     conditions,
     pageOptions: PaginationOptions
@@ -281,7 +285,7 @@ export class HealthcareTokenService {
     pin: string
   ): Promise<TransferRequest> {
     await this.keypairService.validatePin(userId, pin);
-    const hospital = await this.userService.findById(userId)
+    const hospital = await this.userService.findById(userId);
     const userToken = await this.userTokenRepository.findOne({
       where: { user: { id: userId }, healthcareToken: { id: serviceId } },
     });

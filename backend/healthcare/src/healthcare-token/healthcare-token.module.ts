@@ -11,13 +11,9 @@ import { TransactionModule } from "src/transaction/transaction.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      HealthcareToken,
-      UserToken,
-      TransferRequest,
-    ]),
+    TypeOrmModule.forFeature([HealthcareToken, UserToken, TransferRequest]),
     KeypairModule,
-    TransactionModule
+    TransactionModule,
   ],
   controllers: [HealthcareTokenController],
   providers: [HealthcareTokenService, StellarService],
