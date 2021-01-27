@@ -294,6 +294,7 @@ export class HealthcareTokenService {
         isConfirmed: false,
         type: TransferRequestType.Redemption,
       },
+      relations: ['healthcareToken']
     });
     if(!redeemRequest){ 
       throw new NotFoundException("No active redeem request")
