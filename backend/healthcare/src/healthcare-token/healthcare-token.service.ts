@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { HealthcareToken } from "../entities/healthcare-token.entity";
 import { HealthcareTokenDto, Slip } from "./healthcare-token.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -288,6 +288,21 @@ export class HealthcareTokenService {
     return userToken;
   }
 
+  async findActiveRedeemRequest(userId: number): Promise<TransferRequest> {
+    const redeemRequest = await this.transferRequestRepository.findOne({
+      where: {
+        patient: { id: userId },
+        expiredDate: MoreThan(dayjs().toDate()),
+        isConfirmed: false,
+        type: TransferRequestType.Redemption,
+      },
+    });
+    if(!redeemRequest){ 
+      throw new NotFoundException("No active redeem request")
+    }
+    return redeemRequest
+  }
+  
   async createRedeemRequest(
     userId: number,
     patientId: number,
