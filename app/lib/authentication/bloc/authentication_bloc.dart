@@ -48,7 +48,7 @@ class AuthenticationBloc
     } else if (event is AuthenticationStepChanged) {
       yield await _mapAuthenticationStepChangedToState(event);
     } else if (event is AuthenticationLogoutRequested) {
-      _authenticationRepository.logOut();
+      await _authenticationRepository.logOut();
     // } else if (event is AuthenticationTelNoChanged) {
     //   yield _mapTelNoChangedToState(event, state);
     // } else if (event is AuthenticationOTPChanged) {

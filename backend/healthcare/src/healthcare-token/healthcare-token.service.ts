@@ -7,12 +7,10 @@ import { Pagination, PaginationOptions, toPagination } from "../utils/pagination
 import * as dayjs from "dayjs";
 import { StellarService } from "src/stellar/stellar.service";
 import { ConfigService } from "@nestjs/config";
-import { User } from "src/entities/user.entity";
 import { KeypairService } from "src/keypair/keypair.service";
 import { UserToken } from "src/entities/user-token.entity";
 import StellarSdk from "stellar-sdk";
 import { TransferRequest } from "src/entities/transfer-request.entity";
-import { UserRole } from "src/constant/enum/user.enum";
 import { TokenType, TransferRequestType } from "src/constant/enum/token.enum";
 import { TransactionService } from "src/transaction/transaction.service";
 import { UserService } from "src/user/user.service";
@@ -464,9 +462,6 @@ export class HealthcareTokenService {
     const userToken = await this.userTokenRepository.findOne({
       where: { user: { id: userId }, healthcareToken: { id: serviceId } },
     });
-    if (amount < 0) {
-      throw new BadRequestException(`Amount must be greater than 0`);
-    }
     if (amount > userToken.balance) {
       throw new BadRequestException(
         `Amount must not be greater than ${healthcareToken.name} token balance`
