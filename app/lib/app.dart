@@ -1,6 +1,8 @@
 import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
+import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
+import 'package:healthcare_app/screens/token/token_screen.dart';
 import 'package:healthcare_app/theme/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -34,9 +36,9 @@ class MyApp extends StatelessWidget {
           providers: [
             BlocProvider<AuthenticationBloc>(
                 create: (BuildContext context) => AuthenticationBloc(
-                  authenticationRepository: authenticationRepository,
-                  userRepository: userRepository,
-                )),
+                      authenticationRepository: authenticationRepository,
+                      userRepository: userRepository,
+                    )),
             // BlocProvider<HomeBloc>(
             //   create: (_) => HomeBloc(doctorRepository: doctorRepository),
             // ),
@@ -99,11 +101,11 @@ class _AppViewState extends State<AppView> {
           builder: (context, child) {
             return BlocListener<AuthenticationBloc, AuthenticationState>(
               listenWhen: (previous, current) =>
-              previous.status != current.status ||
+                  previous.status != current.status ||
                   previous.step != current.step,
               listener: (context, state) {
                 if (state.status != AuthenticationStatus.authenticated) {
-                   _navigator.push(AuthenticationPage.route(MainMenu.route()));
+                  _navigator.push(AuthenticationPage.route(MainMenu.route()));
                 }
               },
               child: child,
@@ -129,27 +131,27 @@ class _AppViewState extends State<AppView> {
   //         appBarTheme: AppBarTheme(color: Colors.white, elevation: 0),
   //         visualDensity: VisualDensity.adaptivePlatformDensity,
   //       ),
-  //       home: StartScreen(),
+  //       home: RedeemScreen(),
   //     ),
   //   );
   // }
 }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return ChangeNotifierProvider(
-  //     create: (context) => NavItems(),
-  //     child: MaterialApp(
-  //       debugShowCheckedModeBanner: false,
-  //       title: 'Healthcare App',
-  //       theme: ThemeData(
-  //         // backgroundColor: Colors.white,
-  //         scaffoldBackgroundColor: Colors.white,
-  //         // We apply this to our appBarTheme because most of our appBar have this style
-  //         appBarTheme: AppBarTheme(color: Colors.white, elevation: 0),
-  //         visualDensity: VisualDensity.adaptivePlatformDensity,
-  //       ),
-  //       home: StartScreen(),
-  //     ),
-  //   );
-  // }
+// @override
+// Widget build(BuildContext context) {
+//   return ChangeNotifierProvider(
+//     create: (context) => NavItems(),
+//     child: MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Healthcare App',
+//       theme: ThemeData(
+//         // backgroundColor: Colors.white,
+//         scaffoldBackgroundColor: Colors.white,
+//         // We apply this to our appBarTheme because most of our appBar have this style
+//         appBarTheme: AppBarTheme(color: Colors.white, elevation: 0),
+//         visualDensity: VisualDensity.adaptivePlatformDensity,
+//       ),
+//       home: StartScreen(),
+//     ),
+//   );
+// }
