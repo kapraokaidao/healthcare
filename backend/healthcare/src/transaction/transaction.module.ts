@@ -9,6 +9,6 @@ import { HealthcareToken } from "src/entities/healthcare-token.entity";
   imports: [TypeOrmModule.forFeature([Transaction, HealthcareToken])],
   providers: [TransactionService],
   controllers: [TransactionController],
-  exports: [TransactionService]
+  exports: [TransactionService],
 })
 export class TransactionModule {}

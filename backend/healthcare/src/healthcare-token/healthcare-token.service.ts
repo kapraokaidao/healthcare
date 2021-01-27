@@ -281,7 +281,7 @@ export class HealthcareTokenService {
     pin: string
   ): Promise<TransferRequest> {
     await this.keypairService.validatePin(userId, pin);
-    const hospital = await this.userService.findById(userId)
+    const hospital = await this.userService.findById(userId);
     const userToken = await this.userTokenRepository.findOne({
       where: { user: { id: userId }, healthcareToken: { id: serviceId } },
     });
