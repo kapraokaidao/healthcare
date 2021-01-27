@@ -2,52 +2,52 @@ import { ApiProperty } from "@nestjs/swagger";
 import { UserGender } from "src/constant/enum/user.enum";
 
 export class CreateServiceDto {
-    @ApiProperty()
-    name: string;
-  
-    @ApiProperty()
-    description: string;
-  
-    @ApiProperty()
-    totalToken: number;
-  
-    @ApiProperty()
-    startDate: Date;
-  
-    @ApiProperty()
-    endDate: Date;
-  
-    @ApiProperty()
-    startAge: number;
-  
-    @ApiProperty()
-    endAge: number;
-  
-    @ApiProperty()
-    gender: UserGender;
-  
-    @ApiProperty()
-    tokenPerPerson: number;
+  @ApiProperty()
+  name: string;
 
-    @ApiProperty()
-    issuingPublicKey: string;
-  }
+  @ApiProperty()
+  description: string;
 
-  export class AddMemberDto {
-      @ApiProperty()
-      nationalId: string
+  @ApiProperty()
+  totalToken: number;
 
-      @ApiProperty()
-      notifiedUrl: string
+  @ApiProperty()
+  startDate: Date;
 
-      @ApiProperty()
-      serviceId: number
-  }
+  @ApiProperty()
+  endDate: Date;
 
-  export class ConfirmTransferDto {
-      @ApiProperty()
-      nationalId: string
+  @ApiProperty()
+  startAge: number;
 
-      @ApiProperty()
-      serviceId: number
-  }
+  @ApiProperty()
+  endAge: number;
+
+  @ApiProperty()
+  gender: UserGender;
+
+  @ApiProperty()
+  tokenPerPerson: number;
+
+  @ApiProperty()
+  issuingPublicKey: string;
+}
+
+export class AddMemberDto {
+  @ApiProperty()
+  nationalId: string;
+
+  @ApiProperty()
+  notifiedUrl: string;
+
+  @ApiProperty()
+  serviceId: number;
+}
+
+export class ConfirmTransferDto {
+  @ApiProperty()
+  nationalId: string;
+
+  @ApiProperty()
+  serviceId: number;
+}

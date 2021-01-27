@@ -194,7 +194,7 @@ export class HealthcareTokenController {
   @Get("balance")
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.Patient)
   async getBalance(
     @UserId() userId,
     @Query("page") qPage: number,

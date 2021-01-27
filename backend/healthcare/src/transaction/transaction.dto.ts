@@ -2,7 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { TransactionType } from "src/constant/enum/transaction.enum";
 
 export class TransactionSearchDto {
-
   @ApiProperty({ type: "enum", enum: TransactionType })
   type: TransactionType;
 
