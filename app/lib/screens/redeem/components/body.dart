@@ -7,7 +7,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class Body extends StatelessWidget {
   Future<dynamic> fetchToken() async {
-    final response = await HttpClient.get(path: '/healthcare-token/${30}');
+    final response =
+        await HttpClient.get(path: '/healthcare-token/balance/${315}');
     return response;
   }
 
@@ -33,15 +34,22 @@ class Body extends StatelessWidget {
                               Text('Name',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
-                              Text(token["name"])
+                              Text(token["healthcareToken"]["name"])
                             ]),
                             rowSpacer,
                             TableRow(children: [
                               Text('Description',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
-                              Text("description")
+                              Text(token["healthcareToken"]["description"])
                             ]),
+                            rowSpacer,
+                            TableRow(children: [
+                              Text('Balance',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              Text('${token["balance"]}')
+                            ])
                           ],
                         ),
                         width: double.infinity,
