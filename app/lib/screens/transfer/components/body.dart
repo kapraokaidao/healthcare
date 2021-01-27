@@ -16,13 +16,11 @@ class Body extends StatelessWidget {
   }
 
   _sendPin(context, String pin) async {
-    print(pin);
     final numericRegex = RegExp(r'^\d{1,6}$');
     final serviceId = this.redeemRequest["healthcareToken"]["id"];
     if (numericRegex.hasMatch(pin)) {
       final response = await HttpClient.post('/healthcare-token/redeem',
           {"serviceId": serviceId.toString(), "pin": pin.toString()});
-      print(response);
       if (response.containsKey("statusCode") && response["statusCode"] != 200) {
         return showDialog(
             context: context,
