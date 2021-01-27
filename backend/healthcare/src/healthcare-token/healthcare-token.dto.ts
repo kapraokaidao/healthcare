@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserGender } from "../constant/enum/user.enum";
 import { TokenType } from "../constant/enum/token.enum";
+import { Hospital } from "src/entities/hospital.entity";
+import { HealthcareToken } from "src/entities/healthcare-token.entity";
 
 export class HealthcareTokenDto {
   @ApiProperty()
@@ -56,4 +58,23 @@ export class ServiceAndPinDto {
 
   @ApiProperty()
   pin: string;
+}
+
+export class WithdrawDto extends ServiceAndPinDto {
+  @ApiProperty()
+  amount: number;
+}
+
+export class Slip {
+  transactionId: string;
+
+  sourcePublicKey: string;
+
+  destinationPublicKey: string;
+
+  amount: number;
+
+  hospital: Hospital;
+
+  healthcareToken: HealthcareToken;
 }

@@ -14,6 +14,7 @@ import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
 import { default as AccountCircle, default as AccountCircleIcon } from '@material-ui/icons/AccountCircle';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import HistoryIcon from '@material-ui/icons/History';
 import LockIcon from '@material-ui/icons/Lock';
 import MenuIcon from '@material-ui/icons/Menu';
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
@@ -215,6 +216,17 @@ const Navigation = observer(() => {
 									<LockIcon fontSize="large" />
 								</ListItemIcon>
 								<ListItemText primary="Change Password" />
+							</ListItem>
+							<ListItem
+								button
+								onClick={() => {
+									history.push('/history');
+								}}
+							>
+								<ListItemIcon>
+									<HistoryIcon fontSize="large" />
+								</ListItemIcon>
+								<ListItemText primary="History" />
 							</ListItem>
 						</List>
 					</Drawer>
