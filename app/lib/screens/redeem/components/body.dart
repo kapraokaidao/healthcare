@@ -1,14 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/start/start_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:healthcare_app/authentication/authentication.dart';
+import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/utils/index.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class Body extends StatelessWidget {
+  final dynamic serviceId;
+  Body(this.serviceId);
+
   Future<dynamic> fetchToken() async {
-    final response =
-        await HttpClient.get(path: '/healthcare-token/balance/${315}');
+    final response = await HttpClient.get(
+        path: '/healthcare-token/balance/${this.serviceId}');
     return response;
   }
 
@@ -17,60 +21,68 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: FutureBuilder<dynamic>(
-            future: fetchToken(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                final token = snapshot.data;
-                return Column(
-                  children: [
-                    Container(
-                        margin: EdgeInsets.all(20),
-                        padding: EdgeInsets.all(20),
-                        child: Table(
-                          children: [
-                            TableRow(children: [
-                              Text('Name',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              Text(token["healthcareToken"]["name"])
-                            ]),
-                            rowSpacer,
-                            TableRow(children: [
-                              Text('Description',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              Text(token["healthcareToken"]["description"])
-                            ]),
-                            rowSpacer,
-                            TableRow(children: [
-                              Text('Balance',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              Text('${token["balance"]}')
-                            ])
-                          ],
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+        builder: (ctx, state) {
+      if (state.user != null) {
+        return SingleChildScrollView(
+            child: FutureBuilder<dynamic>(
+                future: fetchToken(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    final token = snapshot.data;
+                    return Column(
+                      children: [
+                        Container(
+                            margin: EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20),
+                            child: Table(
+                              children: [
+                                TableRow(children: [
+                                  Text('Name',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(token["healthcareToken"]["name"])
+                                ]),
+                                rowSpacer,
+                                TableRow(children: [
+                                  Text('Description',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(token["healthcareToken"]["description"])
+                                ]),
+                                rowSpacer,
+                                TableRow(children: [
+                                  Text('Balance',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text('${token["balance"]}')
+                                ])
+                              ],
+                            ),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  style: BorderStyle.solid,
+                                  width: 1,
+                                ))),
+                        QrImage(
+                          data:
+                              "{\"userId\":${state.user.id},\"serviceId\":${this.serviceId}}",
+                          version: QrVersions.auto,
+                          size: 200.0,
                         ),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Colors.grey,
-                              style: BorderStyle.solid,
-                              width: 1,
-                            ))),
-                    QrImage(
-                      data: "{\"userId\":230,\"serviceId\":319}",
-                      version: QrVersions.auto,
-                      size: 200.0,
-                    ),
-                  ],
-                );
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
-            }));
+                      ],
+                    );
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                }));
+      } else {
+        return Center(child: CircularProgressIndicator());
+      }
+    });
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:healthcare_app/utils/http_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,11 +16,8 @@ class Body extends StatelessWidget {
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
 
-  _logout(context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('access_token');
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => StartScreen()));
+  _viewTokenDetail(context, serviceId) async {
+    Navigator.push(context, RedeemScreen.route(serviceId));
   }
 
   @override
@@ -33,6 +31,7 @@ class Body extends StatelessWidget {
                 List<Map<String, dynamic>> show = new List();
                 for (var data in users) {
                   show.add({
+                    "serviceId": data['healthcareToken']['id'],
                     "name": data['healthcareToken']['name'],
                     "balance": data['balance'].toString(),
                   });
@@ -61,9 +60,9 @@ class Body extends StatelessWidget {
                   rows: show.map(
                     (user) {
                       return DataRow(cells: <DataCell>[
-                        DataCell(
-                          Text(user["name"]),
-                        ),
+                        DataCell(Text(user["name"]), onTap: () {
+                          _viewTokenDetail(context, user["serviceId"]);
+                        }),
                         DataCell(Text(user["balance"])),
                       ]);
                     },
