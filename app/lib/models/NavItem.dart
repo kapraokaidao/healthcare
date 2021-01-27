@@ -30,22 +30,18 @@ class NavItems extends ChangeNotifier {
   }
 
   List<NavItem> items = [
-    NavItem(id: 1, icon: "assets/icons/home.svg", destination: TokenScreen()),
-    NavItem(
-      id: 2,
-      icon: "assets/icons/list.svg",
-    ),
+    NavItem(id: 1, icon: "assets/icons/inbox.svg", destination: TokenScreen()),
     NavItem(
       id: 3,
-      icon: "assets/icons/camera.svg",
+      icon: "assets/icons/health.svg",
     ),
     NavItem(
       id: 4,
-      icon: "assets/icons/chef_nav.svg",
+      icon: "assets/icons/history.svg",
     ),
     NavItem(
       id: 5,
-      icon: "assets/icons/user.svg",
+      icon: "assets/icons/profile.svg",
       destination: AccountScreen(),
     ),
   ];

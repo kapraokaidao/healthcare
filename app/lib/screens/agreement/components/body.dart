@@ -61,7 +61,7 @@ class _BodyState extends State<Body> {
             OutlineButton(
               onPressed: () {
                 if (_isAgreed) {
-                  Navigator.push(context, TransferScreen.route());
+                  Navigator.push(context, RedeemScreen.route());
                 }
               },
               child: Text('Next'),
