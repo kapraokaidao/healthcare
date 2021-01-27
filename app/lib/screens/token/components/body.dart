@@ -37,7 +37,6 @@ class Body extends StatelessWidget {
                 }
                 return Container(
                     alignment: Alignment.topCenter,
-                    margin: EdgeInsets.symmetric(vertical: 70, horizontal: 0),
                     child: ConstrainedBox(
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
