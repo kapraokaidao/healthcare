@@ -7,11 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Body extends StatelessWidget {
   Future<dynamic> fetchUser() async {
-    print('hello123123123123');
-    final response = await HttpClient.get(path: "/transaction");
-    print('done213123123213123123');
-    print(response);
-    return response;
+    final response = await HttpClient.getWithoutDecode(path: "/transaction");
+    return json.decode(response);
   }
 
   final rowSpacer =
