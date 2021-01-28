@@ -10,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpClient {
   // static final String baseUrl = 'http://localhost:3000'; // Local
-  static final String baseUrl = 'https://dev-healthcare-backend.kaoths.dev'; // Dev
+  static final String baseUrl =
+      'https://dev-healthcare-backend.kaoths.dev'; // Dev
 
   static Future<Map<String, String>> _getDefaultHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -25,25 +26,47 @@ class HttpClient {
     return headers;
   }
 
-  static Future<Map<String, dynamic>> get({@required String path, Map<String, dynamic> queryParams = const {}}) async {
+  static Future<Map<String, dynamic>> get(
+      {@required String path,
+      Map<String, dynamic> queryParams = const {}}) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
 
     String query = '?';
     queryParams.forEach((key, value) {
       query = query + key + "=" + value;
     });
-    http.Response response = await http.get(baseUrl + path + query, headers: headers);
+    http.Response response =
+        await http.get(baseUrl + path + query, headers: headers);
     return json.decode(response.body);
   }
 
-  static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
+  static Future<String> getWithoutDecode(
+      {@required String path,
+      Map<String, dynamic> queryParams = const {}}) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
 
-    http.Response response = await http.post(baseUrl + path, body: body, headers: headers);
-    return json.decode(response.body);
+    String query = '?';
+    queryParams.forEach((key, value) {
+      query = query + key + "=" + value;
+    });
+    http.Response response =
+        await http.get(baseUrl + path + query, headers: headers);
+    return response.body;
   }
 
-  static Future<Map<String, dynamic>> postMultipartRequest({ @required String path, Map<String, dynamic> body = const {}, List<String> files = const []}) async {
+  static Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> body) async {
+    Map<String, dynamic> headers = await _getDefaultHeader();
+
+    http.Response response =
+        await http.post(baseUrl + path, body: body, headers: headers);
+    return response.body.isEmpty ? {} : json.decode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> postMultipartRequest(
+      {@required String path,
+      Map<String, dynamic> body = const {},
+      List<String> files = const []}) async {
     Uri uri = Uri.parse(baseUrl + path);
     http.MultipartRequest request = http.MultipartRequest('POST', uri);
 
@@ -54,7 +77,7 @@ class HttpClient {
 
     body.forEach((key, value) {
       if (value is List) {
-        for (int i = 0 ; i < value.length ; i++) {
+        for (int i = 0; i < value.length; i++) {
           request.fields[key + '[' + i.toString() + ']'] = value[i];
         }
       } else if (value is int || value is double) {
@@ -64,8 +87,11 @@ class HttpClient {
       }
     });
 
-    List<Future<http.MultipartFile>> filePromises = files.map((filePath) => http.MultipartFile.fromPath('files', filePath, contentType: MediaType.parse(mime(filePath)))).toList();
-    List<http.MultipartFile> multipartFiles  = await Future.wait(filePromises);
+    List<Future<http.MultipartFile>> filePromises = files
+        .map((filePath) => http.MultipartFile.fromPath('files', filePath,
+            contentType: MediaType.parse(mime(filePath))))
+        .toList();
+    List<http.MultipartFile> multipartFiles = await Future.wait(filePromises);
     multipartFiles.forEach((multipartFile) {
       request.files.add(multipartFile);
     });
@@ -78,7 +104,8 @@ class HttpClient {
   static Future<Map<String, dynamic>> put(
       String path, Map<String, dynamic> body) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
-    http.Response response = await http.put(baseUrl + path, body: body, headers: headers);
+    http.Response response =
+        await http.put(baseUrl + path, body: body, headers: headers);
     return json.decode(response.body);
   }
 

@@ -30,17 +30,6 @@ class AuthenticationLogin extends StatelessWidget {
                     margin: EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/logo.png'))),
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.symmetric(vertical: 40, horizontal: 0),
-                  //   child: Text(
-                  //     "เข้าสู่ระบบ+",
-                  //     style: TextStyle(
-                  //         color: Theme.of(context).primaryColor,
-                  //         fontSize: 30,
-                  //         fontWeight: FontWeight.normal,
-                  //         decoration: TextDecoration.none),
-                  //   ),
-                  // ),
                   FractionallySizedBox(
                     child: Text("เลขประจำตัวประชาชน"),
                     widthFactor: 1,

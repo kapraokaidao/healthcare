@@ -11,7 +11,7 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (ctx, state) {
-      if (state.user.patient.selfieImage != null) {
+      if (state.user != null) {
         return SingleChildScrollView(
             child: Column(children: [
           Container(

@@ -5,8 +5,11 @@ import 'package:healthcare_app/screens/redeem/components/body.dart';
 import 'package:healthcare_app/size_config.dart';
 
 class RedeemScreen extends StatelessWidget {
-  static Route route() {
-    return MaterialPageRoute(builder: (_) => RedeemScreen());
+  final dynamic serviceId;
+  RedeemScreen(this.serviceId);
+
+  static Route route(serviceId) {
+    return MaterialPageRoute(builder: (_) => RedeemScreen(serviceId));
   }
 
   @override
@@ -14,7 +17,7 @@ class RedeemScreen extends StatelessWidget {
     SizeConfig().init(context);
     return Scaffold(
       appBar: buildAppBar(),
-      body: Body(),
+      body: Body(serviceId),
       bottomNavigationBar: MyBottomNavBar(),
     );
   }

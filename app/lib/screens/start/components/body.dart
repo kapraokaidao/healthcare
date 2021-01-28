@@ -9,7 +9,8 @@ import 'package:healthcare_app/screens/login/login_screen.dart';
 class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthenticationBloc, AuthenticationState>(builder: (ctx, state) {
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+        builder: (ctx, state) {
       return Container(
         padding: EdgeInsets.all(100),
         child: Center(
@@ -20,7 +21,8 @@ class Body extends StatelessWidget {
                 children: [
                   Text('Healthcare Token App'),
                   Text('Welcome user: ${state.user?.username}'),
-                  Text('full name: ${state.user?.firstname} ${state.user?.lastname}'),
+                  Text(
+                      'full name: ${state.user?.firstname} ${state.user?.lastname}'),
                   Text('phone: ${state.user?.phone}'),
                   Text('address: ${state.user?.address}'),
                 ],
