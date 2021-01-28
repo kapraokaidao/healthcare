@@ -5,16 +5,20 @@ import 'package:healthcare_app/screens/transfer/components/body.dart';
 import 'package:healthcare_app/size_config.dart';
 
 class TransferScreen extends StatelessWidget {
-  static Route route() {
-    return MaterialPageRoute(builder: (_) => TransferScreen());
+  final dynamic redeemRequest;
+
+  static Route route(redeemRequest) {
+    return MaterialPageRoute(builder: (_) => TransferScreen(redeemRequest));
   }
+
+  TransferScreen(this.redeemRequest);
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
       appBar: buildAppBar(),
-      body: Body(),
+      body: Body(this.redeemRequest),
       bottomNavigationBar: MyBottomNavBar(),
     );
   }

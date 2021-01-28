@@ -40,14 +40,27 @@ class HttpClient {
     return json.decode(response.body);
   }
 
+  static Future<String> getWithoutDecode(
+      {@required String path,
+      Map<String, dynamic> queryParams = const {}}) async {
+    Map<String, dynamic> headers = await _getDefaultHeader();
+
+    String query = '?';
+    queryParams.forEach((key, value) {
+      query = query + key + "=" + value;
+    });
+    http.Response response =
+        await http.get(baseUrl + path + query, headers: headers);
+    return response.body;
+  }
+
   static Future<Map<String, dynamic>> post(
       String path, Map<String, dynamic> body) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
 
     http.Response response =
         await http.post(baseUrl + path, body: body, headers: headers);
-
-    return json.decode(response.body);
+    return response.body.isEmpty ? {} : json.decode(response.body);
   }
 
   static Future<Map<String, dynamic>> postMultipartRequest(
