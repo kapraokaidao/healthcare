@@ -4,6 +4,7 @@ import { TokenType } from "../constant/enum/token.enum";
 import { Hospital } from "src/entities/hospital.entity";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { IsEnum, IsNumberString, Length, Min } from "class-validator";
+import { ToInt } from "class-sanitizer";
 
 export class HealthcareTokenDto {
   @ApiProperty()
@@ -17,6 +18,7 @@ export class HealthcareTokenDto {
   description: string;
 
   @ApiProperty()
+  @ToInt()
   @Min(0)
   totalToken: number;
 
@@ -27,10 +29,12 @@ export class HealthcareTokenDto {
   endDate: Date;
 
   @ApiProperty()
+  @ToInt()
   @Min(0)
   startAge: number;
 
   @ApiProperty()
+  @ToInt()
   @Min(0)
   endAge: number;
 
@@ -39,6 +43,7 @@ export class HealthcareTokenDto {
   gender: UserGender;
 
   @ApiProperty()
+  @ToInt()
   @Min(0)
   tokenPerPerson: number;
 }
@@ -60,6 +65,7 @@ export class CreateSpecialTokenRequestDto extends ServiceAndPinDto {
 
 export class CreateRedeemRequestDto extends CreateSpecialTokenRequestDto {
   @ApiProperty()
+  @ToInt()
   @Min(0)
   amount: number;
 }
@@ -67,6 +73,7 @@ export class CreateRedeemRequestDto extends CreateSpecialTokenRequestDto {
 
 export class WithdrawDto extends ServiceAndPinDto {
   @ApiProperty()
+  @ToInt()
   @Min(0)
   amount: number;
 }
