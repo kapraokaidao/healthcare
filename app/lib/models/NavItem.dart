@@ -3,6 +3,7 @@ import 'package:healthcare_app/screens/account/account_screen.dart';
 import 'package:healthcare_app/screens/health/health_screen.dart';
 import 'package:healthcare_app/screens/history/history_screen.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
+import 'package:healthcare_app/screens/valid_token/valid_token_screen.dart';
 
 class NavItem {
   final int id;
@@ -33,6 +34,10 @@ class NavItems extends ChangeNotifier {
 
   List<NavItem> items = [
     NavItem(id: 1, icon: "assets/icons/inbox.svg", destination: TokenScreen()),
+    NavItem(
+        id: 1,
+        icon: "assets/icons/paper-plane.svg",
+        destination: ValidTokenScreen()),
     NavItem(
       id: 3,
       icon: "assets/icons/health.svg",
