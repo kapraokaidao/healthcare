@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   Delete,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { RolesGuard } from "../guards/roles.guard";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
@@ -35,6 +36,7 @@ import { UserToken } from "src/entities/user-token.entity";
 @UseGuards(RolesGuard)
 export class HealthcareTokenController {
   constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
+
 
   @Get()
   @Roles(UserRole.NHSO, UserRole.Hospital)
@@ -231,5 +233,13 @@ export class HealthcareTokenController {
       dto.amount,
       dto.pin
     );
+  }
+
+  @Get("/:id")
+  @Roles(UserRole.Patient)
+  async findTokenById(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<HealthcareToken> {
+    return this.healthcareTokenService.findById(id);
   }
 }
