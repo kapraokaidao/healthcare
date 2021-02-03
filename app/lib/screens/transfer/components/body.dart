@@ -5,8 +5,9 @@ import 'package:healthcare_app/utils/index.dart';
 
 class Body extends StatefulWidget {
   final dynamic redeemRequest;
+  final Function setPolling;
 
-  const Body({Key key, this.redeemRequest}) : super(key: key);
+  const Body({Key key, this.redeemRequest, this.setPolling}) : super(key: key);
 
   @override
   _BodyState createState() => _BodyState();
@@ -44,6 +45,7 @@ class _BodyState extends State<Body> {
               );
             });
       } else {
+        widget.setPolling(true);
         Navigator.push(context, TokenScreen.route());
       }
     }
@@ -54,85 +56,90 @@ class _BodyState extends State<Body> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: FutureBuilder<dynamic>(
-            future: fetchToken(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                final balance = snapshot.data;
-                return Column(
-                  children: [
-                    Container(
-                        margin: EdgeInsets.all(20),
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            Table(
+    return WillPopScope(
+        onWillPop: () async {
+          widget.setPolling(true);
+          return true;
+        },
+        child: SingleChildScrollView(
+            child: FutureBuilder<dynamic>(
+                future: fetchToken(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    final balance = snapshot.data;
+                    return Column(
+                      children: [
+                        Container(
+                            margin: EdgeInsets.all(20),
+                            padding: EdgeInsets.all(20),
+                            child: Column(
                               children: [
-                                TableRow(children: [
-                                  Text('ชื่อ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(balance["healthcareToken"]["name"])
-                                ]),
-                                rowSpacer,
-                                TableRow(children: [
-                                  Text('รายละเอียด',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(
-                                      balance["healthcareToken"]["description"])
-                                ]),
-                                rowSpacer,
-                                TableRow(children: [
-                                  Text('จำนวนสิทธิที่มี',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(balance["balance"].toString())
-                                ]),
-                                rowSpacer,
-                                TableRow(children: [
-                                  Text('จำนวนสิทธิที่ใช้',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(
-                                      widget.redeemRequest['amount'].toString())
-                                ]),
+                                Table(
+                                  children: [
+                                    TableRow(children: [
+                                      Text('ชื่อ',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text(balance["healthcareToken"]["name"])
+                                    ]),
+                                    rowSpacer,
+                                    TableRow(children: [
+                                      Text('รายละเอียด',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text(balance["healthcareToken"]
+                                          ["description"])
+                                    ]),
+                                    rowSpacer,
+                                    TableRow(children: [
+                                      Text('จำนวนสิทธิที่มี',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text(balance["balance"].toString())
+                                    ]),
+                                    rowSpacer,
+                                    TableRow(children: [
+                                      Text('จำนวนสิทธิที่ใช้',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text(widget.redeemRequest['amount']
+                                          .toString())
+                                    ]),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Colors.grey,
-                              style: BorderStyle.solid,
-                              width: 1,
-                            ))),
-                    (() {
-                      if (this._isLoading) {
-                        return Center(child: CircularProgressIndicator());
-                      } else {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: PinEntryTextField(
-                            fields: 6,
-                            isTextObscure: true,
-                            showFieldAsBox: true,
-                            onSubmit: (pin) {
-                              _sendPin(context, pin);
-                            },
-                          ),
-                        );
-                      }
-                    }())
-                  ],
-                );
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
-            }));
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  style: BorderStyle.solid,
+                                  width: 1,
+                                ))),
+                        (() {
+                          if (this._isLoading) {
+                            return Center(child: CircularProgressIndicator());
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: PinEntryTextField(
+                                fields: 6,
+                                isTextObscure: true,
+                                showFieldAsBox: true,
+                                onSubmit: (pin) {
+                                  _sendPin(context, pin);
+                                },
+                              ),
+                            );
+                          }
+                        }())
+                      ],
+                    );
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                })));
   }
 }

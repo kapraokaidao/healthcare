@@ -295,20 +295,19 @@ export class HealthcareTokenService {
     return userToken;
   }
 
-  async findActiveRedeemRequest(userId: number): Promise<TransferRequest> {
-    const redeemRequest = await this.transferRequestRepository.findOne({
+  async findActiveRequest(userId: number): Promise<TransferRequest> {
+    const request = await this.transferRequestRepository.findOne({
       where: {
         patient: { id: userId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
-        type: TransferRequestType.Redemption,
       },
       relations: ["healthcareToken"],
     });
-    if (!redeemRequest) {
+    if (!request) {
       throw new NotFoundException("No active redeem request");
     }
-    return redeemRequest;
+    return request;
   }
 
   async createRedeemRequest(
