@@ -42,18 +42,18 @@ class Body extends StatelessWidget {
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Color.fromARGB(255, 193, 102, 102)),
+                              (states) => Color.fromARGB(136, 185, 97, 1)),
                           columns: const <DataColumn>[
                             DataColumn(
                               label: Text(
-                                'ชื่อสิทธิการรักษา',
+                                'สิทธิ',
                                 style: TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ),
                             DataColumn(
                               label: Text(
-                                'วันที่, เวลาที่ใช้',
+                                'เวลา',
                                 style: TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),

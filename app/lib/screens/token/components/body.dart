@@ -41,24 +41,20 @@ class Body extends StatelessWidget {
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.orange),
+                              (states) => Color.fromARGB(136, 185, 97, 1)),
                           columns: const <DataColumn>[
                             DataColumn(
                               label: Text(
-                                'Token name',
+                                'สิทธิ',
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ),
                             DataColumn(
                               label: Text(
-                                'Quality',
+                                'จำนวน',
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],

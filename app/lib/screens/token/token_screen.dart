@@ -25,7 +25,7 @@ class TokenScreen extends StatelessWidget {
       leading: SizedBox(),
       // On Android it's false by default
       centerTitle: true,
-      title: Text("Token List"),
+      title: Text("สิทธิการรักษาสุภาพ"),
     );
   }
 }
