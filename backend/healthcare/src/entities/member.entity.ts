@@ -21,7 +21,7 @@ export class Member {
   @Column({ default: false })
   transferred: boolean;
 
-  @ManyToOne(() => HealthcareToken)
+  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.members)
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
