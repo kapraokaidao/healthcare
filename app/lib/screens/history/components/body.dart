@@ -25,43 +25,37 @@ class Body extends StatelessWidget {
             future: fetchUser(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
-                print(snapshot);
                 final users = snapshot.data;
-                print(users);
                 List<Map<String, dynamic>> show = new List();
                 for (var data in users) {
                   show.add({
                     "serviceId": data['healthcareToken']['id'],
                     "name": data['healthcareToken']['name'],
                     "hospital": data['destinationUser']['hospital']['fullname'],
-                    "date": data['destinationUser']['updatedDate'],
+                    "date": data['destinationUser']['updatedDate'].split('T'),
                   });
                 }
                 //print(show);
                 return Container(
-                    alignment: Alignment.topCenter,
+                    alignment: Alignment.bottomCenter,
                     child: ConstrainedBox(
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.red),
+                              (states) => Color.fromARGB(255, 193, 102, 102)),
                           columns: const <DataColumn>[
                             DataColumn(
                               label: Text(
-                                'Token name',
+                                'ชื่อสิทธิการรักษา',
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ),
                             DataColumn(
                               label: Text(
-                                'Date',
+                                'วันที่, เวลาที่ใช้',
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -77,7 +71,10 @@ class Body extends StatelessWidget {
                                   _viewTokenDetail(context, user["serviceId"]);
                                 }),
                                 DataCell(
-                                    Text(user["date"],
+                                    Text(
+                                        user["date"][0] +
+                                            ', ' +
+                                            user["date"][1].split('.')[0],
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
                                           fontSize: 16,

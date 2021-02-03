@@ -21,11 +21,17 @@ class HistoryScreen extends StatelessWidget {
 
   AppBar buildAppBar() {
     return AppBar(
-      backgroundColor: kPrimaryColor,
+      toolbarHeight: 150,
+      backgroundColor: Color.fromARGB(255, 193, 102, 102),
       leading: SizedBox(),
       // On Android it's false by default
       centerTitle: true,
-      title: Text("Token List"),
+      title: Text("History"),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(150),
+        ),
+      ),
     );
   }
 }
