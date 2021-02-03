@@ -79,7 +79,7 @@ class _Polling extends StatelessWidget {
         }
       });
 
-      return StartScreen();
+      return TokenScreen();
     });
   }
 }
