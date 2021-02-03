@@ -14,6 +14,7 @@ class Body extends StatelessWidget {
       if (state.user != null) {
         return SingleChildScrollView(
             child: Column(children: [
+          Image.asset('assets/images/3177523.jpg'),
           Container(
               margin: EdgeInsets.all(20),
               padding: EdgeInsets.all(20),
