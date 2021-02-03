@@ -48,7 +48,8 @@ class AuthenticationBloc
     } else if (event is AuthenticationStepChanged) {
       yield await _mapAuthenticationStepChangedToState(event);
     } else if (event is AuthenticationLogoutRequested) {
-      await _authenticationRepository.logOut();
+      // await _authenticationRepository.logOut();
+      yield _mapAuthenticationLogoutRequestedToState(event);
     // } else if (event is AuthenticationTelNoChanged) {
     //   yield _mapTelNoChangedToState(event, state);
     // } else if (event is AuthenticationOTPChanged) {
@@ -137,6 +138,11 @@ class AuthenticationBloc
       return state.copyWith(status: AuthenticationStatus.authenticated, user: user);
     }
     return state.copyWith(status: AuthenticationStatus.unauthenticated);
+  }
+
+  AuthenticationState _mapAuthenticationLogoutRequestedToState(AuthenticationLogoutRequested event) {
+    _authenticationRepository.logOut();
+    return state.copyWith(status: AuthenticationStatus.unauthenticated, user: null);
   }
 
   AuthenticationState _mapNewPatientProfileUpdatedToState(AuthenticationPatientProfileUpdated event, AuthenticationState state) {

@@ -57,9 +57,9 @@ class HttpClient {
   static Future<Map<String, dynamic>> post(
       String path, Map<String, dynamic> body) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
-
+    headers["content-type"] = "application/json";
     http.Response response =
-        await http.post(baseUrl + path, body: body, headers: headers);
+        await http.post(baseUrl + path, body: jsonEncode(body), headers: headers);
     return response.body.isEmpty ? {} : json.decode(response.body);
   }
 

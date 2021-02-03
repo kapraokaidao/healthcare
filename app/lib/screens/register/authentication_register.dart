@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/components/round_button.dart';
 import 'package:healthcare_app/components/styled_text_form_field.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/register/bloc/register_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:healthcare_app/utils/http_client.dart';
 
 class RegisterPage extends StatefulWidget {
   static route() {
@@ -22,7 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
   final birthdateController = TextEditingController();
-  String gender = '';
+  String gender = 'Male';
 
   @override
   void initState() {
@@ -158,7 +161,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       birthdate: birthdateController.value.text,
                       gender: gender,
                     );
-                    print(user);
+                    HttpClient.post('/auth/register', user);
+                    print(jsonEncode(user));
                   },
                 )
               ],
