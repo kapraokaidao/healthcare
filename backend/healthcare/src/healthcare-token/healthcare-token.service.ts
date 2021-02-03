@@ -668,16 +668,19 @@ export class HealthcareTokenService {
     if (!healthcareToken.isActive) {
       return false;
     }
-    if (healthcareToken.startAge > userAge || healthcareToken.endAge < userAge) {
+    if (healthcareToken.startAge && healthcareToken.startAge > userAge) {
       return false;
     }
-    if (healthcareToken.gender != user.patient.gender) {
+    if (healthcareToken.endAge && healthcareToken.endAge < userAge) {
       return false;
     }
-    if (
-      now.isBefore(healthcareToken.startDate, "day") ||
-      now.isAfter(healthcareToken.endDate, "day")
-    ) {
+    if (healthcareToken.gender && healthcareToken.gender != user.patient.gender) {
+      return false;
+    }
+    if (healthcareToken.startDate && now.isBefore(healthcareToken.startDate, "day")) {
+      return false;
+    }
+    if (healthcareToken.endDate && now.isAfter(healthcareToken.endDate, "day")) {
       return false;
     }
     return true;
