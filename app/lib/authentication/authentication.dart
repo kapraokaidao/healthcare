@@ -43,7 +43,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   void deactivate() {
     super.deactivate();
     context.read<AuthenticationBloc>()
-        .add(AuthenticationStepChanged(AuthenticationStep.unknown));
+        .add(AuthenticationStepChanged(AuthenticationStep.login));
   }
 
   @override

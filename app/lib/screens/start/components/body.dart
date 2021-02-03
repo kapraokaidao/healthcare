@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:healthcare_app/app.dart';
 import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/authentication_repository.dart';
 import 'package:healthcare_app/screens/agreement/agreement_screen.dart';
 import 'package:healthcare_app/screens/login/login_screen.dart';
+import 'package:healthcare_app/screens/main_menu.dart';
 
 class Body extends StatelessWidget {
   @override
@@ -41,7 +43,6 @@ class Body extends StatelessWidget {
                   context
                       .read<AuthenticationBloc>()
                       .add(AuthenticationLogoutRequested());
-                  Navigator.push(context, AuthenticationPage.route(null));
                 },
                 child: Text('Logout'),
               )

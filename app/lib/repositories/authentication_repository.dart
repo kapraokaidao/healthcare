@@ -53,7 +53,7 @@ class AuthenticationRepository {
   }
 
   Future<void> logOut() async {
-    _statusController.add(AuthenticationStatus.unauthenticated);
+    // _statusController.add(AuthenticationStatus.unauthenticated);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("accessToken", null);
   }

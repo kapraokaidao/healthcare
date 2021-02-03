@@ -90,6 +90,10 @@ class MyApp extends StatelessWidget {
 }
 
 class AppView extends StatefulWidget {
+  static Route route() {
+    return MaterialPageRoute(builder: (_) => AppView());
+  }
+
   @override
   _AppViewState createState() => _AppViewState();
 }
@@ -115,8 +119,7 @@ class _AppViewState extends State<AppView> {
                   previous.step != current.step,
               listener: (context, state) {
                 if (state.status == AuthenticationStatus.unauthenticated) {
-                  // _navigator.
-                  // _navigator.push(AuthenticationPage.route(MainMenu.route()));
+                  _navigator.push(AuthenticationPage.route(null));
                 }
               },
               child: child,
