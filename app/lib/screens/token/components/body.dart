@@ -1,14 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
-import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:healthcare_app/utils/index.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Body extends StatelessWidget {
   Future<dynamic> fetchUser() async {
     final response = await HttpClient.get(path: '/healthcare-token/balance');
-    //print(response);
     return response;
   }
 
