@@ -93,13 +93,6 @@ class _BodyState extends State<Body> {
                                       Text(healthcareToken["description"])
                                     ]),
                                     rowSpacer,
-                                    // TableRow(children: [
-                                    //   Text('จำนวนสิทธิที่มี',
-                                    //       style: TextStyle(
-                                    //           fontWeight: FontWeight.bold)),
-                                    //   Text(balance["balance"].toString())
-                                    // ]),
-                                    // rowSpacer,
                                     TableRow(children: [
                                       Text('จำนวนสิทธิที่ได้รับ',
                                           style: TextStyle(

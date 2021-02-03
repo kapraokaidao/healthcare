@@ -178,6 +178,7 @@ export class HealthcareTokenService {
           );
         })
       )
+      .andWhere("healthcare_token.type = :tokenType", {tokenType: TokenType.General})
       .andWhere("healthcare_token.is_active = 1")
       .leftJoinAndSelect(
         "healthcare_token.userTokens",
