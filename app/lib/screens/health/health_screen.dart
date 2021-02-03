@@ -24,7 +24,7 @@ class HealthScreen extends StatelessWidget {
       backgroundColor: kPrimaryColor,
       leading: SizedBox(),
       centerTitle: true,
-      title: Text("Health"),
+      title: Text("สุขภาพ"),
     );
   }
 }
