@@ -1,6 +1,7 @@
 import axios from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
+import { AuthStoreContext } from '../../stores';
 import './style.scss';
 
 axios.interceptors.request.use(
@@ -28,13 +29,18 @@ axios.interceptors.response.use(
 
 const Spinner = () => {
 	const [errors, setErrors] = useState<string[]>([]);
+	const authStore = useContext(AuthStoreContext);
 
 	useEffect(() => {
 		axios.interceptors.response.use(undefined, (error) => {
 			document.getElementById('spinner')?.classList.remove('overlay');
 			document.getElementById('dialog')?.classList.add('overlay');
-			const error_message = error.response.data?.message;
-			setErrors([...errors, error_message]);
+			if(error.response.status === 401){
+				authStore.signout()
+			}else{
+				const error_message = error.response.data?.message;
+				setErrors([...errors, error_message]);
+			}
 			return Promise.reject(error);
 		});
 	}, [errors]);
