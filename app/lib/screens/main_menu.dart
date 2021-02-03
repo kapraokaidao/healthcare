@@ -6,6 +6,7 @@ import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
+import 'package:healthcare_app/screens/receive_special_token/receive_special_token.dart';
 import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
 import 'package:healthcare_app/screens/transfer/transfer_screen.dart';
@@ -83,11 +84,17 @@ class _PollingState extends State<_Polling> {
         builder: (ctx, state) {
       Timer.periodic(Duration(seconds: 5), (timer) async {
         if (state.status == AuthenticationStatus.authenticated && polling) {
-          final response = await HttpClient.get(
-              path: '/healthcare-token/redeem-request/active');
+          final response =
+              await HttpClient.get(path: '/healthcare-token/request/active');
           if (response.containsKey("id")) {
             polling = false;
-            Navigator.push(context, TransferScreen.route(response, setPolling));
+            if (response['type'] == 'Redemption') {
+              Navigator.push(
+                  context, TransferScreen.route(response, setPolling));
+            } else if (response['type'] == 'SpecialToken') {
+              Navigator.push(
+                  context, ReceiveSpecialToken.route(response, setPolling));
+            }
           }
         }
       });
