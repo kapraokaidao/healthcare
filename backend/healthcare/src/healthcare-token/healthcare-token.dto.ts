@@ -50,6 +50,7 @@ export class HealthcareTokenDto {
 
 export class ServiceAndPinDto {
   @ApiProperty()
+  @ToInt()
   serviceId: number;
 
   @ApiProperty()
@@ -60,6 +61,7 @@ export class ServiceAndPinDto {
 
 export class CreateSpecialTokenRequestDto extends ServiceAndPinDto {
   @ApiProperty()
+  @ToInt()
   userId: number;
 }
 
