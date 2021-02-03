@@ -9,3 +9,9 @@ export enum UserGender {
   Male = "Male",
   Female = "Female",
 }
+
+export enum RegisterStatus {
+  UploadKYC = "UploadKYC",
+  AwaitApproval = "AwaitApproval",
+  Complete = "Complete",
+}
