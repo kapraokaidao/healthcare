@@ -28,7 +28,7 @@ class RedeemScreen extends StatelessWidget {
       leading: SizedBox(),
       // On Android it's false by default
       centerTitle: true,
-      title: Text("Healthcare Right"),
+      title: Text("สิทธิการรักษาของฉัน"),
     );
   }
 }

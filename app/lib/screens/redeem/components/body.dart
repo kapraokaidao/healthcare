@@ -38,24 +38,31 @@ class Body extends StatelessWidget {
                             child: Table(
                               children: [
                                 TableRow(children: [
-                                  Text('Name',
+                                  Text('ชื่อ',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   Text(token["healthcareToken"]["name"])
                                 ]),
                                 rowSpacer,
                                 TableRow(children: [
-                                  Text('Description',
+                                  Text('รายละเอียด',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   Text(token["healthcareToken"]["description"])
                                 ]),
                                 rowSpacer,
                                 TableRow(children: [
-                                  Text('Balance',
+                                  Text('จำนวน',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   Text('${token["balance"]}')
+                                ]),
+                                rowSpacer,
+                                TableRow(children: [
+                                  Text('วันหมดสิทธิ์',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text('${token["healthcareToken"]["endDate"]}')
                                 ])
                               ],
                             ),

@@ -14,6 +14,7 @@ class Body extends StatelessWidget {
       if (state.user != null) {
         return SingleChildScrollView(
             child: Column(children: [
+          SizedBox(height: 20),
           Image.asset('assets/images/3177523.jpg'),
           Container(
               margin: EdgeInsets.all(20),
@@ -21,37 +22,36 @@ class Body extends StatelessWidget {
               child: Table(
                 children: [
                   TableRow(children: [
-                    Text('First name',
+                    Text('ชื่อจริง',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(state.user.firstname)
                   ]),
                   rowSpacer,
                   TableRow(children: [
-                    Text('Last name',
+                    Text('นามสกุล',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(state.user.lastname)
                   ]),
                   rowSpacer,
                   TableRow(children: [
-                    Text('Gender',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('เพศ', style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(state.user.patient.gender)
                   ]),
                   rowSpacer,
                   TableRow(children: [
-                    Text('Birth Date',
+                    Text('วันเกิด',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(state.user.patient.birthDate)
                   ]),
                   rowSpacer,
                   TableRow(children: [
-                    Text('Phone',
+                    Text('เบอร์โทรศัพท์',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(state.user.phone)
                   ]),
                   rowSpacer,
                   TableRow(children: [
-                    Text('Address',
+                    Text('ที่อยู่',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(state.user.address)
                   ])
@@ -73,7 +73,7 @@ class Body extends StatelessWidget {
                   .add(AuthenticationLogoutRequested());
               Navigator.push(context, AuthenticationPage.route(null));
             },
-            child: Text('Logout'),
+            child: Text('ออกจากระบบ'),
           )
         ]));
       } else {
