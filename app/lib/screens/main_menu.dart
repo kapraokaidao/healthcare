@@ -49,7 +49,7 @@ class _MainMenuState extends State<MainMenu> {
           title: 'Healthcare App',
           theme: ThemeData(
             // backgroundColor: Colors.white,
-            scaffoldBackgroundColor: Colors.white,
+            scaffoldBackgroundColor: Color(0xfff2fef6),
             // We apply this to our appBarTheme because most of our appBar have this style
             appBarTheme: AppBarTheme(color: Colors.white, elevation: 0),
             visualDensity: VisualDensity.adaptivePlatformDensity,

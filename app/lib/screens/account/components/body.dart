@@ -66,15 +66,26 @@ class Body extends StatelessWidget {
                     style: BorderStyle.solid,
                     width: 1,
                   ))),
-          OutlineButton(
-            onPressed: () {
-              context
-                  .read<AuthenticationBloc>()
-                  .add(AuthenticationLogoutRequested());
-              Navigator.push(context, AuthenticationPage.route(null));
-            },
-            child: Text('ออกจากระบบ'),
-          )
+          Container(
+              child: ButtonTheme(
+                  minWidth: double.infinity,
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        side: BorderSide(color: Color(0xff0c96e4))),
+                    padding: EdgeInsets.only(
+                        left: 20, right: 20, top: 15, bottom: 15),
+                    color: Color(0xff0c96e4),
+                    child: const Text('ออกจากระบบ',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                    onPressed: () {
+                      context
+                          .read<AuthenticationBloc>()
+                          .add(AuthenticationLogoutRequested());
+                      Navigator.push(context, AuthenticationPage.route(null));
+                    },
+                  )),
+              margin: EdgeInsets.only(left: 20, right: 20))
         ]));
       } else {
         return Center(child: CircularProgressIndicator());

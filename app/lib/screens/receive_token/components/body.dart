@@ -131,21 +131,51 @@ class _BodyState extends State<Body> {
                             return Container(
                               child: Column(
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: PinEntryTextField(
-                                      fields: 6,
-                                      isTextObscure: true,
-                                      showFieldAsBox: true,
-                                      onSubmit: _sendPin,
-                                    ),
-                                  ),
-                                  OutlineButton(
-                                    onPressed: () {
-                                      _receiveToken(context);
-                                    },
-                                    child: Text('รับสิทธิ'),
-                                  )
+                                  Container(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20),
+                                        child: PinEntryTextField(
+                                          fields: 6,
+                                          isTextObscure: true,
+                                          showFieldAsBox: true,
+                                          onSubmit: _sendPin,
+                                        ),
+                                      ),
+                                      margin: EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                            style: BorderStyle.solid,
+                                            width: 1,
+                                          ))),
+                                  Container(
+                                      margin: EdgeInsets.only(
+                                          left: 20, right: 20, top: 20),
+                                      child: ButtonTheme(
+                                          minWidth: double.infinity,
+                                          child: RaisedButton(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(18.0),
+                                                side: BorderSide(
+                                                    color: Color(0xff0c96e4))),
+                                            padding: EdgeInsets.only(
+                                                left: 20,
+                                                right: 20,
+                                                top: 15,
+                                                bottom: 15),
+                                            color: Color(0xff0c96e4),
+                                            child: const Text('รับสิทธิ',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white)),
+                                            onPressed: () {
+                                              _receiveToken(context);
+                                            },
+                                          )))
                                 ],
                               ),
                             );

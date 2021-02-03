@@ -37,7 +37,7 @@ class Body extends StatelessWidget {
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Color.fromARGB(136, 185, 97, 1)),
+                              (states) => Color(0xff98d583)),
                           columns: const <DataColumn>[
                             DataColumn(
                               label: Text(
@@ -56,24 +56,31 @@ class Body extends StatelessWidget {
                           ],
                           rows: show.map(
                             (user) {
-                              return DataRow(cells: <DataCell>[
-                                DataCell(
-                                    Text(user["name"],
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        )), onTap: () {
-                                  _viewTokenDetail(context, user["serviceId"]);
-                                }),
-                                DataCell(
-                                    Text(user["balance"],
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        )), onTap: () {
-                                  _viewTokenDetail(context, user["serviceId"]);
-                                }),
-                              ]);
+                              return DataRow(
+                                  color:
+                                      MaterialStateColor.resolveWith((states) {
+                                    return Colors.white;
+                                  }),
+                                  cells: <DataCell>[
+                                    DataCell(
+                                        Text(user["name"],
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            )), onTap: () {
+                                      _viewTokenDetail(
+                                          context, user["serviceId"]);
+                                    }),
+                                    DataCell(
+                                        Text(user["balance"],
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            )), onTap: () {
+                                      _viewTokenDetail(
+                                          context, user["serviceId"]);
+                                    }),
+                                  ]);
                             },
                           ).toList(),
                         )));

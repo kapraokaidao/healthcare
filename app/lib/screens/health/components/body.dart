@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
+import 'package:healthcare_app/screens/squirm/squirm_screen.dart';
 
 class Body extends StatefulWidget {
   Body({Key key}) : super(key: key);
@@ -161,11 +162,24 @@ class _BodyState extends State<Body> {
                       style: BorderStyle.solid,
                       width: 1,
                     ))),
-            IconButton(
-              icon: Image.asset('assets/images/fetus.png'),
-              iconSize: 150,
-              onPressed: () {},
-            ),
+            Container(
+              margin: EdgeInsets.only(left: 20, right: 20),
+              child: ButtonTheme(
+                minWidth: double.infinity,
+                child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        side: BorderSide(color: Color(0xff0c96e4))),
+                    padding: EdgeInsets.only(
+                        left: 20, right: 20, top: 15, bottom: 15),
+                    color: Color(0xff0c96e4),
+                    child: const Text('นับลูกดื้น',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                    onPressed: () {
+                      Navigator.push(context, SquirmScreen.route());
+                    }),
+              ),
+            )
           ],
         );
       } else {

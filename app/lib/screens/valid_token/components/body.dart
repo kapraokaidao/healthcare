@@ -41,7 +41,7 @@ class Body extends StatelessWidget {
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Color.fromARGB(136, 185, 97, 1)),
+                              (states) => Color(0xff98d583)),
                           columns: const <DataColumn>[
                             DataColumn(
                               label: Text(
@@ -60,24 +60,29 @@ class Body extends StatelessWidget {
                           ],
                           rows: show.map(
                             (token) {
-                              return DataRow(cells: <DataCell>[
-                                DataCell(
-                                    Text(token["name"],
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        )), onTap: () {
-                                  _viewTokenDetail(context, token["id"]);
-                                }),
-                                DataCell(
-                                    Text(token["tokenPerPerson"],
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        )), onTap: () {
-                                  _viewTokenDetail(context, token["id"]);
-                                }),
-                              ]);
+                              return DataRow(
+                                  color:
+                                      MaterialStateColor.resolveWith((states) {
+                                    return Colors.white;
+                                  }),
+                                  cells: <DataCell>[
+                                    DataCell(
+                                        Text(token["name"],
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            )), onTap: () {
+                                      _viewTokenDetail(context, token["id"]);
+                                    }),
+                                    DataCell(
+                                        Text(token["tokenPerPerson"],
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            )), onTap: () {
+                                      _viewTokenDetail(context, token["id"]);
+                                    }),
+                                  ]);
                             },
                           ).toList(),
                         )));
