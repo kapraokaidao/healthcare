@@ -6,19 +6,22 @@ import 'package:healthcare_app/size_config.dart';
 
 class TransferScreen extends StatelessWidget {
   final dynamic redeemRequest;
+  final Function setPolling;
 
-  static Route route(redeemRequest) {
-    return MaterialPageRoute(builder: (_) => TransferScreen(redeemRequest));
+  static Route route(redeemRequest, setPolling) {
+    return MaterialPageRoute(
+        builder: (_) => TransferScreen(redeemRequest, setPolling));
   }
 
-  TransferScreen(this.redeemRequest);
+  TransferScreen(this.redeemRequest, this.setPolling);
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
       appBar: buildAppBar(),
-      body: Body(redeemRequest: this.redeemRequest),
+      body:
+          Body(redeemRequest: this.redeemRequest, setPolling: this.setPolling),
       bottomNavigationBar: MyBottomNavBar(),
     );
   }
