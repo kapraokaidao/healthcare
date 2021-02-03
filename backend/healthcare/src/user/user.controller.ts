@@ -46,8 +46,8 @@ export class UserController {
 
   @Roles(UserRole.NHSO)
   @Get()
-  @ApiQuery({ name: "page", schema: { type: "integer" }})
-  @ApiQuery({ name: "pageSize", schema: { type: "integer" }})
+  @ApiQuery({ name: "page", schema: { type: "integer" } })
+  @ApiQuery({ name: "pageSize", schema: { type: "integer" } })
   @ApiQuery({ name: "role", schema: { type: "string" }, enum: UserRole })
   async findAll(
     @Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,

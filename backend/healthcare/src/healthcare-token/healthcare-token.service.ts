@@ -40,12 +40,10 @@ export class HealthcareTokenService {
     );
   }
 
-  async findById(
-    id: number
-  ): Promise<HealthcareToken> {
+  async findById(id: number): Promise<HealthcareToken> {
     return this.healthcareTokenRepository.findOneOrFail(id);
   }
-  
+
   async find(
     conditions,
     pageOptions: PaginationOptions
@@ -102,19 +100,15 @@ export class HealthcareTokenService {
     return toPagination<UserToken>(userTokens, totalCount, pageOptions);
   }
 
-  async getBalanceByServiceId(
-    userId: number,
-    serviceId: number
-  ): Promise<UserToken> {
-    const query = this.userTokenRepository.createQueryBuilder(
-      "user_token"
-    ).where(
-      "user_token.user_id = :userId AND user_token.healthcare_token_id = :serviceId", { userId: userId, serviceId: serviceId }
-    ).leftJoinAndSelect(
-      "user_token.healthcareToken",
-      "healthcare_token"
-    )
-    return query.getOneOrFail()
+  async getBalanceByServiceId(userId: number, serviceId: number): Promise<UserToken> {
+    const query = this.userTokenRepository
+      .createQueryBuilder("user_token")
+      .where(
+        "user_token.user_id = :userId AND user_token.healthcare_token_id = :serviceId",
+        { userId: userId, serviceId: serviceId }
+      )
+      .leftJoinAndSelect("user_token.healthcareToken", "healthcare_token");
+    return query.getOneOrFail();
   }
 
   async deactivateToken(id: number): Promise<HealthcareToken> {
@@ -181,8 +175,8 @@ export class HealthcareTokenService {
         "user_token",
         "user_token.user_id = :userId",
         { userId: userId }
-      );
-
+      )
+      .andWhere("user_token.id IS NULL");
     if (serviceId) {
       query.andWhere("healthcare_token.id = :serviceId", { serviceId: serviceId });
     }
@@ -300,14 +294,14 @@ export class HealthcareTokenService {
         isConfirmed: false,
         type: TransferRequestType.Redemption,
       },
-      relations: ['healthcareToken']
+      relations: ["healthcareToken"],
     });
-    if(!redeemRequest){ 
-      throw new NotFoundException("No active redeem request")
+    if (!redeemRequest) {
+      throw new NotFoundException("No active redeem request");
     }
-    return redeemRequest
+    return redeemRequest;
   }
-  
+
   async createRedeemRequest(
     userId: number,
     patientId: number,

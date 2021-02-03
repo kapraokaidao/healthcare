@@ -89,7 +89,6 @@ export class KeypairService {
     pin: string,
     keypair: Keypair
   ): Promise<string> {
-
     const user = await this.userService.findById(userId, true);
     let userSalt: string;
     if (user.role === UserRole.Hospital) {

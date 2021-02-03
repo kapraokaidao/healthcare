@@ -10,7 +10,12 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { AuthCredentialsDto, ChangePasswordDto, PatientAuthCredentialsDto, ResetPasswordDto } from "./auth.dto";
+import {
+  AuthCredentialsDto,
+  ChangePasswordDto,
+  PatientAuthCredentialsDto,
+  ResetPasswordDto,
+} from "./auth.dto";
 import { User } from "../entities/user.entity";
 import { PublicAPI } from "../decorators/public-api.decorator";
 import { FileUploadDto } from "../config/file.dto";

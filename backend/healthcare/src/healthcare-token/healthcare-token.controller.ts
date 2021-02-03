@@ -37,7 +37,6 @@ import { UserToken } from "src/entities/user-token.entity";
 export class HealthcareTokenController {
   constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
 
-
   @Get()
   @Roles(UserRole.NHSO, UserRole.Hospital)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
@@ -150,9 +149,7 @@ export class HealthcareTokenController {
 
   @Get("redeem-request/active")
   @Roles(UserRole.Patient)
-  async findActiveRedeemRequest(
-    @UserId() userId,
-  ): Promise<TransferRequest> {
+  async findActiveRedeemRequest(@UserId() userId): Promise<TransferRequest> {
     return this.healthcareTokenService.findActiveRedeemRequest(userId);
   }
 
@@ -237,9 +234,7 @@ export class HealthcareTokenController {
 
   @Get("/:id")
   @Roles(UserRole.Patient)
-  async findTokenById(
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<HealthcareToken> {
+  async findTokenById(@Param("id", ParseIntPipe) id: number): Promise<HealthcareToken> {
     return this.healthcareTokenService.findById(id);
   }
 }
