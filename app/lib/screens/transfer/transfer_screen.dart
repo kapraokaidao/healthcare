@@ -18,7 +18,7 @@ class TransferScreen extends StatelessWidget {
     SizeConfig().init(context);
     return Scaffold(
       appBar: buildAppBar(),
-      body: Body(this.redeemRequest),
+      body: Body(redeemRequest: this.redeemRequest),
       bottomNavigationBar: MyBottomNavBar(),
     );
   }
@@ -29,7 +29,7 @@ class TransferScreen extends StatelessWidget {
       leading: SizedBox(),
       // On Android it's false by default
       centerTitle: true,
-      title: Text("PIN"),
+      title: Text("ใช้สิทธิ"),
     );
   }
 }

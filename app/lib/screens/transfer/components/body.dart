@@ -3,24 +3,37 @@ import 'package:healthcare_app/screens/token/token_screen.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:healthcare_app/utils/index.dart';
 
-class Body extends StatelessWidget {
+class Body extends StatefulWidget {
   final dynamic redeemRequest;
 
-  Body(this.redeemRequest);
+  const Body({Key key, this.redeemRequest}) : super(key: key);
 
+  @override
+  _BodyState createState() => _BodyState();
+}
+
+class _BodyState extends State<Body> {
   Future<dynamic> fetchToken() async {
-    final serviceId = this.redeemRequest["healthcareToken"]["id"];
+    final serviceId = widget.redeemRequest["healthcareToken"]["id"];
     final response =
         await HttpClient.get(path: '/healthcare-token/balance/${serviceId}');
     return response;
   }
 
+  bool _isLoading = false;
+
   _sendPin(context, String pin) async {
     final numericRegex = RegExp(r'^\d{1,6}$');
-    final serviceId = this.redeemRequest["healthcareToken"]["id"];
+    final serviceId = widget.redeemRequest["healthcareToken"]["id"];
     if (numericRegex.hasMatch(pin)) {
+      setState(() {
+        this._isLoading = true;
+      });
       final response = await HttpClient.post('/healthcare-token/redeem',
           {"serviceId": serviceId.toString(), "pin": pin.toString()});
+      setState(() {
+        this._isLoading = false;
+      });
       if (response.containsKey("statusCode") && response["statusCode"] != 200) {
         return showDialog(
             context: context,
@@ -57,14 +70,14 @@ class Body extends StatelessWidget {
                             Table(
                               children: [
                                 TableRow(children: [
-                                  Text('Name',
+                                  Text('ชื่อ',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   Text(balance["healthcareToken"]["name"])
                                 ]),
                                 rowSpacer,
                                 TableRow(children: [
-                                  Text('Description',
+                                  Text('รายละเอียด',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   Text(
@@ -72,17 +85,18 @@ class Body extends StatelessWidget {
                                 ]),
                                 rowSpacer,
                                 TableRow(children: [
-                                  Text('Balance',
+                                  Text('จำนวนสิทธิที่มี',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   Text(balance["balance"].toString())
                                 ]),
                                 rowSpacer,
                                 TableRow(children: [
-                                  Text('Requested Amount',
+                                  Text('จำนวนสิทธิที่ใช้',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
-                                  Text(redeemRequest['amount'].toString())
+                                  Text(
+                                      widget.redeemRequest['amount'].toString())
                                 ]),
                               ],
                             ),
@@ -97,17 +111,23 @@ class Body extends StatelessWidget {
                               style: BorderStyle.solid,
                               width: 1,
                             ))),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: PinEntryTextField(
-                        fields: 6,
-                        isTextObscure: true,
-                        showFieldAsBox: true,
-                        onSubmit: (pin) {
-                          _sendPin(context, pin);
-                        },
-                      ),
-                    ),
+                    (() {
+                      if (this._isLoading) {
+                        return Center(child: CircularProgressIndicator());
+                      } else {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: PinEntryTextField(
+                            fields: 6,
+                            isTextObscure: true,
+                            showFieldAsBox: true,
+                            onSubmit: (pin) {
+                              _sendPin(context, pin);
+                            },
+                          ),
+                        );
+                      }
+                    }())
                   ],
                 );
               } else {
