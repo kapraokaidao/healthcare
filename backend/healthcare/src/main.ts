@@ -27,7 +27,7 @@ async function bootstrap() {
     new SanitizationPipe({
       transform: true,
     }),
-    new ValidationPipe()
+    new ValidationPipe({skipMissingProperties: true})
   );
 
   const options = new DocumentBuilder()

@@ -70,7 +70,6 @@ export class CreateRedeemRequestDto extends CreateSpecialTokenRequestDto {
   amount: number;
 }
 
-
 export class WithdrawDto extends ServiceAndPinDto {
   @ApiProperty()
   @ToInt()
