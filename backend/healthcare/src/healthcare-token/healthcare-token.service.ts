@@ -39,6 +39,12 @@ export class HealthcareTokenService {
       "stellar.receivingSecret"
     );
   }
+
+  async findById(
+    id: number
+  ): Promise<HealthcareToken> {
+    return this.healthcareTokenRepository.findOneOrFail(id);
+  }
   
   async find(
     conditions,
