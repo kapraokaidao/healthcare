@@ -100,10 +100,11 @@ export class HealthcareTokenService {
       take: pageOptions.pageSize,
       skip: (pageOptions.page - 1) * pageOptions.pageSize,
     });
-    if(user.role === UserRole.Patient){
-      userTokens = userTokens.filter((userToken) =>  this.validateBasicRule(user, userToken.healthcareToken))
+    if (user.role === UserRole.Patient) {
+      userTokens = userTokens.filter((userToken) =>
+        this.validateBasicRule(user, userToken.healthcareToken)
+      );
       totalCount = userTokens.length;
-      
     }
     return toPagination<UserToken>(userTokens, totalCount, pageOptions);
   }
@@ -294,20 +295,19 @@ export class HealthcareTokenService {
     return userToken;
   }
 
-  async findActiveRedeemRequest(userId: number): Promise<TransferRequest> {
-    const redeemRequest = await this.transferRequestRepository.findOne({
+  async findActiveRequest(userId: number): Promise<TransferRequest> {
+    const request = await this.transferRequestRepository.findOne({
       where: {
         patient: { id: userId },
         expiredDate: MoreThan(dayjs().toDate()),
         isConfirmed: false,
-        type: TransferRequestType.Redemption,
       },
       relations: ["healthcareToken"],
     });
-    if (!redeemRequest) {
+    if (!request) {
       throw new NotFoundException("No active redeem request");
     }
-    return redeemRequest;
+    return request;
   }
 
   async createRedeemRequest(
@@ -662,20 +662,23 @@ export class HealthcareTokenService {
     //Todo: update XDR
   }
 
-  private validateBasicRule(user: User, healthcareToken : HealthcareToken): boolean {
+  private validateBasicRule(user: User, healthcareToken: HealthcareToken): boolean {
     const now = dayjs();
     const userAge = now.diff(user.patient.birthDate, "year");
-    if(!healthcareToken.isActive){
-      return false
+    if (!healthcareToken.isActive) {
+      return false;
     }
-    if(healthcareToken.startAge > userAge || healthcareToken.endAge < userAge){
-      return false
+    if (healthcareToken.startAge > userAge || healthcareToken.endAge < userAge) {
+      return false;
     }
-    if(healthcareToken.gender != user.patient.gender){
-      return false
+    if (healthcareToken.gender != user.patient.gender) {
+      return false;
     }
-    if(now.isBefore(healthcareToken.startDate, 'day') || now.isAfter(healthcareToken.endDate, 'day')){
-      return false
+    if (
+      now.isBefore(healthcareToken.startDate, "day") ||
+      now.isAfter(healthcareToken.endDate, "day")
+    ) {
+      return false;
     }
     return true;
   }

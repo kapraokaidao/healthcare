@@ -19,7 +19,7 @@ import { UserId } from "../decorators/user-id.decorator";
 import { User } from "../entities/user.entity";
 import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
-import { UserRole } from "../constant/enum/user.enum";
+import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
 import { Pagination } from "../utils/pagination.util";
 import { SearchUsersDto } from "./user.dto";
 import { FileUploadDto } from "../config/file.dto";
@@ -42,6 +42,12 @@ export class UserController {
   @Get("me")
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);
+  }
+
+  @Roles(UserRole.Patient)
+  @Get("me/register/status")
+  async registerStatus(@UserId() id: number): Promise<RegisterStatus> {
+    return this.userService.registerStatus(id);
   }
 
   @Roles(UserRole.NHSO)

@@ -61,25 +61,38 @@ class _MainMenuState extends State<MainMenu> {
   }
 }
 
-class _Polling extends StatelessWidget {
+class _Polling extends StatefulWidget {
+  @override
+  _PollingState createState() => _PollingState();
+}
+
+class _PollingState extends State<_Polling> {
+  bool polling;
+
+  @override
+  void initState() {
+    super.initState();
+    polling = true;
+  }
+
+  void setPolling(value) => polling = value;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (ctx, state) {
       Timer.periodic(Duration(seconds: 5), (timer) async {
-        if (state.status == AuthenticationStatus.authenticated) {
+        if (state.status == AuthenticationStatus.authenticated && polling) {
           final response = await HttpClient.get(
               path: '/healthcare-token/redeem-request/active');
           if (response.containsKey("id")) {
-            timer.cancel();
-            Navigator.push(context, TransferScreen.route(response));
+            polling = false;
+            Navigator.push(context, TransferScreen.route(response, setPolling));
           }
-        } else {
-          timer.cancel();
         }
       });
 
-      return StartScreen();
+      return TokenScreen();
     });
   }
 }

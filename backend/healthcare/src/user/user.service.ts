@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
-import { UserRole } from "../constant/enum/user.enum";
+import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
@@ -173,6 +173,20 @@ export class UserService {
       };
     });
     return [KYCs, totalCount];
+  }
+
+  async registerStatus(id: number): Promise<RegisterStatus> {
+    const user = await this.findById(id, true);
+    if (user.patient.approved) {
+      return RegisterStatus.Complete;
+    } else if (
+      user.patient.nationalIdImage !== null ||
+      user.patient.selfieImage !== null
+    ) {
+      return RegisterStatus.AwaitApproval;
+    } else {
+      return RegisterStatus.UploadKYC;
+    }
   }
 
   async approveKyc(id: number): Promise<void> {

@@ -147,10 +147,10 @@ export class HealthcareTokenController {
     );
   }
 
-  @Get("redeem-request/active")
+  @Get("request/active")
   @Roles(UserRole.Patient)
-  async findActiveRedeemRequest(@UserId() userId): Promise<TransferRequest> {
-    return this.healthcareTokenService.findActiveRedeemRequest(userId);
+  async findActiveRequest(@UserId() userId): Promise<TransferRequest> {
+    return this.healthcareTokenService.findActiveRequest(userId);
   }
 
   @Post("redeem")

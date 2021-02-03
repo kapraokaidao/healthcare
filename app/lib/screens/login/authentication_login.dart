@@ -78,7 +78,8 @@ class AuthenticationLogin extends StatelessWidget {
                             }
                             return null;
                           },
-                          onChanged: (pin) => context.read<AuthenticationBloc>().add(AuthenticationPinChanged(pin)),
+                          onChanged: (pin) =>
+                              context.read<AuthenticationBloc>().add(AuthenticationPinChanged(pin)),
                         )),
                       )
                     ],
