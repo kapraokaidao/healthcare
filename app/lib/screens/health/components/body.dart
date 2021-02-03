@@ -25,21 +25,130 @@ class _BodyState extends State<Body> {
                 child: Table(
                   children: [
                     TableRow(children: [
-                      Text('Name',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text("N")
+                      Text(
+                        'สุขภาพ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller: TextEditingController(text: 'ยอดเยี่ยม'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
                     ]),
                     rowSpacer,
                     TableRow(children: [
-                      Text('Description',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text("D")
+                      Text(
+                        'ส่วนสูง',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller: TextEditingController(text: '170 ซม.'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
                     ]),
                     rowSpacer,
                     TableRow(children: [
-                      Text('Balance',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text("B")
+                      Text(
+                        'น้ำหนัก',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller: TextEditingController(text: '53 กก.'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
+                    ]),
+                    rowSpacer,
+                    TableRow(children: [
+                      Text(
+                        'กรุ๊ปเลือด',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller: TextEditingController(text: 'A'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
+                    ]),
+                    rowSpacer,
+                    TableRow(children: [
+                      Text(
+                        'ความดัน',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller: TextEditingController(text: '120/80'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
+                    ]),
+                    rowSpacer,
+                    TableRow(children: [
+                      Text(
+                        'อัตราการเต้นของหัวใจ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller: TextEditingController(text: '80 bpm'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
+                    ]),
+                    rowSpacer,
+                    TableRow(children: [
+                      Text(
+                        'อุณหภูมิ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          height: 2.2,
+                        ),
+                      ),
+                      TextField(
+                          style: TextStyle(
+                            height: 0.5,
+                          ),
+                          controller:
+                              TextEditingController(text: '36.7 องศาเซลเซียส'),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                          )),
                     ])
                   ],
                 ),
@@ -51,9 +160,16 @@ class _BodyState extends State<Body> {
                       color: Colors.grey,
                       style: BorderStyle.solid,
                       width: 1,
-                    )))
+                    ))),
+            IconButton(
+              icon: Image.asset('assets/images/fetus.png'),
+              iconSize: 150,
+              onPressed: () {},
+            ),
           ],
         );
+      } else {
+        return Center(child: CircularProgressIndicator());
       }
     });
   }
