@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:healthcare_app/utils/index.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Body extends StatelessWidget {
@@ -32,7 +33,8 @@ class Body extends StatelessWidget {
                     "serviceId": data['healthcareToken']['id'],
                     "name": data['healthcareToken']['name'],
                     "hospital": data['destinationUser']['hospital']['fullname'],
-                    "date": data['destinationUser']['updatedDate'].split('T'),
+                    "date": DateFormat('hh:mm:ss, dd/MM/yyyy').format(
+                        DateTime.parse(data['destinationUser']['updatedDate'])),
                   });
                 }
                 //print(show);
@@ -77,10 +79,7 @@ class Body extends StatelessWidget {
                                           context, user["serviceId"]);
                                     }),
                                     DataCell(
-                                        Text(
-                                            user["date"][0] +
-                                                ', ' +
-                                                user["date"][1].split('.')[0],
+                                        Text(user["date"],
                                             textAlign: TextAlign.right,
                                             style: TextStyle(
                                               fontSize: 16,

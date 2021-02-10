@@ -1,19 +1,20 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/utils/index.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:intl/intl.dart';
 
-class Body extends StatelessWidget {
-  Future<dynamic> fetchToken() async {
-    final response = await HttpClient.get(path: '/healthcare-token/balance/');
-    return response;
-  }
+class Body extends StatefulWidget {
+  Body({Key key}) : super(key: key);
+  @override
+  _BodyState createState() => _BodyState();
+}
 
+class _BodyState extends State<Body> {
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
+
+  String date = DateFormat('dd/MM/yyyy').format(new DateTime.now());
 
   @override
   Widget build(BuildContext context) {
@@ -21,62 +22,80 @@ class Body extends StatelessWidget {
         builder: (ctx, state) {
       if (state.user != null) {
         return SingleChildScrollView(
-            child: FutureBuilder<dynamic>(
-                future: fetchToken(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    final token = snapshot.data;
-                    return Column(
-                      children: [
-                        Container(
-                            margin: EdgeInsets.all(20),
-                            padding: EdgeInsets.all(20),
-                            child: Table(
-                              children: [
-                                TableRow(children: [
-                                  Text('ชื่อ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(token["healthcareToken"]["name"])
-                                ]),
-                                rowSpacer,
-                                TableRow(children: [
-                                  Text('รายละเอียด',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(token["healthcareToken"]["description"])
-                                ]),
-                                rowSpacer,
-                                TableRow(children: [
-                                  Text('จำนวน',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text('${token["balance"]}')
-                                ]),
-                                rowSpacer,
-                                TableRow(children: [
-                                  Text('วันหมดสิทธิ์',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text('${token["healthcareToken"]["endDate"]}')
-                                ])
-                              ],
-                            ),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Colors.grey,
-                                  style: BorderStyle.solid,
-                                  width: 1,
-                                ))),
-                      ],
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                }));
+            child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(20),
+              margin: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Color(0xFFBBC4CE)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'วันที่ : $date',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: TextField(
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color(0xFFBBC4CE), width: 1),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color(0xFFBBC4CE), width: 1),
+                              ),
+                              border: InputBorder.none,
+                              hintText: 'จำนวนครั้งที่ลูกดื้น'),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Flexible(
+                        child: TextField(
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color(0xFFBBC4CE), width: 1),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color(0xFFBBC4CE), width: 1),
+                              ),
+                              border: InputBorder.none,
+                              hintText: 'น้ำหนัก'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  MaterialButton(
+                    onPressed: () {},
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    child: Text('+',
+                        style: TextStyle(fontSize: 36, color: Colors.white)),
+                    padding: EdgeInsets.all(10),
+                    shape: CircleBorder(),
+                  ),
+                ],
+              ),
+            ),
+            Text('below'),
+          ],
+        ));
       } else {
         return Center(child: CircularProgressIndicator());
       }
