@@ -15,10 +15,6 @@ class Body extends StatelessWidget {
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
 
-  _viewTokenDetail(context, serviceId) async {
-    Navigator.push(context, RedeemScreen.route(serviceId));
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -68,24 +64,18 @@ class Body extends StatelessWidget {
                                     return Colors.white;
                                   }),
                                   cells: <DataCell>[
+                                    DataCell(Text(user["name"],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ))),
                                     DataCell(
-                                        Text(user["name"],
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                            )), onTap: () {
-                                      _viewTokenDetail(
-                                          context, user["serviceId"]);
-                                    }),
-                                    DataCell(
-                                        Text(user["date"],
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                            )), onTap: () {
-                                      _viewTokenDetail(
-                                          context, user["serviceId"]);
-                                    }),
+                                      Text(user["date"],
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          )),
+                                    ),
                                   ]);
                             },
                           ).toList(),
