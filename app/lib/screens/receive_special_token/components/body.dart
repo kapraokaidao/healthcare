@@ -31,7 +31,6 @@ class _BodyState extends State<Body> {
       setState(() {
         this._isLoading = true;
       });
-      print(serviceId);
       final response = await HttpClient.post(
           '/healthcare-token/special-token/receive',
           {"serviceId": serviceId.toString(), "pin": pin.toString()});
@@ -93,13 +92,6 @@ class _BodyState extends State<Body> {
                                       Text(healthcareToken["description"])
                                     ]),
                                     rowSpacer,
-                                    // TableRow(children: [
-                                    //   Text('จำนวนสิทธิที่มี',
-                                    //       style: TextStyle(
-                                    //           fontWeight: FontWeight.bold)),
-                                    //   Text(balance["balance"].toString())
-                                    // ]),
-                                    // rowSpacer,
                                     TableRow(children: [
                                       Text('จำนวนสิทธิที่ได้รับ',
                                           style: TextStyle(
