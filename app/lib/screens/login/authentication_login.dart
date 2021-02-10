@@ -116,7 +116,7 @@ class AuthenticationLogin extends StatelessWidget {
                               onPressed: () {
                                 context
                                     .read<AuthenticationBloc>()
-                                    .add(AuthenticationStatusChanged(AuthenticationStatus.unknown));
+                                    .add(AuthenticationStatusChanged(AuthenticationStatus.unauthenticated));
                                 context
                                     .read<AuthenticationBloc>()
                                     .add(AuthenticationStepChanged(AuthenticationStep.register));

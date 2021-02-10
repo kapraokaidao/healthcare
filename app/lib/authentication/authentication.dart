@@ -5,6 +5,7 @@ import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/login/authentication_login.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
+import 'package:healthcare_app/screens/register/authentication_register.dart';
 import 'package:healthcare_app/screens/register/register_await_approval.dart';
 import 'package:healthcare_app/screens/register/register_upload_kyc.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
@@ -83,6 +84,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 switch (state.step) {
                   case AuthenticationStep.login:
                     content = AuthenticationLogin();
+                    break;
+                  case AuthenticationStep.register:
+                    content = RegisterPage();
                     break;
                   case AuthenticationStep.uploadKYC:
                     content = RegisterUploadKYC();
