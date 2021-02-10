@@ -22,14 +22,13 @@ class TransferScreen extends StatelessWidget {
       appBar: buildAppBar(),
       body:
           Body(redeemRequest: this.redeemRequest, setPolling: this.setPolling),
-      bottomNavigationBar: MyBottomNavBar(),
     );
   }
 
   AppBar buildAppBar() {
     return AppBar(
       backgroundColor: kPrimaryColor,
-      leading: SizedBox(),
+      leading: BackButton(color: Colors.white),
       // On Android it's false by default
       centerTitle: true,
       title: Text("ใช้สิทธิ"),

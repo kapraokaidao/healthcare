@@ -23,14 +23,13 @@ class ReceiveSpecialToken extends StatelessWidget {
       body: Body(
           specialTokenRequest: this.specialTokenRequest,
           setPolling: this.setPolling),
-      bottomNavigationBar: MyBottomNavBar(),
     );
   }
 
   AppBar buildAppBar() {
     return AppBar(
       backgroundColor: kPrimaryColor,
-      leading: SizedBox(),
+      leading: BackButton(color: Colors.white),
       // On Android it's false by default
       centerTitle: true,
       title: Text("รับสิทธิ"),
