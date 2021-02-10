@@ -37,7 +37,6 @@ class Body extends StatelessWidget {
                         DateTime.parse(data['destinationUser']['updatedDate'])),
                   });
                 }
-                //print(show);
                 return Container(
                     alignment: Alignment.bottomCenter,
                     child: ConstrainedBox(
