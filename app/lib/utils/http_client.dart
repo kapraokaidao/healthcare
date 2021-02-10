@@ -58,10 +58,10 @@ class HttpClient {
       String path, Map<String, dynamic> body) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
     headers["content-type"] = "application/json";
-    http.Response response =
-        await http.post(baseUrl + path, body: jsonEncode(body), headers: headers);
-    dynamic data = json.decode(response.body);
+    http.Response response = await http.post(baseUrl + path,
+        body: jsonEncode(body), headers: headers);
     if (response.statusCode >= 400) {
+      dynamic data = json.decode(response.body);
       throw ("'HTTP ${data['statusCode']}: ${data['message']}'");
     }
     return response.body.isEmpty ? {} : json.decode(response.body);

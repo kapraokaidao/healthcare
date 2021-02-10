@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
@@ -16,11 +18,28 @@ class _BodyState extends State<Body> {
 
   String date = DateFormat('dd/MM/yyyy').format(new DateTime.now());
 
-  List<Map<String, dynamic>> show = new List();
+  Future<dynamic> fetchFetus() async {
+    final response =
+        await HttpClient.getWithoutDecode(path: "/fetus/group-by-date");
+    return json.decode(response);
+  }
 
-  _BodyState() {
-    show.add({"date": "123333", "squirm": "222", "weigth": "123213"});
-    show.add({"date": "123333", "squirm": "222", "weigth": "123213"});
+  String _amount = '';
+  String _weight = '';
+  TextEditingController _amountController = TextEditingController();
+  TextEditingController _weightController = TextEditingController();
+
+  updateFetu() async {
+    final regex = RegExp(r'^[0-9.]+$');
+    if (regex.hasMatch(_amount) && regex.hasMatch(_weight)) {
+      await HttpClient.post("/fetus", {"amount": _weight, "weight": _weight});
+      setState(() {
+        _weight = '';
+        _weight = '';
+        _amountController.text = '';
+        _weightController.text = '';
+      });
+    }
   }
 
   @override
@@ -52,6 +71,13 @@ class _BodyState extends State<Body> {
                     children: [
                       Flexible(
                         child: TextField(
+                          controller: _amountController,
+                          onChanged: (text) {
+                            setState(() {
+                              _amount = text;
+                            });
+                          },
+                          keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5),
@@ -70,6 +96,13 @@ class _BodyState extends State<Body> {
                       SizedBox(width: 20),
                       Flexible(
                         child: TextField(
+                          controller: _weightController,
+                          keyboardType: TextInputType.number,
+                          onChanged: (text) {
+                            setState(() {
+                              _weight = text;
+                            });
+                          },
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
                               contentPadding: EdgeInsets.all(5),
@@ -89,7 +122,9 @@ class _BodyState extends State<Body> {
                   ),
                   SizedBox(height: 20),
                   MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      this.updateFetu();
+                    },
                     color: Colors.blue,
                     textColor: Colors.white,
                     child: Text('+',
@@ -100,55 +135,75 @@ class _BodyState extends State<Body> {
                 ],
               ),
             ),
-            DataTable(
-              headingRowColor:
-                  MaterialStateColor.resolveWith((states) => Color(0xff98d583)),
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'วันที่',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'จำนวนครั้งที่ดิ้น',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'น้ำหนักเฉลี่ย',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-              rows: show.map(
-                (user) {
-                  return DataRow(
-                      color: MaterialStateColor.resolveWith((states) {
-                        return Colors.white;
-                      }),
-                      cells: <DataCell>[
-                        DataCell(Text('123',
-                            textAlign: TextAlign.center,
+            FutureBuilder<dynamic>(
+                future: fetchFetus(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    final fetusData = snapshot.data;
+                    List<Map<String, dynamic>> show = new List();
+                    for (var fdata in fetusData) {
+                      show.add({
+                        "date": fdata["date"],
+                        "amount": fdata["amount"],
+                        "weight": fdata["weight"]
+                      });
+                    }
+                    return DataTable(
+                      headingRowColor: MaterialStateColor.resolveWith(
+                          (states) => Color(0xff98d583)),
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Text(
+                            'วันที่',
                             style: TextStyle(
-                              fontSize: 16,
-                            ))),
-                        DataCell(Text('456',
-                            textAlign: TextAlign.right,
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'จำนวนครั้งที่ดิ้น',
                             style: TextStyle(
-                              fontSize: 16,
-                            ))),
-                        DataCell(Text('789',
-                            textAlign: TextAlign.right,
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'น้ำหนักเฉลี่ย',
                             style: TextStyle(
-                              fontSize: 16,
-                            )))
-                      ]);
-                },
-              ).toList(),
-            )
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                      rows: show.map(
+                        (fdata) {
+                          return DataRow(
+                              color: MaterialStateColor.resolveWith((states) {
+                                return Colors.white;
+                              }),
+                              cells: <DataCell>[
+                                DataCell(Text(fdata['date'],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ))),
+                                DataCell(Text('${fdata['amount']}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ))),
+                                DataCell(Text('${fdata['weight']}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    )))
+                              ]);
+                        },
+                      ).toList(),
+                    );
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                })
           ],
         ));
       } else {
