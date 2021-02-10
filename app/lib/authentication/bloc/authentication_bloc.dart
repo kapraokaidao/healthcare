@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:healthcare_app/models/patient.dart';
+import 'package:healthcare_app/repositories/authentication_repository.dart';
+import 'package:healthcare_app/utils/http_client.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,8 +52,8 @@ class AuthenticationBloc
     } else if (event is AuthenticationLogoutRequested) {
       // await _authenticationRepository.logOut();
       yield _mapAuthenticationLogoutRequestedToState(event);
-    // } else if (event is AuthenticationTelNoChanged) {
-    //   yield _mapTelNoChangedToState(event, state);
+    // } else if (event is AuthenticationValidateStatus) {
+    //   yield
     // } else if (event is AuthenticationOTPChanged) {
     //   yield _mapOTPChangedToState(event, state);
     // } else if (event is AuthenticationOTPRequested) {
@@ -127,17 +129,46 @@ class AuthenticationBloc
   Future<AuthenticationState> _mapCredentialsLoginRequestToState(AuthenticationCredentialsSubmitted event) async {
     String nationalId = state.nationalId;
     String pin = state.pin;
-    Map<String, dynamic> result = await this
-        ._authenticationRepository
-        .login(nationalId: nationalId, pin: pin);
-    if (result != null) {
-      String accessToken = result['access_token'];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('accessToken', accessToken);
-      User user = await _tryGetUser();
-      return state.copyWith(status: AuthenticationStatus.authenticated, user: user);
+    // Map<String, dynamic> result = await this
+    //     ._authenticationRepository
+    //     .login(nationalId: nationalId, pin: pin);
+    try {
+      Map<String, dynamic> loginResult = await this
+          ._authenticationRepository
+          .login(nationalId: nationalId, pin: pin);
+      if (loginResult['access_token'] != null) {
+        String accessToken = loginResult['access_token'];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', accessToken);
+        String registerStatus = await HttpClient.getWithoutDecode(path: '/user/me/register/status');
+        User user = await _tryGetUser();
+        switch (registerStatus) {
+          case "Complete":
+            return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.complete);
+          case "AwaitApproval":
+            return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.awaitApproval);
+          case "UploadKYC":
+            return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.uploadKYC);
+          default:
+            throw ('Invalid register status');
+        }
+      } else {
+        throw ('Unknown login error');
+      }
+    } catch (e) {
+
+      return state.copyWith(status: AuthenticationStatus.unauthenticated);
     }
-    return state.copyWith(status: AuthenticationStatus.unauthenticated);
+    // print(result);
+    // print(result['statusCode']);
+    // if (result['statusCode'] == 201 && result != null) {
+    //   String accessToken = result['access_token'];
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   await prefs.setString('accessToken', accessToken);
+    //   User user = await _tryGetUser();
+    //   return state.copyWith(status: AuthenticationStatus.authenticated, user: user);
+    // }
+    // return state.copyWith(status: AuthenticationStatus.unauthenticated);
   }
 
   AuthenticationState _mapAuthenticationLogoutRequestedToState(AuthenticationLogoutRequested event) {

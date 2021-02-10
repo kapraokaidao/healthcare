@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
-import 'package:healthcare_app/screens/register/register_screen.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
-import 'package:healthcare_app/screens/transfer/transfer_screen.dart';
 
 class Body extends StatefulWidget {
   Body({Key key}) : super(key: key);
