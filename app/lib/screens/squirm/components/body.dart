@@ -16,6 +16,13 @@ class _BodyState extends State<Body> {
 
   String date = DateFormat('dd/MM/yyyy').format(new DateTime.now());
 
+  List<Map<String, dynamic>> show = new List();
+
+  _BodyState() {
+    show.add({"date": "123333", "squirm": "222", "weigth": "123213"});
+    show.add({"date": "123333", "squirm": "222", "weigth": "123213"});
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
@@ -93,7 +100,55 @@ class _BodyState extends State<Body> {
                 ],
               ),
             ),
-            Text('below'),
+            DataTable(
+              headingRowColor:
+                  MaterialStateColor.resolveWith((states) => Color(0xff98d583)),
+              columns: const <DataColumn>[
+                DataColumn(
+                  label: Text(
+                    'วันที่',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'จำนวนครั้งที่ดิ้น',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'น้ำหนักเฉลี่ย',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+              rows: show.map(
+                (user) {
+                  return DataRow(
+                      color: MaterialStateColor.resolveWith((states) {
+                        return Colors.white;
+                      }),
+                      cells: <DataCell>[
+                        DataCell(Text('123',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                            ))),
+                        DataCell(Text('456',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 16,
+                            ))),
+                        DataCell(Text('789',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 16,
+                            )))
+                      ]);
+                },
+              ).toList(),
+            )
           ],
         ));
       } else {
