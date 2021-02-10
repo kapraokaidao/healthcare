@@ -37,7 +37,7 @@ export class FetusService {
           const fetus = new FetusGroupByDateResponse();
           fetus.amount = parseInt(e.amount);
           fetus.weight = Math.round(e.weight * 10) / 10;
-          fetus.date = dayjs(e.fetus_created_date).format('DD-MM-YYYY');
+          fetus.date = dayjs(e.fetus_created_date).format('YYYY-MM-DD');
          return fetus;
       })
       return fetuses;
