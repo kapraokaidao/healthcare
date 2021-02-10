@@ -34,8 +34,8 @@ export class FetusService {
       const queryResult = await query.getRawMany();
       const fetuses = queryResult.map((e) => {
           const fetus = new FetusGroupByDateResponse();
-          fetus.amount = e.amount;
-          fetus.weight = e.weight;
+          fetus.amount = parseInt(e.amount);
+          fetus.weight = Math.round(e.weight * 10) / 10;
           fetus.date = e.fetus_created_date;
          return fetus;
       })
