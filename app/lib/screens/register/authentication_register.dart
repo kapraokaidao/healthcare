@@ -160,7 +160,11 @@ class _RegisterPageState extends State<RegisterPage> {
                           gender: gender,
                         );
                         HttpClient.post('/auth/register', user);
-                        print(jsonEncode(user));
+                        ctx.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalIdController.value.text));
+                        ctx.read<AuthenticationBloc>().add(AuthenticationPinChanged(pinController.value.text));
+                        ctx.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
+                        ctx.read<AuthenticationBloc>().add(AuthenticationValidateStatus());
+
                       },
                     )
                   ],

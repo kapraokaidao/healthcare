@@ -52,8 +52,8 @@ class AuthenticationBloc
     } else if (event is AuthenticationLogoutRequested) {
       // await _authenticationRepository.logOut();
       yield _mapAuthenticationLogoutRequestedToState(event);
-    // } else if (event is AuthenticationValidateStatus) {
-    //   yield
+    } else if (event is AuthenticationValidateStatus) {
+      yield await _mapValidateStatusToState();
     // } else if (event is AuthenticationOTPChanged) {
     //   yield _mapOTPChangedToState(event, state);
     // } else if (event is AuthenticationOTPRequested) {
@@ -124,6 +124,21 @@ class AuthenticationBloc
   AuthenticationState _mapPinChangedToState(AuthenticationPinChanged event) {
     final pin = event.pin;
     return state.copyWith(pin: pin);
+  }
+
+  Future<AuthenticationState> _mapValidateStatusToState() async {
+    String registerStatus = await HttpClient.getWithoutDecode(path: '/user/me/register/status');
+    User user = await _tryGetUser();
+    switch (registerStatus) {
+      case "Complete":
+        return state.copyWith(step: AuthenticationStep.complete);
+      case "AwaitApproval":
+        return state.copyWith(step: AuthenticationStep.awaitApproval);
+      case "UploadKYC":
+        return state.copyWith(step: AuthenticationStep.uploadKYC);
+      default:
+        return state.copyWith(status: AuthenticationStatus.unauthenticated, user: null, step: AuthenticationStep.login);
+    }
   }
 
   Future<AuthenticationState> _mapCredentialsLoginRequestToState(AuthenticationCredentialsSubmitted event) async {

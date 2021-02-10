@@ -118,7 +118,7 @@ class _AppViewState extends State<AppView> {
                   previous.status != current.status ||
                   previous.step != current.step,
               listener: (context, state) {
-                if (state.status == AuthenticationStatus.unauthenticated) {
+                if (state.status != AuthenticationStatus.authenticated) {
                   _navigator.pushReplacement(AuthenticationPage.route(MainMenu.route()));
                 }
               },

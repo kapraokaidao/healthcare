@@ -5,6 +5,8 @@ import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/login/authentication_login.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
+import 'package:healthcare_app/screens/register/register_await_approval.dart';
+import 'package:healthcare_app/screens/register/register_upload_kyc.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -37,14 +39,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   void initState() {
     super.initState();
     context.read<AuthenticationBloc>()
-        .add(AuthenticationStepChanged(AuthenticationStep.login));
+        .add(AuthenticationValidateStatus());
   }
 
   @override
   void deactivate() {
     super.deactivate();
     context.read<AuthenticationBloc>()
-        .add(AuthenticationStepChanged(AuthenticationStep.login));
+        .add(AuthenticationValidateStatus());
   }
 
   @override
@@ -75,6 +77,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
               buildWhen: (previous, current) =>
               previous.step != current.step || previous.status != current.status,
+              // current.status != AuthenticationStatus.authenticated || current.step != AuthenticationStep.complete,
               builder: (context, state) {
                 Widget content;
                 switch (state.step) {
@@ -82,10 +85,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     content = AuthenticationLogin();
                     break;
                   case AuthenticationStep.uploadKYC:
-                    content = StartScreen();
+                    content = RegisterUploadKYC();
+                    break;
+                  case AuthenticationStep.awaitApproval:
+                    content = RegisterAwaitApproval();
                     break;
                   default:
-                    content = Container(child: Text('Something went wrong'));
+                    content = Container(child: Text(''));
                     break;
                 }
 
