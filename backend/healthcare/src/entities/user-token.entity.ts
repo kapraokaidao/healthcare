@@ -20,11 +20,11 @@ export class UserToken {
   @Column()
   balance: number;
 
-  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.userTokens)
+  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.userTokens, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
-  @ManyToOne(() => User, (user) => user.userTokens)
+  @ManyToOne(() => User, (user) => user.userTokens, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "user_id" })
   user: User;
 }
