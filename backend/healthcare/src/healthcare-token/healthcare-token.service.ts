@@ -64,10 +64,6 @@ export class HealthcareTokenService {
 
   async createToken(userId: number, dto: HealthcareTokenDto): Promise<HealthcareToken> {
     const user = await this.userService.findById(userId);
-    const existedToken = await this.healthcareTokenRepository.findOne({ name: dto.name });
-    if (existedToken) {
-      throw new BadRequestException(`Token name '${dto.name} is already existed'`);
-    }
     if (dto.startAge > dto.endAge) {
       throw new BadRequestException("startAge cannot be greater than endAge");
     }
@@ -76,16 +72,18 @@ export class HealthcareTokenService {
     if (endDate.isBefore(startDate)) {
       throw new BadRequestException("endDate cannot be before startDate");
     }
+    const assetCode = Math.floor(Date.now() / 10).toString();
     const publicKeys = await this.stellarService.issueToken(
       this.stellarIssuingSecret,
       this.stellarReceivingSecret,
-      dto.name,
+      assetCode,
       dto.totalToken
     );
     const newToken = await this.healthcareTokenRepository.create({
       ...dto,
       ...publicKeys,
     });
+    newToken.assetCode = assetCode;
     newToken.remainingToken = dto.totalToken;
     newToken.createdBy = user;
     return this.healthcareTokenRepository.save(newToken);
@@ -450,7 +448,7 @@ export class HealthcareTokenService {
       stellarTxId = await this.stellarService.transferToken(
         privateKey,
         healthcareToken.issuingPublicKey,
-        healthcareToken.name,
+        healthcareToken.assetCode,
         healthcareToken.issuingPublicKey,
         amount
       );
@@ -480,7 +478,7 @@ export class HealthcareTokenService {
       await manager.save(newUserToken);
       await this.stellarService.changeTrust(
         privateKey,
-        healthcareToken.name,
+        healthcareToken.assetCode,
         healthcareToken.issuingPublicKey
       );
     });
@@ -539,7 +537,7 @@ export class HealthcareTokenService {
       await this.stellarService.transferToken(
         privateKey,
         destinationPublicKey,
-        healthcareToken.name,
+        healthcareToken.assetCode,
         healthcareToken.issuingPublicKey,
         amount
       );
@@ -591,7 +589,7 @@ export class HealthcareTokenService {
         await manager.save(newUserToken);
         await this.stellarService.changeTrust(
           privateKey,
-          healthcareToken.name,
+          healthcareToken.assetCode,
           healthcareToken.issuingPublicKey
         );
       } else {
@@ -605,7 +603,7 @@ export class HealthcareTokenService {
       await this.stellarService.transferToken(
         this.stellarReceivingSecret,
         publicKey,
-        healthcareToken.name,
+        healthcareToken.assetCode,
         healthcareToken.issuingPublicKey,
         healthcareToken.tokenPerPerson
       );

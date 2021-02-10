@@ -10,6 +10,7 @@ import { User } from "./user.entity";
 import { UserGender } from "../constant/enum/user.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { ResetPasswordKYC } from "./reset-password-kyc.entity";
+import { Fetus } from "./fetus.entity";
 
 @Entity()
 export class Patient {
@@ -43,4 +44,7 @@ export class Patient {
 
   @OneToMany(() => ResetPasswordKYC, (resetPasswordKYC) => resetPasswordKYC.patient)
   resetPasswordKYCs: ResetPasswordKYC[];
+
+  @OneToMany(() => Fetus, (fetus) => fetus.patient)
+  fetuses: Fetus[];
 }

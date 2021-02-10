@@ -13,6 +13,7 @@ import { KeypairModule } from "./keypair/keypair.module";
 import { TransactionModule } from "./transaction/transaction.module";
 import { ConstantModule } from "./constant/constant.module";
 import { AgencyModule } from "./agency/agency.module";
+import { FetusModule } from './fetus/fetus.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AgencyModule } from "./agency/agency.module";
     TransactionModule,
     ConstantModule,
     AgencyModule,
+    FetusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

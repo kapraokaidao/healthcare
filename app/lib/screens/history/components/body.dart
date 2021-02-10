@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:healthcare_app/screens/redeem/redeem_screen.dart';
 import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:healthcare_app/utils/index.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Body extends StatelessWidget {
@@ -13,10 +14,6 @@ class Body extends StatelessWidget {
 
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
-
-  _viewTokenDetail(context, serviceId) async {
-    Navigator.push(context, RedeemScreen.route(serviceId));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +29,10 @@ class Body extends StatelessWidget {
                     "serviceId": data['healthcareToken']['id'],
                     "name": data['healthcareToken']['name'],
                     "hospital": data['destinationUser']['hospital']['fullname'],
-                    "date": data['destinationUser']['updatedDate'].split('T'),
+                    "date": DateFormat('hh:mm:ss, dd/MM/yyyy').format(
+                        DateTime.parse(data['destinationUser']['updatedDate'])),
                   });
                 }
-                //print(show);
                 return Container(
                     alignment: Alignment.bottomCenter,
                     child: ConstrainedBox(
@@ -67,27 +64,18 @@ class Body extends StatelessWidget {
                                     return Colors.white;
                                   }),
                                   cells: <DataCell>[
+                                    DataCell(Text(user["name"],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ))),
                                     DataCell(
-                                        Text(user["name"],
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                            )), onTap: () {
-                                      _viewTokenDetail(
-                                          context, user["serviceId"]);
-                                    }),
-                                    DataCell(
-                                        Text(
-                                            user["date"][0] +
-                                                ', ' +
-                                                user["date"][1].split('.')[0],
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                            )), onTap: () {
-                                      _viewTokenDetail(
-                                          context, user["serviceId"]);
-                                    }),
+                                      Text(user["date"],
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          )),
+                                    ),
                                   ]);
                             },
                           ).toList(),

@@ -9,7 +9,7 @@ import { UserToken } from 'src/entities/user-token.entity';
 import { KeypairService } from 'src/keypair/keypair.service';
 import { StellarService } from 'src/stellar/stellar.service';
 import { UserService } from 'src/user/user.service';
-import { Repository, Transaction } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AddMemberDto, CreateServiceDto } from './agency.dto';
 
 @Injectable()
@@ -33,7 +33,8 @@ export class AgencyService {
         const newHealthcareToken = this.healthcareTokenRepository.create(dto);
         newHealthcareToken.tokenType = TokenType.General;
         newHealthcareToken.isActive = true;
-        newHealthcareToken.remainingToken = dto.totalToken;
+        newHealthcareToken.totalToken = 1;
+        newHealthcareToken.remainingToken = 1;
         newHealthcareToken.createdBy = user;
         newHealthcareToken.issuingPublicKey = dto.issuingPublicKey;
         return this.healthcareTokenRepository.save(newHealthcareToken);
@@ -67,7 +68,7 @@ export class AgencyService {
             throw new BadRequestException("Transfer was already confirmed")
         }
         const publicKey = await this.keypairService.findPublicKey(patient.user.id, userId);
-        const stellarBalance = await this.stellarService.getBalance(publicKey, healthcareToken.name, healthcareToken.issuingPublicKey);
+        const stellarBalance = await this.stellarService.getBalance(publicKey, healthcareToken.assetCode, healthcareToken.issuingPublicKey);
         if(!stellarBalance || parseInt(stellarBalance["balance"]) <= 0){
             throw new BadRequestException("Token haven't been transferred yet")
         }
