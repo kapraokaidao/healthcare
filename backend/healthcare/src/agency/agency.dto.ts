@@ -1,44 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ToInt } from "class-sanitizer";
-import { IsEnum, IsNumberString, Length, Min } from "class-validator";
-import { UserGender } from "src/constant/enum/user.enum";
+import { IsNumberString, Length } from "class-validator";
 
 export class CreateServiceDto {
+  @ApiProperty()
+  assetCode: string;
+
   @ApiProperty()
   name: string;
 
   @ApiProperty()
   description: string;
-
-  @ApiProperty()
-  @ToInt()
-  @Min(0)
-  totalToken: number;
-
-  @ApiProperty()
-  startDate: Date;
-
-  @ApiProperty()
-  endDate: Date;
-
-  @ApiProperty()
-  @ToInt()
-  @Min(0)
-  startAge: number;
-
-  @ApiProperty()
-  @ToInt()
-  @Min(0)
-  endAge: number;
-
-  @ApiProperty()
-  @IsEnum(UserGender)
-  gender: UserGender;
-
-  @ApiProperty()
-  @ToInt()
-  @Min(0)
-  tokenPerPerson: number;
 
   @ApiProperty()
   issuingPublicKey: string;

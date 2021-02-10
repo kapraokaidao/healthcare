@@ -23,7 +23,11 @@ export class HealthcareToken {
   id: number;
 
   @ApiProperty()
-  @Column({ unique: true })
+  @Column({ unique: true, name: 'asset_code' })
+  assetCode: string
+
+  @ApiProperty()
+  @Column()
   name: string;
 
   @ApiProperty()
