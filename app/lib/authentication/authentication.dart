@@ -5,6 +5,7 @@ import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/login/authentication_login.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
+import 'package:healthcare_app/screens/start/start_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 // import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -51,7 +52,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        if (state.status == AuthenticationStatus.authenticated) {
+        if (state.status == AuthenticationStatus.authenticated && state.step == AuthenticationStep.complete) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (widget.redirectRoute != null) {
               Navigator.pushReplacement(context, widget.redirectRoute);
@@ -80,6 +81,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   case AuthenticationStep.login:
                     content = AuthenticationLogin();
                     break;
+                  case AuthenticationStep.uploadKYC:
+                    content = StartScreen();
+                    break;
                   default:
                     content = Container(child: Text('Something went wrong'));
                     break;
@@ -97,10 +101,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     backgroundColor: Colors.transparent,
                     body: ModalProgressHUD(
                       inAsyncCall: state.status == AuthenticationStatus.authenticating,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
-                        child: content,
-                      ),
+                      child: content
                     ),
                   )
                 );

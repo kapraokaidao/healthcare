@@ -10,7 +10,7 @@ enum AuthenticationStatus {
   authenticated,
   unauthenticated
 }
-enum AuthenticationStep { unknown, login, register }
+enum AuthenticationStep { unknown, login, register, uploadKYC, awaitApproval, complete }
 
 class AuthenticationRepository {
   final _statusController = StreamController<AuthenticationStatus>();
