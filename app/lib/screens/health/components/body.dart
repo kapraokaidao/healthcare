@@ -10,6 +10,14 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
+  bool _change = false;
+  final data = TextEditingController(text: 'ยอดเยี่ยม');
+  final dataH = TextEditingController(text: '170');
+  final dataW = TextEditingController(text: '53');
+  final dataB = TextEditingController(text: 'A');
+  final dataP = TextEditingController(text: '120/80');
+  final dataHR = TextEditingController(text: '80');
+  final dataT = TextEditingController(text: '36.7');
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
 
@@ -34,10 +42,13 @@ class _BodyState extends State<Body> {
                         ),
                       ),
                       TextField(
+                          // onChanged: (String value) {
+                          //   _change = true;
+                          // },
                           style: TextStyle(
                             height: 0.5,
                           ),
-                          controller: TextEditingController(text: 'ยอดเยี่ยม'),
+                          controller: data,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                           )),
@@ -51,14 +62,25 @@ class _BodyState extends State<Body> {
                           height: 2.2,
                         ),
                       ),
-                      TextField(
-                          style: TextStyle(
-                            height: 0.5,
-                          ),
-                          controller: TextEditingController(text: '170 ซม.'),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
+                      Row(children: <Widget>[
+                        Expanded(
+                            child: TextField(
+                                onChanged: (String value) {
+                                  _change = true;
+                                },
+                                style: TextStyle(
+                                  height: 0.5,
+                                ),
+                                controller: dataH,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                ))),
+                        Expanded(
+                            child: Text('ซม.',
+                                style: TextStyle(
+                                  height: 0.25,
+                                ))),
+                      ])
                     ]),
                     rowSpacer,
                     TableRow(children: [
@@ -69,14 +91,25 @@ class _BodyState extends State<Body> {
                           height: 2.2,
                         ),
                       ),
-                      TextField(
-                          style: TextStyle(
-                            height: 0.5,
-                          ),
-                          controller: TextEditingController(text: '53 กก.'),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
+                      Row(children: <Widget>[
+                        Expanded(
+                            child: TextField(
+                                // onChanged: (String value) {
+                                //   _change = true;
+                                // },
+                                style: TextStyle(
+                                  height: 0.5,
+                                ),
+                                controller: dataW,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                ))),
+                        Expanded(
+                            child: Text('กก.',
+                                style: TextStyle(
+                                  height: 0.25,
+                                ))),
+                      ])
                     ]),
                     rowSpacer,
                     TableRow(children: [
@@ -88,10 +121,13 @@ class _BodyState extends State<Body> {
                         ),
                       ),
                       TextField(
+                          // onChanged: (String value) {
+                          //   _change = true;
+                          // },
                           style: TextStyle(
                             height: 0.5,
                           ),
-                          controller: TextEditingController(text: 'A'),
+                          controller: dataB,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                           )),
@@ -106,10 +142,13 @@ class _BodyState extends State<Body> {
                         ),
                       ),
                       TextField(
+                          // onChanged: (String value) {
+                          //   _change = true;
+                          // },
                           style: TextStyle(
                             height: 0.5,
                           ),
-                          controller: TextEditingController(text: '120/80'),
+                          controller: dataP,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                           )),
@@ -123,14 +162,25 @@ class _BodyState extends State<Body> {
                           height: 2.2,
                         ),
                       ),
-                      TextField(
-                          style: TextStyle(
-                            height: 0.5,
-                          ),
-                          controller: TextEditingController(text: '80 bpm'),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
+                      Row(children: <Widget>[
+                        Expanded(
+                            child: TextField(
+                                // onChanged: (String value) {
+                                //   _change = true;
+                                // },
+                                style: TextStyle(
+                                  height: 0.5,
+                                ),
+                                controller: dataHR,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                ))),
+                        Expanded(
+                            child: Text('bpm',
+                                style: TextStyle(
+                                  height: 0.25,
+                                ))),
+                      ])
                     ]),
                     rowSpacer,
                     TableRow(children: [
@@ -141,15 +191,25 @@ class _BodyState extends State<Body> {
                           height: 2.2,
                         ),
                       ),
-                      TextField(
-                          style: TextStyle(
-                            height: 0.5,
-                          ),
-                          controller:
-                              TextEditingController(text: '36.7 องศาเซลเซียส'),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
+                      Row(children: <Widget>[
+                        Expanded(
+                            child: TextField(
+                                // onChanged: (String value) {
+                                //   _change = true;
+                                // },
+                                style: TextStyle(
+                                  height: 0.5,
+                                ),
+                                controller: dataT,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                ))),
+                        Expanded(
+                            child: Text('องศาเซลเซียส',
+                                style: TextStyle(
+                                  height: 0.25,
+                                ))),
+                      ])
                     ])
                   ],
                 ),
@@ -180,6 +240,25 @@ class _BodyState extends State<Body> {
                     }),
               ),
             )
+            RaisedButton(
+              color: _change ? Colors.blue : Colors.grey,
+              onPressed: _change
+                  ? () {
+                      print(data.text);
+                      print(dataH.text);
+                      print(dataW.text);
+                      print(dataB.text);
+                      print(dataP.text);
+                      print(dataHR.text);
+                      print(dataT.text);
+                      print(_change);
+                    }
+                  : () {
+                      print('disable');
+                      print(_change);
+                    },
+              child: const Text('อัพเดท', style: TextStyle(fontSize: 14)),
+            ),
           ],
         );
       } else {
