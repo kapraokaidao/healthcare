@@ -27,6 +27,8 @@ class AuthenticationStepChanged extends AuthenticationEvent {
 
 class AuthenticationLogoutRequested extends AuthenticationEvent {}
 
+class AuthenticationValidateStatus extends AuthenticationEvent {}
+
 class AuthenticationNationalIdChanged extends AuthenticationEvent {
   final String nationalId;
 

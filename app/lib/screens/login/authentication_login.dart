@@ -21,123 +21,125 @@ class AuthenticationLogin extends StatelessWidget {
         builder: (context, state) {
           return Form(
               key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    height: MediaQuery.of(context).size.width * 0.25,
-                    margin: EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/logo.png'))),
-                  ),
-                  FractionallySizedBox(
-                    child: Text("เลขประจำตัวประชาชน"),
-                    widthFactor: 1,
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                            child: StyledTextFormField(
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'กรุณากรอกเลขประจำตัวประชาชน';
-                            }
-                            if (!_nationalIdRegex.hasMatch(value)) {
-                              return 'กรุณากรอกเลขประจำตัวประชาชนให้ถูกต้อง';
-                            }
-                            return null;
-                          },
-                          onChanged: (nationalId) =>
-                              context.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalId)),
-                        )),
-                      )
-                    ],
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 12),
-                    child: FractionallySizedBox(
-                      child: Text("รหัส pin 6 หลัก"),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.width * 0.25,
+                      margin: EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/logo.png'))),
+                    ),
+                    FractionallySizedBox(
+                      child: Text("เลขประจำตัวประชาชน"),
                       widthFactor: 1,
                     ),
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                            child: StyledTextFormField(
-                          obscureText: true,
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'กรุณากรอก pin';
-                            }
-                            if (!_pinRegExp.hasMatch(value)) {
-                              return 'กรุณากรอก pin ให้ถูกต้อง';
-                            }
-                            return null;
-                          },
-                          onChanged: (pin) =>
-                              context.read<AuthenticationBloc>().add(AuthenticationPinChanged(pin)),
-                        )),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                          margin: EdgeInsets.symmetric(vertical: 24),
-                          child: RoundButton(
-                            title: "เข้าสู่ระบบ",
-                            onPressed: () {
-                              if (_formKey.currentState.validate()) {
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                              child: StyledTextFormField(
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'กรุณากรอกเลขประจำตัวประชาชน';
+                              }
+                              if (!_nationalIdRegex.hasMatch(value)) {
+                                return 'กรุณากรอกเลขประจำตัวประชาชนให้ถูกต้อง';
+                              }
+                              return null;
+                            },
+                            onChanged: (nationalId) =>
+                                context.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalId)),
+                          )),
+                        )
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 12),
+                      child: FractionallySizedBox(
+                        child: Text("รหัส pin 6 หลัก"),
+                        widthFactor: 1,
+                      ),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                              child: StyledTextFormField(
+                            obscureText: true,
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'กรุณากรอก pin';
+                              }
+                              if (!_pinRegExp.hasMatch(value)) {
+                                return 'กรุณากรอก pin ให้ถูกต้อง';
+                              }
+                              return null;
+                            },
+                            onChanged: (pin) => context.read<AuthenticationBloc>().add(AuthenticationPinChanged(pin)),
+                          )),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 24),
+                            child: RoundButton(
+                              title: "เข้าสู่ระบบ",
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  context
+                                      .read<AuthenticationBloc>()
+                                      .add(AuthenticationStatusChanged(AuthenticationStatus.authenticating));
+                                  context.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
+                                }
+                              },
+                              // color: Color(0xff0c96e4),
+                              textColor: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            child: RoundButton(
+                              title: "ลงทะเบียน",
+                              onPressed: () {
                                 context
                                     .read<AuthenticationBloc>()
-                                    .add(AuthenticationStatusChanged(AuthenticationStatus.authenticating));
-                                context.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
-                              }
-                            },
-                            // color: Color(0xff0c96e4),
-                            textColor: Colors.white,
+                                    .add(AuthenticationStatusChanged(AuthenticationStatus.unknown));
+                                context
+                                    .read<AuthenticationBloc>()
+                                    .add(AuthenticationStepChanged(AuthenticationStep.register));
+                                Navigator.push(context, RegisterPage.route());
+                              },
+                              // color: Color(0xff0c96e4),
+                              textColor: Colors.white,
+                            ),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                          child: RoundButton(
-                            title: "ลงทะเบียน",
-                            onPressed: () {
-                              context
-                                  .read<AuthenticationBloc>()
-                                  .add(AuthenticationStatusChanged(AuthenticationStatus.unknown));
-                              context
-                                  .read<AuthenticationBloc>()
-                                  .add(AuthenticationStepChanged(AuthenticationStep.register));
-                              Navigator.push(context, RegisterPage.route());
-                            },
-                            // color: Color(0xff0c96e4),
-                            textColor: Colors.white,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  // Container(
-                  //   child: Button("contact",
-                  //       textAlign: TextAlign.center,
-                  //       style: TextStyle(
-                  //         fontSize: 20,
-                  //         fontWeight: FontWeight.normal,
-                  //         decoration: TextDecoration.none,
-                  //       )),
-                  // )
-                ],
+                        )
+                      ],
+                    ),
+                    // Container(
+                    //   child: Button("contact",
+                    //       textAlign: TextAlign.center,
+                    //       style: TextStyle(
+                    //         fontSize: 20,
+                    //         fontWeight: FontWeight.normal,
+                    //         decoration: TextDecoration.none,
+                    //       )),
+                    // )
+                  ],
+                ),
               ));
         });
   }

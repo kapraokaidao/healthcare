@@ -31,7 +31,6 @@ class _BodyState extends State<Body> {
       setState(() {
         this._isLoading = true;
       });
-      print(serviceId);
       final response = await HttpClient.post(
           '/healthcare-token/special-token/receive',
           {"serviceId": serviceId.toString(), "pin": pin.toString()});
