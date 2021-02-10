@@ -33,7 +33,7 @@ export class User {
   @Trim()
   @IsString()
   @ApiProperty({ required: true })
-  @Column()
+  @Column({ unique: true, nullable: false })
   username: string;
 
   @Trim()

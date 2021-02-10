@@ -180,7 +180,7 @@ export class UserService {
     if (user.patient.approved) {
       return RegisterStatus.Complete;
     } else if (
-      user.patient.nationalIdImage !== null ||
+      user.patient.nationalIdImage !== null &&
       user.patient.selfieImage !== null
     ) {
       return RegisterStatus.AwaitApproval;
