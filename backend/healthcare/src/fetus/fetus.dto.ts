@@ -15,7 +15,7 @@ export class CreateFetusDto {
 }
 
 export class FetusGroupByDateResponse {
-    date: Date;
+    date: string;
 
     amount: number;
 

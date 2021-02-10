@@ -4,6 +4,7 @@ import { Fetus } from 'src/entities/fetus.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { FetusGroupByDateResponse } from './fetus.dto';
+import * as dayjs from "dayjs";
 
 @Injectable()
 export class FetusService {
@@ -36,7 +37,7 @@ export class FetusService {
           const fetus = new FetusGroupByDateResponse();
           fetus.amount = parseInt(e.amount);
           fetus.weight = Math.round(e.weight * 10) / 10;
-          fetus.date = e.fetus_created_date;
+          fetus.date = dayjs(e.fetus_created_date).format('DD-MM-YYYY');
          return fetus;
       })
       return fetuses;
