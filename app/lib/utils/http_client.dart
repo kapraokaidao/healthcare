@@ -31,7 +31,7 @@ class HttpClient {
       Map<String, dynamic> queryParams = const {}}) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
 
-    String query = '?';
+    String query = queryParams.length > 0 ? '?' : '';
     queryParams.forEach((key, value) {
       query = query + key + "=" + value;
     });
@@ -45,7 +45,7 @@ class HttpClient {
       Map<String, dynamic> queryParams = const {}}) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
 
-    String query = '?';
+    String query = queryParams.length > 0 ? '?' : '';
     queryParams.forEach((key, value) {
       query = query + key + "=" + value;
     });
@@ -60,6 +60,10 @@ class HttpClient {
     headers["content-type"] = "application/json";
     http.Response response =
         await http.post(baseUrl + path, body: jsonEncode(body), headers: headers);
+    dynamic data = json.decode(response.body);
+    if (response.statusCode >= 400) {
+      throw ("'HTTP ${data['statusCode']}: ${data['message']}'");
+    }
     return response.body.isEmpty ? {} : json.decode(response.body);
   }
 
