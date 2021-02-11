@@ -31,24 +31,27 @@ class _BodyState extends State<Body> {
       setState(() {
         this._isLoading = true;
       });
-      final response = await HttpClient.post(
-          '/healthcare-token/special-token/receive',
-          {"serviceId": serviceId.toString(), "pin": pin.toString()});
-      setState(() {
-        this._isLoading = false;
-      });
-      if (response.containsKey("statusCode") && response["statusCode"] != 200) {
+      try {
+        final response = await HttpClient.post(
+            '/healthcare-token/special-token/receive',
+            {"serviceId": serviceId.toString(), "pin": pin.toString()});
+        setState(() {
+          this._isLoading = false;
+        });
+        widget.setPolling(true);
+        Navigator.push(context, TokenScreen.route());
+      } catch (e) {
+        setState(() {
+          this._isLoading = false;
+        });
         return showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 title: Text('Error'),
-                content: Text(response["message"]),
+                content: Text(e.toString()),
               );
             });
-      } else {
-        widget.setPolling(true);
-        Navigator.push(context, TokenScreen.route());
       }
     }
   }
