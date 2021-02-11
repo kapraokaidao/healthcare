@@ -39,32 +39,28 @@ class _BodyState extends State<Body> {
       setState(() {
         this._isLoading = true;
       });
-      final response = await HttpClient.post('/healthcare-token/receive', {
-        "serviceId": widget.serviceId.toString(),
-        "pin": this._pin.toString()
-      });
-      setState(() {
-        this._isLoading = false;
-      });
-      if (response.containsKey("statusCode") && response["statusCode"] != 200) {
+      try {
+        final response = await HttpClient.post('/healthcare-token/receive', {
+          "serviceId": widget.serviceId.toString(),
+          "pin": this._pin.toString()
+        });
+        setState(() {
+          this._isLoading = false;
+        });
+        Navigator.push(context, TokenScreen.route());
+      } catch (e) {
+        setState(() {
+          this._isLoading = false;
+        });
         return showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 title: Text('Error'),
-                content: Text(response["message"]),
+                content: Text(e.toString()),
               );
             });
       }
-      Navigator.push(context, TokenScreen.route());
-    } else {
-      return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text('กรุณาใส่ PIN ให้ถูกต้อง'),
-            );
-          });
     }
   }
 

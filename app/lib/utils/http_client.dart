@@ -99,10 +99,35 @@ class HttpClient {
     multipartFiles.forEach((multipartFile) {
       request.files.add(multipartFile);
     });
-
     http.StreamedResponse streamedResponse = await request.send();
     http.Response response = await http.Response.fromStream(streamedResponse);
     return json.decode(response.body);
+  }
+
+  static Future<http.Response> uploadKyc(
+      {
+        @required String type,
+        @required String filePath}) async {
+    Map<String, dynamic> body = {};
+    String path = '/user/upload/' + type;
+    Uri uri = Uri.parse(baseUrl + path);
+    http.MultipartRequest request = http.MultipartRequest('POST', uri);
+
+    Map<String, dynamic> headers = await _getDefaultHeader();
+    headers.forEach((key, value) {
+      request.headers[key] = value;
+    });
+
+    Future<http.MultipartFile> filePromises = http.MultipartFile.fromPath('image', filePath, contentType: MediaType.parse(mime(filePath)));
+    http.MultipartFile multipartFile = await filePromises;
+    request.files.add(multipartFile);
+    http.StreamedResponse streamedResponse = await request.send();
+    http.Response response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode >= 400) {
+      dynamic data = json.decode(response.body);
+      throw ("'HTTP ${data['statusCode']}: ${data['message']}'");
+    }
+    return response;
   }
 
   static Future<Map<String, dynamic>> put(

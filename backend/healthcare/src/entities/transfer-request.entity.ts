@@ -27,15 +27,15 @@ export class TransferRequest {
   @Column({ name: "expired_date" })
   expiredDate: Date;
 
-  @ManyToOne(() => HealthcareToken)
+  @ManyToOne(() => HealthcareToken, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "patient_id" })
   patient: User;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "hospital_id" })
   hospital: User;
 

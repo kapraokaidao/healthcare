@@ -13,7 +13,7 @@ export class Fetus {
   @Column()
   amount: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.fetuses)
+  @ManyToOne(() => Patient, (patient) => patient.fetuses, { onDelete: 'CASCADE' })
   patient: Patient;
 
   @CreateDateColumn({ update: false, name: "created_date" })

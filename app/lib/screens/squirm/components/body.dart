@@ -32,7 +32,7 @@ class _BodyState extends State<Body> {
   updateFetu() async {
     final regex = RegExp(r'^[0-9.]+$');
     if (regex.hasMatch(_amount) && regex.hasMatch(_weight)) {
-      await HttpClient.post("/fetus", {"amount": _weight, "weight": _weight});
+      await HttpClient.post("/fetus", {"amount": _amount, "weight": _weight});
       setState(() {
         _weight = '';
         _weight = '';

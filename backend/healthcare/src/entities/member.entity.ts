@@ -21,15 +21,15 @@ export class Member {
   @Column({ default: false })
   transferred: boolean;
 
-  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.members)
+  @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.members, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "patient_id" })
   patient: User;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: "agency_id" })
   agency: User;
 
