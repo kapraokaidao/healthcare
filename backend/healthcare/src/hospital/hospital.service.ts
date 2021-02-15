@@ -7,11 +7,13 @@ import { User } from "../entities/user.entity";
 import { UserRole } from "../constant/enum/user.enum";
 import { CreateHospitalDto } from "./hospital.dto";
 import { UserService } from "../user/user.service";
+import { KeypairService } from "src/keypair/keypair.service";
 
 @Injectable()
 export class HospitalService {
   constructor(
     private readonly userService: UserService,
+    private readonly keypairService: KeypairService,
     @InjectRepository(Hospital)
     private readonly hospitalRepository: Repository<Hospital>,
     @InjectRepository(User)
@@ -66,7 +68,12 @@ export class HospitalService {
     if (!hospital) {
       throw new BadRequestException(`Invalid hospital's code9`);
     }
+    const keypair = await this.keypairService.findActiveKeypair(creatorId)
+    if(!keypair){
+      throw new BadRequestException("Creator have to create keypair first")
+    }
     newUser.hospital = hospital;
+    newUser.keypairs = [keypair];
     await entityManager.save(newUser);
     return newUser;
   }

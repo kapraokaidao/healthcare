@@ -37,7 +37,7 @@ export class KeypairService {
   ): Promise<string> {
     const user = await this.userService.findById(userId, true);
     let userSalt: string;
-    if (user.role === UserRole.Hospital) {
+    if (user.role === UserRole.HospitalAdmin || user.role === UserRole.Hospital) {
       userSalt = user.hospital.code9;
     } else if (user.role === UserRole.Patient) {
       userSalt = user.patient.nationalId;
@@ -87,11 +87,11 @@ export class KeypairService {
     await this.keypairRepository.save(newKeypair);
   }
 
-  async addHospitalKeypair(userId: number,  hospitalId: number): Promise<void> {
+  async addHospitalKeypair(userId: number,  hospitalUserId: number): Promise<void> {
     const hospital = await this.userService.findById(userId);
     const keypair = await this.findActiveKeypair(userId);
     hospital.keypairs = [...hospital.keypairs, keypair]
-    this.userRepository.save(hospital);
+    await this.userRepository.save(hospital);
   }
 
   async decryptPrivateKeyFromKeypair(
@@ -102,7 +102,7 @@ export class KeypairService {
 
     const user = await this.userService.findById(userId, true);
     let userSalt: string;
-    if (user.role === UserRole.Hospital) {
+    if (user.role === UserRole.HospitalAdmin || user.role === UserRole.Hospital) {
       userSalt = user.hospital.code9;
     } else if (user.role === UserRole.Patient) {
       userSalt = user.patient.nationalId;
