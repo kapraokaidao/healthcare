@@ -34,4 +34,10 @@ export class KeypairController {
   async findActiveKeypair(@UserId() userId: number): Promise<IsActiveResponseDto> {
     return this.keypairService.isActive(userId);
   }
+
+  @Roles(UserRole.HospitalAdmin)
+  @Post("/dev/add-hospital-keypair")
+  async addHospitalKeypair(@UserId() userId: number, @Body() dto: {hospitalUserId: number}) {
+    return this.keypairService.addHospitalKeypair(userId, dto.hospitalUserId)
+  }
 }

@@ -5,6 +5,8 @@ import {
   ManyToOne,
   JoinColumn,
   OneToOne,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
@@ -34,9 +36,9 @@ export class Keypair {
   @Column({ name: "hash_pin" })
   hashPin: string;
 
-  @ManyToOne(() => User, (user) => user.keypairs, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user_id" })
-  user: User;
+  @ManyToMany(() => User, (user) => user.keypairs, { onDelete: "CASCADE" })
+  @JoinTable({name: "user_keypair"})
+  users: User[];
 
   @OneToOne(() => User)
   @JoinColumn({ name: "agency_id" })
