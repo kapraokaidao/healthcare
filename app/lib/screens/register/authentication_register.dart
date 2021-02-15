@@ -148,7 +148,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     RoundButton(
                       title: "submit",
-                      onPressed: () {
+                      onPressed: () async {
                         Map<String, dynamic> user = _createRegisterBody(
                           firstname: firstnameController.value.text,
                           lastname: lastnameController.value.text,
@@ -159,7 +159,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           birthdate: birthdateController.value.text,
                           gender: gender,
                         );
-                        HttpClient.post('/auth/register', user);
+                        // await HttpClient.post('/auth/register', user);
+
+                        ctx.read<AuthenticationBloc>().add(AuthenticationRegisterRequest(user));
                         ctx.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalIdController.value.text));
                         ctx.read<AuthenticationBloc>().add(AuthenticationPinChanged(pinController.value.text));
                         ctx.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
