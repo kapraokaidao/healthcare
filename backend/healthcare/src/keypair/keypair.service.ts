@@ -51,13 +51,10 @@ export class KeypairService {
   async createKeypair(userId: number, pin: string, agencyId?: number): Promise<void> {
     const user = await this.userService.findById(userId);
     const existedKeypair = await this.keypairRepository.findOne({
-      where: [{ user: { id: userId }, isActive: true, agency: { id: agencyId } }],
+      where: [{ user: { id: userId }, isActive: true, agency: { id: agencyId ? agencyId : null } }],
     });
     if (existedKeypair) {
       throw new BadRequestException("Keypair is already existed");
-    }
-    if (!/^\d{6}$/.test(pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
     }
 
     const keypair = await this.stellarService.createAccount(
@@ -93,9 +90,6 @@ export class KeypairService {
     pin: string,
     keypair: Keypair
   ): Promise<string> {
-    if (!/^\d{6}$/.test(pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
-    }
 
     const user = await this.userService.findById(userId, true);
     let userSalt: string;
@@ -121,9 +115,6 @@ export class KeypairService {
     pin: string,
     agencyId?: number
   ): Promise<string> {
-    if (!/^\d{6}$/.test(pin)) {
-      throw new BadRequestException("PIN must be 6 digits");
-    }
 
     const keypair = await this.keypairRepository.findOneOrFail({
       where: [
