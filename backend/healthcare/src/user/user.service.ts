@@ -1,7 +1,13 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
-import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
+import {
+  Brackets,
+  EntityManager,
+  Repository,
+  Transaction,
+  TransactionManager,
+} from "typeorm";
 import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
@@ -10,7 +16,7 @@ import { Pagination, PaginationOptions, toPagination } from "../utils/pagination
 import { KYC } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
-import { PatientService } from "./patient.service";
+import { PatientService } from "../patient/patient.service";
 import { KycImageType, KycQueryType } from "../constant/enum/kyc.enum";
 import { Agency } from "../entities/agency.entity";
 
@@ -56,7 +62,7 @@ export class UserService {
     const user = await this.userRepository.findOneOrFail(id);
     if (relation) {
       return this.userRepository.findOneOrFail(id, {
-        relations: [user.role.toLowerCase()],
+        relations: [UserService.getRelations(user)],
       });
     }
     return user;
@@ -222,13 +228,37 @@ export class UserService {
     return query.getOne();
   }
 
+  async findByUsernameAndRole(
+    username: string,
+    role: UserRole,
+    password?: boolean
+  ): Promise<User> {
+    const query = this.userRepository.createQueryBuilder();
+    query.where("username = :username", { username });
+    if (role === UserRole.Hospital) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where("role = :role", { role: UserRole.Hospital });
+          qb.orWhere("role = :role", { role: UserRole.HospitalAdmin });
+        })
+      );
+    } else {
+      query.andWhere("role = :role", { role });
+    }
+    if (password) {
+      query.addSelect("password", "User_password");
+    }
+    return query.getOne();
+  }
+
   @Transaction()
   async create(
     user: User,
     @TransactionManager() entityManager?: EntityManager
   ): Promise<User> {
-    const newUser = this.userRepository.create(this.excludeUserRoleFields(user));
+    const newUser = this.userRepository.create(UserService.excludeUserRoleFields(user));
     switch (user.role) {
+      case UserRole.HospitalAdmin:
       case UserRole.Hospital:
         const hospital = await this.hospitalRepository.findOne({
           code9: user.hospital.code9,
@@ -366,8 +396,15 @@ export class UserService {
     await this.userRepository.restore(id);
   }
 
-  private excludeUserRoleFields(user: User) {
+  public static excludeUserRoleFields(user: User) {
     const { nhso, agency, hospital, patient, ...dto } = user;
     return dto;
+  }
+
+  private static getRelations(user: User) {
+    if (user.role === UserRole.HospitalAdmin) {
+      return UserRole.Hospital.toLowerCase();
+    }
+    return user.role.toLowerCase();
   }
 }

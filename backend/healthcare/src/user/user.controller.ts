@@ -38,7 +38,13 @@ export class UserController {
     private readonly s3Service: S3Service
   ) {}
 
-  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient, UserRole.Agency)
+  @Roles(
+    UserRole.NHSO,
+    UserRole.HospitalAdmin,
+    UserRole.Hospital,
+    UserRole.Patient,
+    UserRole.Agency
+  )
   @Get("me")
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);

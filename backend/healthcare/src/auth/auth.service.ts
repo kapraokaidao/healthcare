@@ -3,10 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  Param,
-  ParseIntPipe,
   UnauthorizedException,
-  UploadedFile,
 } from "@nestjs/common";
 import { UserService } from "../user/user.service";
 import { JwtService } from "@nestjs/jwt";
@@ -22,7 +19,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { UserRole } from "../constant/enum/user.enum";
-import { PatientService } from "../user/patient.service";
 import { S3Service } from "../s3/s3.service";
 import { Patient } from "../entities/patient.entity";
 
@@ -30,7 +26,6 @@ import { Patient } from "../entities/patient.entity";
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly patientService: PatientService,
     private readonly s3Service: S3Service,
     private readonly userService: UserService,
     @InjectRepository(User)
@@ -41,11 +36,12 @@ export class AuthService {
     private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {}
 
-  async validateUser({
-    username,
-    password,
-  }: AuthCredentialsDto): Promise<Omit<User, "password">> {
-    const user: User = await this.userService.findByUsername(username, true);
+  async validateUser(
+    credentials: AuthCredentialsDto,
+    role: UserRole
+  ): Promise<Omit<User, "password">> {
+    const { username, password } = credentials;
+    const user: User = await this.userService.findByUsernameAndRole(username, role, true);
     if (user && compareSync(password, user.password)) {
       const { password, ...userDto } = user;
       return userDto;
@@ -53,8 +49,8 @@ export class AuthService {
     return null;
   }
 
-  async login(credential: AuthCredentialsDto): Promise<AuthResponseDto> {
-    const user: Omit<User, "password"> = await this.validateUser(credential);
+  async login(credential: AuthCredentialsDto, role: UserRole): Promise<AuthResponseDto> {
+    const user: Omit<User, "password"> = await this.validateUser(credential, role);
     if (!user) {
       throw new UnauthorizedException("Wrong username or password");
     }
@@ -68,12 +64,17 @@ export class AuthService {
       throw new BadRequestException("Username already existed");
     }
     await this.userService.create(user);
-    return this.login({ username: user.username, password: user.password });
+    const credentials = { username: user.username, password: user.password };
+    return this.login(credentials, user.role);
   }
 
   async changePassword(dto: ChangePasswordDto): Promise<void> {
     const { newPassword, ...authDto } = dto;
-    const user: Omit<User, "password"> = await this.validateUser(authDto);
+    // TODO: check if each role need separate change password API
+    const user: Omit<User, "password"> = await this.validateUser(
+      authDto,
+      UserRole.Patient
+    );
     if (!user) {
       throw new UnauthorizedException("Wrong username or password");
     }

@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
+import configuration from "./config/configuration";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import configuration from "./config/configuration";
 import { StellarModule } from "./stellar/stellar.module";
 import { HealthcareTokenModule } from "./healthcare-token/healthcare-token.module";
 import { HospitalModule } from "./hospital/hospital.module";
@@ -13,7 +13,8 @@ import { KeypairModule } from "./keypair/keypair.module";
 import { TransactionModule } from "./transaction/transaction.module";
 import { ConstantModule } from "./constant/constant.module";
 import { AgencyModule } from "./agency/agency.module";
-import { FetusModule } from './fetus/fetus.module';
+import { FetusModule } from "./fetus/fetus.module";
+import { PatientModule } from "./patient/patient.module";
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { FetusModule } from './fetus/fetus.module';
     ConstantModule,
     AgencyModule,
     FetusModule,
+    PatientModule,
   ],
   controllers: [AppController],
   providers: [AppService],

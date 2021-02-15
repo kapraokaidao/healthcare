@@ -51,7 +51,7 @@ export class KeypairService {
   async createKeypair(userId: number, pin: string, agencyId?: number): Promise<void> {
     const user = await this.userService.findById(userId);
     const existedKeypair = await this.keypairRepository.findOne({
-      where: [{ user: {id: userId}, isActive: true, agency: {id: agencyId} }],
+      where: [{ user: { id: userId }, isActive: true, agency: { id: agencyId } }],
     });
     if (existedKeypair) {
       throw new BadRequestException("Keypair is already existed");
@@ -84,7 +84,7 @@ export class KeypairService {
     newKeypair.hashPin = hashPin;
     newKeypair.user = user;
     newKeypair.accountMergeXdr = accontMergeXdr;
-    newKeypair.agency = agencyId?await this.userService.findById(agencyId):null;
+    newKeypair.agency = agencyId ? await this.userService.findById(agencyId) : null;
     await this.keypairRepository.save(newKeypair);
   }
 
@@ -116,13 +116,23 @@ export class KeypairService {
     return privateKey;
   }
 
-  async decryptPrivateKey(userId: number, pin: string, agencyId?: number): Promise<string> {
+  async decryptPrivateKey(
+    userId: number,
+    pin: string,
+    agencyId?: number
+  ): Promise<string> {
     if (!/^\d{6}$/.test(pin)) {
       throw new BadRequestException("PIN must be 6 digits");
     }
 
     const keypair = await this.keypairRepository.findOneOrFail({
-      where: [{ user: { id: userId }, isActive: true, agency: {id: agencyId?agencyId:null} }],
+      where: [
+        {
+          user: { id: userId },
+          isActive: true,
+          agency: { id: agencyId ? agencyId : null },
+        },
+      ],
     });
 
     const privateKey = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
@@ -135,7 +145,7 @@ export class KeypairService {
       where: {
         user: { id: userId },
         isActive: true,
-        agency: {id: agencyId?agencyId:null}
+        agency: { id: agencyId ? agencyId : null },
       },
     });
     return keypair.publicKey;
@@ -146,7 +156,7 @@ export class KeypairService {
       where: {
         user: { id: userId },
         isActive: true,
-        agency: {id: agencyId?agencyId:null}
+        agency: { id: agencyId ? agencyId : null },
       },
     });
     return { isActive: !!keypair };

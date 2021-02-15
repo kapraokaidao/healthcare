@@ -31,15 +31,27 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @PublicAPI()
-  @Post("login")
-  async login(@Body() credential: AuthCredentialsDto) {
-    return this.authService.login(credential);
+  @Post("agency/login")
+  async agencyLogin(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential, UserRole.Agency);
+  }
+
+  @PublicAPI()
+  @Post("hospital/login")
+  async hospitalLogin(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential, UserRole.Hospital);
+  }
+
+  @PublicAPI()
+  @Post("nhso/login")
+  async nhsoLogin(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential, UserRole.NHSO);
   }
 
   @PublicAPI()
   @Post("patient/login")
   async patientLogin(@Body() credential: PatientAuthCredentialsDto) {
-    return this.authService.login(credential);
+    return this.authService.login(credential, UserRole.Patient);
   }
 
   @PublicAPI()

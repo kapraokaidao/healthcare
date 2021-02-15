@@ -3,21 +3,21 @@ import { ToInt } from "class-sanitizer";
 import { Min } from "class-validator";
 
 export class CreateFetusDto {
-    @ApiProperty()
-    @ToInt()
-    @Min(0)
-    amount: number;
-  
-    @ApiProperty()
-    @ToInt()
-    @Min(0)
-    weight: number;
+  @ApiProperty()
+  @ToInt()
+  @Min(0)
+  amount: number;
+
+  @ApiProperty()
+  @ToInt()
+  @Min(0)
+  weight: number;
 }
 
 export class FetusGroupByDateResponse {
-    date: string;
+  date: string;
 
-    amount: number;
+  amount: number;
 
-    weight: number;
+  weight: number;
 }

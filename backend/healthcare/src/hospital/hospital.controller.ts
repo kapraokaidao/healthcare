@@ -5,9 +5,11 @@ import { HospitalService } from "./hospital.service";
 import { Roles } from "../decorators/roles.decorator";
 import { UserRole } from "../constant/enum/user.enum";
 import { Pagination } from "../utils/pagination.util";
-import { SearchHospitalDto } from "./hospital.dto";
+import { CreateHospitalDto, SearchHospitalDto } from "./hospital.dto";
 import { Hospital } from "../entities/hospital.entity";
 import { isBetween } from "../utils/number.util";
+import { User } from "../entities/user.entity";
+import { UserId } from "../decorators/user-id.decorator";
 
 @ApiBearerAuth()
 @ApiTags("Hospital")
@@ -15,6 +17,12 @@ import { isBetween } from "../utils/number.util";
 @UseGuards(RolesGuard)
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) {}
+
+  @Roles(UserRole.HospitalAdmin)
+  @Post()
+  async create(@UserId() id: number, @Body() dto: CreateHospitalDto): Promise<void> {
+    await this.hospitalService.create(id, dto);
+  }
 
   @Roles(UserRole.NHSO)
   @HttpCode(200)
