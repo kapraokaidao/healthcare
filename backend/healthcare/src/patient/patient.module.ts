@@ -1,13 +1,19 @@
 import { Module } from "@nestjs/common";
 import { PatientController } from "./patient.controller";
 import { PatientService } from "./patient.service";
-import { UserModule } from "../user/user.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Patient } from "../entities/patient.entity";
 import { User } from "../entities/user.entity";
+import { S3Module } from "../s3/s3.module";
+import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Patient])],
+  imports: [
+    TypeOrmModule.forFeature([User, Patient, ResetPasswordKYC]),
+    S3Module,
+    AuthModule,
+  ],
   controllers: [PatientController],
   providers: [PatientService],
   exports: [PatientService],

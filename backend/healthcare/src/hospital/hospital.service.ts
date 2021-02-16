@@ -68,9 +68,9 @@ export class HospitalService {
     if (!hospital) {
       throw new BadRequestException(`Invalid hospital's code9`);
     }
-    const keypair = await this.keypairService.findActiveKeypair(creatorId)
-    if(!keypair){
-      throw new BadRequestException("Creator have to create keypair first")
+    const keypair = await this.keypairService.findActiveKeypair(creatorId);
+    if (!keypair) {
+      throw new BadRequestException("Creator have to create keypair first");
     }
     newUser.hospital = hospital;
     newUser.keypairs = [keypair];

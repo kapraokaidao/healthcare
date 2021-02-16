@@ -7,15 +7,12 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtStrategy } from "./jwt.strategy";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
-import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
-import { S3Service } from "../s3/s3.service";
-import { Patient } from "../entities/patient.entity";
 import { UserModule } from "../user/user.module";
 
 @Module({
   imports: [
     UserModule,
-    TypeOrmModule.forFeature([User, Patient, ResetPasswordKYC]),
+    TypeOrmModule.forFeature([User]),
     PassportModule.register({
       defaultStrategy: "jwt",
       property: "user",
@@ -32,7 +29,7 @@ import { UserModule } from "../user/user.module";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, S3Service],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

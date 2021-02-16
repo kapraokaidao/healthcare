@@ -8,7 +8,7 @@ import {
   Transaction,
   TransactionManager,
 } from "typeorm";
-import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
+import { UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
@@ -16,15 +16,14 @@ import { Pagination, PaginationOptions, toPagination } from "../utils/pagination
 import { KYC } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
-import { PatientService } from "../patient/patient.service";
 import { KycImageType, KycQueryType } from "../constant/enum/kyc.enum";
 import { Agency } from "../entities/agency.entity";
+import { getUserObject } from "../utils/patient.util";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly s3Service: S3Service,
-    private readonly patientService: PatientService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Agency)
@@ -169,7 +168,7 @@ export class UserService {
     }
     const [resetPasswordKYCs, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = resetPasswordKYCs.map((rp) => {
-      const user = this.patientService.getUserObject(rp.patient);
+      const user = getUserObject(rp.patient);
       return {
         type: KycQueryType.ResetPassword,
         id: rp.id,
@@ -179,20 +178,6 @@ export class UserService {
       };
     });
     return [KYCs, totalCount];
-  }
-
-  async registerStatus(id: number): Promise<RegisterStatus> {
-    const user = await this.findById(id, true);
-    if (user.patient.approved) {
-      return RegisterStatus.Complete;
-    } else if (
-      user.patient.nationalIdImage !== null &&
-      user.patient.selfieImage !== null
-    ) {
-      return RegisterStatus.AwaitApproval;
-    } else {
-      return RegisterStatus.UploadKYC;
-    }
   }
 
   async approveKyc(id: number): Promise<void> {
@@ -225,7 +210,7 @@ export class UserService {
     if (password) {
       query.addSelect("password", "User_password");
     }
-    return query.getOne();
+    return query.getOneOrFail();
   }
 
   async findByUsernameAndRole(
@@ -366,14 +351,24 @@ export class UserService {
     return toPagination<User>(users, totalCount, pageOptions);
   }
 
-  async updateImage(
-    userId: number,
-    imageUrl: string,
-    imageType: KycImageType
-  ): Promise<void> {
-    const user = await this.userRepository.findOne(userId, { relations: ["patient"] });
-    user.patient[imageType] = imageUrl;
-    await this.patientRepository.save(user.patient);
+  async approveResetPassword(id: number): Promise<void> {
+    const resetPasswordKYC = await this.resetPasswordKycRepository
+      .createQueryBuilder("reset_password_kyc")
+      .leftJoinAndSelect("reset_password_kyc.patient", "patient")
+      .leftJoinAndSelect("patient.user", "user")
+      .where("reset_password_kyc.id = :id", { id })
+      .getOneOrFail();
+    const updatedUser = this.userRepository.create(resetPasswordKYC.patient.user);
+    const updatedPatient = this.patientRepository.create(resetPasswordKYC.patient);
+    updatedUser.password = resetPasswordKYC.newPassword;
+    updatedPatient.nationalIdImage = resetPasswordKYC.nationalIdImage;
+    updatedPatient.selfieImage = resetPasswordKYC.selfieImage;
+    updatedPatient.user = updatedUser;
+    await this.patientRepository.save(updatedPatient);
+  }
+
+  async rejectResetPassword(id: number): Promise<void> {
+    await this.resetPasswordKycRepository.softDelete(id);
   }
 
   async findSoftDeletedUsers(): Promise<User[]> {

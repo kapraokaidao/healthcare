@@ -15,6 +15,7 @@ import { ConstantModule } from "./constant/constant.module";
 import { AgencyModule } from "./agency/agency.module";
 import { FetusModule } from "./fetus/fetus.module";
 import { PatientModule } from "./patient/patient.module";
+import { S3Module } from "./s3/s3.module";
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PatientModule } from "./patient/patient.module";
     AgencyModule,
     FetusModule,
     PatientModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -37,7 +37,7 @@ export class Keypair {
   hashPin: string;
 
   @ManyToMany(() => User, (user) => user.keypairs, { onDelete: "CASCADE" })
-  @JoinTable({name: "user_keypair"})
+  @JoinTable({ name: "user_keypair" })
   users: User[];
 
   @OneToOne(() => User)

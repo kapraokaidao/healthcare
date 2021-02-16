@@ -8,11 +8,13 @@ import { Member } from "src/entities/member.entity";
 import { StellarService } from "src/stellar/stellar.service";
 import { KeypairModule } from "src/keypair/keypair.module";
 import { UserToken } from "src/entities/user-token.entity";
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Patient, HealthcareToken, Member, UserToken]),
     KeypairModule,
+    AuthModule,
   ],
   providers: [AgencyService, StellarService],
   controllers: [AgencyController],

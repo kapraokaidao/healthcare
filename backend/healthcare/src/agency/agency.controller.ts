@@ -8,13 +8,25 @@ import { Member } from "src/entities/member.entity";
 import { RolesGuard } from "src/guards/roles.guard";
 import { AddMemberDto, ConfirmTransferDto, CreateServiceDto } from "./agency.dto";
 import { AgencyService } from "./agency.service";
+import { PublicAPI } from "../decorators/public-api.decorator";
+import { AuthCredentialsDto } from "../auth/auth.dto";
+import { AuthService } from "../auth/auth.service";
 
 @ApiBearerAuth()
 @ApiTags("Agency")
 @Controller("agency")
 @UseGuards(RolesGuard)
 export class AgencyController {
-  constructor(private readonly agencyService: AgencyService) {}
+  constructor(
+    private readonly agencyService: AgencyService,
+    private readonly authService: AuthService
+  ) {}
+
+  @PublicAPI()
+  @Post("login")
+  async agencyLogin(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential, UserRole.Agency);
+  }
 
   @Get("my-service")
   @Roles(UserRole.Agency)

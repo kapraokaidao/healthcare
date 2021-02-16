@@ -8,15 +8,26 @@ import { Pagination } from "../utils/pagination.util";
 import { CreateHospitalDto, SearchHospitalDto } from "./hospital.dto";
 import { Hospital } from "../entities/hospital.entity";
 import { isBetween } from "../utils/number.util";
-import { User } from "../entities/user.entity";
 import { UserId } from "../decorators/user-id.decorator";
+import { PublicAPI } from "../decorators/public-api.decorator";
+import { AuthCredentialsDto } from "../auth/auth.dto";
+import { AuthService } from "../auth/auth.service";
 
 @ApiBearerAuth()
 @ApiTags("Hospital")
 @Controller("hospital")
 @UseGuards(RolesGuard)
 export class HospitalController {
-  constructor(private readonly hospitalService: HospitalService) {}
+  constructor(
+    private readonly hospitalService: HospitalService,
+    private readonly authService: AuthService
+  ) {}
+
+  @PublicAPI()
+  @Post("login")
+  async hospitalLogin(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential, UserRole.Hospital);
+  }
 
   @Roles(UserRole.HospitalAdmin)
   @Post()
