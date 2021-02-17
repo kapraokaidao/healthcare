@@ -30,4 +30,5 @@ export default () => ({
     dsn: process.env.SENTRY_DSN,
     enable: process.env.SENTRY_ENABLE === "true",
   },
+  smsServiceUrl: process.env.SMS_SERVICE_URL,
 });

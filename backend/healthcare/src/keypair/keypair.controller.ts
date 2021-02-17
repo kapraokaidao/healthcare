@@ -35,5 +35,4 @@ export class KeypairController {
   async findActiveKeypair(@UserId() userId: number): Promise<IsActiveResponseDto> {
     return this.keypairService.isActive(userId);
   }
-
 }
