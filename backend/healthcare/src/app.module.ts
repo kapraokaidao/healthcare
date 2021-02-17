@@ -36,7 +36,7 @@ import { SmsModule } from "./sms/sms.module";
         password: configService.get<string>("db.password"),
         database: configService.get<string>("db.database"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: configService.get<string>("nodeEnv") === "development",
+        synchronize: configService.get<string>("nodeEnv") !== "production",
       }),
     }),
     AuthModule,

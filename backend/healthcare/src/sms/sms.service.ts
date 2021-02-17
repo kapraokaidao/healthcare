@@ -11,8 +11,8 @@ export class SmsService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService
   ) {
-    this.enable = this.configService.get<string>("nodeEnv") === "production";
-    this.smsServiceUrl = this.configService.get<string>("smsServiceUrl");
+    this.enable = this.configService.get<boolean>("sms.enable");
+    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl");
     this.endpoint = new URL("/sms/send", this.smsServiceUrl).href;
   }
 
