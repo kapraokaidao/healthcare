@@ -6,7 +6,7 @@ export class NHSO {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, { onDelete: "CASCADE", cascade: true })
+  @OneToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 }

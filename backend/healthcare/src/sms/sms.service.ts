@@ -13,12 +13,12 @@ export class SmsService {
   ) {
     this.enable = this.configService.get<string>("nodeEnv") === "production";
     this.smsServiceUrl = this.configService.get<string>("smsServiceUrl");
-    this.endpoint = (new URL('/sms/send', this.smsServiceUrl)).href;
+    this.endpoint = new URL("/sms/send", this.smsServiceUrl).href;
   }
 
   sendSms(to: string, message: string): void {
     const phoneRegex = /0[0-9]{9}/;
     if (!this.enable || !phoneRegex.test(to)) return;
-    this.httpService.post(this.endpoint, {to, message}).toPromise();
+    this.httpService.post(this.endpoint, { to, message }).toPromise();
   }
 }

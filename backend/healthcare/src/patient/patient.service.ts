@@ -1,8 +1,8 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Patient } from "../entities/patient.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { PatientInfoUpdateDto } from "./patient.dto";
+import { PatientInfoUpdateDto, PatientRegisterDto } from "./patient.dto";
 import { User } from "../entities/user.entity";
 import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
 import { UserService } from "../user/user.service";
@@ -32,6 +32,32 @@ export class PatientService {
     @InjectRepository(ResetPasswordKYC)
     private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {}
+
+  async registerV2(dto: PatientRegisterDto): Promise<AuthResponseDto> {
+    const existed = await this.patientRepository.findOne({
+      nationalId: dto.nationalId,
+    });
+    if (existed) {
+      throw new BadRequestException("Duplicate Patient's National ID");
+    }
+    const newUser = this.userRepository.create({
+      username: dto.nationalId,
+      password: dto.pin,
+      firstname: dto.firstname,
+      lastname: dto.lastname,
+      role: UserRole.Patient,
+      phone: dto.phone,
+      address: dto.address,
+    });
+    newUser.patient = this.patientRepository.create({
+      nationalId: dto.nationalId,
+      gender: dto.gender,
+      birthDate: dto.birthDate,
+    });
+    await this.userRepository.save(newUser);
+    const { nationalId: username, pin: password } = dto;
+    return this.authService.login({ username, password }, UserRole.Patient);
+  }
 
   async login(credential: AuthCredentialsDto): Promise<AuthResponseDto> {
     const user: Omit<User, "password"> = await this.authService.validateUser(

@@ -63,7 +63,7 @@ export class Patient {
   @Column({ name: "selfie_image", nullable: true, default: null })
   selfieImage: string;
 
-  @OneToOne(() => User, { onDelete: "CASCADE", cascade: true })
+  @OneToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 
@@ -74,11 +74,11 @@ export class Patient {
   fetuses: Fetus[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
-  createdDate: Date;
+  createdDate!: Date;
 
   @UpdateDateColumn({ name: "updated_date" })
-  updatedDate: Date;
+  updatedDate!: Date;
 
   @DeleteDateColumn({ name: "deleted_date" })
-  deletedDate: Date;
+  deletedDate!: Date;
 }

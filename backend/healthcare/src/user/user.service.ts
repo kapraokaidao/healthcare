@@ -24,6 +24,7 @@ import { SmsService } from "../sms/sms.service";
 @Injectable()
 export class UserService {
   constructor(
+    private readonly entityManager: EntityManager,
     private readonly s3Service: S3Service,
     private readonly smsService: SmsService,
     @InjectRepository(User)
@@ -130,18 +131,18 @@ export class UserService {
     ready: boolean,
     pageOptions: PaginationOptions
   ): Promise<[KYC[], number]> {
-    let query = this.userRepository
+    const query = this.userRepository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.patient", "patient")
       .where("user.role = :role", { role: UserRole.Patient })
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
-      query = query.andWhere("patient.nationalIdImage is not null");
-      query = query.andWhere("patient.selfieImage is not null");
+      query.andWhere("patient.nationalIdImage is not null");
+      query.andWhere("patient.selfieImage is not null");
     }
     if (approved) {
-      query = query.andWhere("patient.approved = :approved", { approved });
+      query.andWhere("patient.approved = :approved", { approved });
     }
     const [users, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = users.map((user) => ({
@@ -158,7 +159,7 @@ export class UserService {
     ready: boolean,
     pageOptions: PaginationOptions
   ): Promise<[KYC[], number]> {
-    let query = this.resetPasswordKycRepository
+    const query = this.resetPasswordKycRepository
       .createQueryBuilder("reset_password_kyc")
       .leftJoinAndSelect("reset_password_kyc.patient", "patient")
       .leftJoinAndSelect("patient.user", "user")
@@ -269,32 +270,25 @@ export class UserService {
           );
         }
         newUser.hospital = hospital;
-        await entityManager.save(newUser);
-        return newUser;
+        return entityManager.save(newUser);
 
       case UserRole.NHSO:
-        const nhso = await this.nhsoRepository.create(user.nhso);
-        nhso.user = newUser;
-        await entityManager.save(nhso);
-        return newUser;
+        newUser.nhso = this.nhsoRepository.create(user.nhso);
+        return entityManager.save(newUser);
 
       case UserRole.Agency:
-        const agency = await this.agencyRepository.create(user.agency);
-        agency.user = newUser;
-        await entityManager.save(agency);
-        return newUser;
+        newUser.agency = this.agencyRepository.create(user.agency);
+        return entityManager.save(newUser);
 
       case UserRole.Patient:
-        let patient = await this.patientRepository.findOne({
+        const existed = await this.patientRepository.findOne({
           nationalId: user.patient.nationalId,
         });
-        if (patient) {
+        if (existed) {
           throw new BadRequestException("Duplicate Patient's National ID");
         }
-        patient = this.patientRepository.create(user.patient);
-        patient.user = newUser;
-        await entityManager.save(patient);
-        return newUser;
+        newUser.patient = this.patientRepository.create(user.patient);
+        return entityManager.save(newUser);
 
       default:
         throw new BadRequestException("Invalid user's role");
@@ -406,7 +400,8 @@ export class UserService {
   }
 
   async softDelete(id: number): Promise<void> {
-    await this.userRepository.softDelete(id);
+    const user = await this.findById(id, true);
+    await this.userRepository.softRemove(user);
   }
 
   async restore(id: number): Promise<void> {
