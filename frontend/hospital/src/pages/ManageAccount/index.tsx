@@ -52,27 +52,26 @@ const ManageAccount = () => {
   const [pageCount, setPageCount] = useState(1);
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
-  const [filterRole, setFilterRole] = useState<CustomRole>("None");
   const [filterUser, setFilterUser] = useState<FilterUser>({});
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [history] = useState(useHistory());
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [fetchData, setFetchData] = useState(false);
-  useEffect(() => {
-    console.log(filterUser);
-    axios
-      .post("/user/search", {
-        page,
-        pageSize: 20,
-        user: filterUser || {},
-      })
-      .then(({ data }) => {
-        setUsers(data.data);
-        setPage(data.page);
-        setPageCount(data.pageCount);
-      });
-  }, [page, filterUser, fetchData]);
+  // useEffect(() => {
+  //   console.log(filterUser);
+  //   axios
+  //     .post("/user/search", {
+  //       page,
+  //       pageSize: 20,
+  //       user: filterUser || {},
+  //     })
+  //     .then(({ data }) => {
+  //       setUsers(data.data);
+  //       setPage(data.page);
+  //       setPageCount(data.pageCount);
+  //     });
+  // }, [page, filterUser, fetchData]);
 
   const viewUserDetail = useCallback((user: User) => {
     setSelectedUser(user);
@@ -112,27 +111,6 @@ const ManageAccount = () => {
       </Grid>
 
       <Grid container spacing={1}>
-        <Grid item xs={2}>
-          <Select
-            native
-            onChange={(e) => {
-              const role = e.target.value as CustomRole;
-              setFilterRole(role);
-              if (role === "None") {
-                setFilterUser({});
-              } else {
-                setFilterUser({ role });
-              }
-              (document.getElementById("base-filter") as HTMLFormElement).reset();
-            }}
-          >
-            <option value={"None"}>None</option>
-            <option value={"Patient"}>Patient</option>
-            <option value={"NHSO"}>NHSO</option>
-            <option value={"Hospital"}>Hospital</option>
-            <option value={"HospitalAdmin"}>Hospital Admin</option>
-          </Select>
-        </Grid>
         <Grid item xs={4}>
           <form id="base-filter">
             <table>
@@ -191,95 +169,6 @@ const ManageAccount = () => {
             </table>
           </form>
         </Grid>
-        <Grid item xs={5}>
-          {filterRole === "Patient" && (
-            <table>
-              <tr>
-                <td>National Id</td>
-                <td>
-                  <Input
-                    placeholder="optional"
-                    onChange={(e) => {
-                      const user = filterUser;
-                      if (!user.patient) user.patient = {};
-                      user.patient.nationalId = e.target.value;
-                      setFilterUser(user);
-                    }}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Gender</td>
-                <td>
-                  <Select
-                    native
-                    onChange={(e) => {
-                      const user = filterUser;
-                      if (!user.patient) user.patient = {};
-                      if (e.target.value !== "") {
-                        user.patient.gender = e.target.value as Gender;
-                      } else {
-                        delete user.patient.gender;
-                      }
-                      setFilterUser(user);
-                    }}
-                  >
-                    <option value={""}>-</option>
-                    <option value={"Male"}>Male</option>
-                    <option value={"Female"}>Female</option>
-                  </Select>
-                </td>
-              </tr>
-              <tr>
-                <td>Birth date</td>
-                <td>
-                  <Input
-                    type="date"
-                    onChange={(e) => {
-                      const user = filterUser;
-                      if (!user.patient) user.patient = {};
-                      user.patient.birthDate = (e.target.value as unknown) as Date;
-                      setFilterUser(user);
-                    }}
-                  />
-                </td>
-              </tr>
-            </table>
-          )}
-
-          {filterRole === "Hospital" && (
-            <table>
-              <tr>
-                <td>Hospital ID</td>
-                <td>
-                  <Input
-                    placeholder="optional"
-                    onChange={(e) => {
-                      const user = filterUser;
-                      if (!user.hospital) user.hospital = {};
-                      user.hospital.hid = Number(e.target.value);
-                      setFilterUser(user);
-                    }}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Name</td>
-                <td>
-                  <Input
-                    placeholder="optional"
-                    onChange={(e) => {
-                      const user = filterUser;
-                      if (!user.hospital) user.hospital = {};
-                      user.hospital.name = e.target.value;
-                      setFilterUser(user);
-                    }}
-                  />
-                </td>
-              </tr>
-            </table>
-          )}
-        </Grid>
         <Grid item xs={1}>
           <Button
             onClick={() => {
@@ -300,7 +189,6 @@ const ManageAccount = () => {
             <TableRow>
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>
-              <TableCell>Role</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Address</TableCell>
               <TableCell></TableCell>
@@ -312,7 +200,6 @@ const ManageAccount = () => {
                 <TableRow>
                   <TableCell>{user.firstname}</TableCell>
                   <TableCell>{user.lastname}</TableCell>
-                  <TableCell>{user.role}</TableCell>
                   <TableCell>{user.phone}</TableCell>
                   <TableCell>{user.address}</TableCell>
                   <TableCell>
@@ -359,10 +246,6 @@ const ManageAccount = () => {
           <DialogContentText>
             <table className="table-detail">
               <tr>
-                <td>Role</td>
-                <td>{selectedUser?.role}</td>
-              </tr>
-              <tr>
                 <td>Firstname</td>
                 <td>{selectedUser?.firstname}</td>
               </tr>
@@ -382,30 +265,6 @@ const ManageAccount = () => {
                 <td>Phone</td>
                 <td>{selectedUser?.phone}</td>
               </tr>
-              {selectedUser?.patient && (
-                <>
-                  <tr>
-                    <td>National Id</td>
-                    <td>{selectedUser.patient.nationalId}</td>
-                  </tr>
-                  <tr>
-                    <td>Gender</td>
-                    <td>{selectedUser.patient.gender}</td>
-                  </tr>
-                  <tr>
-                    <td>BirthDate</td>
-                    <td>{selectedUser.patient.birthDate}</td>
-                  </tr>
-                </>
-              )}
-              {selectedUser?.hospital && (
-                <>
-                  <tr>
-                    <td>Hospital Name</td>
-                    <td>{selectedUser.hospital.fullname}</td>
-                  </tr>
-                </>
-              )}
             </table>
           </DialogContentText>
         </DialogContent>

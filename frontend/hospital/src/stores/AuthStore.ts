@@ -33,12 +33,23 @@ class AuthStore {
 	}
 
 	async signin(data: SigninType) {
-		const res = await axios.post('/auth/login', data);
+		const res = await axios.post('/hospital/login', data);
 		const accessToken = res.data.access_token;
 		this.setAccessToken(accessToken);
 		this.getUserInformation();
 		return true;
 	}
+
+	async changePassword(currentPassword: string, newPassword: string) {
+		const res = await axios.post("/hospital/password/change", {
+		  username: this.user?.username,
+		  password: currentPassword,
+		  newPassword,
+		});
+		const accessToken = res.data.access_token;
+		this.setAccessToken(accessToken);
+		return true;
+	  }
 
 	async getUserInformation() {
 		const { data } = await axios.get<User>('/user/me');
