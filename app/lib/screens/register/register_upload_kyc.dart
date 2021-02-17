@@ -65,39 +65,65 @@ class _RegisterUploadKycState extends State<RegisterUploadKYC> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _nationalIdImage == null ? Text('No image selected.') : Image.file(_nationalIdImage),
+              Text(
+                "อัพโหลดรูปภาพเพื่อยืนยันตัวตน",
+                style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Container(margin: EdgeInsets.symmetric(vertical: 20)),
+              Text("ภาพถ่ายบัตรประจำตัวประชาชน"),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: _nationalIdImage == null ? Image.asset("assets/images/person-circle.png"): Image.file(_nationalIdImage)
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  OutlineButton(
+                  RaisedButton(
+                    color: Colors.white,
                     onPressed: () => getImage('nationalId', ImageSource.gallery),
-                    child: Text('Pick'),
+                    child: Text('เลือกภาพ', style: TextStyle(fontWeight: FontWeight.bold))
                   ),
-                  OutlineButton(
+                  RaisedButton(
+                    color: Colors.white,
                     onPressed: () => getImage('nationalId', ImageSource.camera),
-                    child: Text('Take'),
+                    child: Text('ถ่ายภาพ', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
-              _selfieImage == null ? Text('No image selected.') : Image.file(_selfieImage),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Color(0xFF333333)))
+                ),
+              ),
+              Text("ภาพเซลฟี่คู่กับบัตรประจำตัวประชาชน"),
+              Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  child: _nationalIdImage == null ? Image.asset("assets/images/person-circle.png"): Image.file(_selfieImage)
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  OutlineButton(
+                  RaisedButton(
+                    color: Colors.white,
                     onPressed: () => getImage('selfie', ImageSource.gallery),
-                    child: Text('Pick'),
+                    child: Text('เลือกภาพ', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  OutlineButton(
+                  RaisedButton(
+                    color: Colors.white,
                     onPressed: () => getImage('selfie', ImageSource.camera),
-                    child: Text('Take'),
+                    child: Text('ถ่ายภาพ', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
+              Container(margin: EdgeInsets.symmetric(vertical: 10)),
               RaisedButton(
+                color: Colors.white,
                 onPressed: () => submitKycImages(context),
                 child: Text("Submit"),
               ),
               RaisedButton(
+                color: Colors.white,
                 onPressed: () {
                   ctx.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
                 },

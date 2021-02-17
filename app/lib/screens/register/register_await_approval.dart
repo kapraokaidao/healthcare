@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthcare_app/app.dart';
 import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
@@ -24,13 +25,31 @@ class _RegisterAwaitApprovalState extends State<RegisterAwaitApproval> {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (ctx, state) {
           return Container(
-            padding: EdgeInsets.all(100),
+            padding: EdgeInsets.symmetric(vertical: 100, horizontal: 20),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('awaiting approval'),
-                  OutlineButton(
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(width: 1, color: Color(0xFFBBC4CE)),
+                      color: Colors.white
+                    ),
+                    child: Column(
+                      children: [
+                        SvgPicture.asset("assets/icons/check-outline.svg"),
+                        Container(width: 20,height: 20),
+                        Text("ลงทะเบียนสำเร็จ"),
+                        Text("กรุณารอ 2-3 วัน เพื่อทำการยืนยัน"),
+                        // Text("เพื่อทำการยืนยัน"),
+                      ],
+                    ),
+                  ),
+                  RaisedButton(
+                    color: Colors.white,
                     onPressed: () {
                       context
                           .read<AuthenticationBloc>()
