@@ -239,7 +239,7 @@ export class UserService {
     switch (user.role) {
       case UserRole.HospitalAdmin:
       case UserRole.Hospital:
-        user.role = UserRole.HospitalAdmin;
+        newUser.role = UserRole.HospitalAdmin;
         const hospital = await this.hospitalRepository.findOne({
           code9: user.hospital.code9,
         });
