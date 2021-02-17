@@ -50,7 +50,7 @@ export class AuthService {
     return this.login(credentials, user.role);
   }
 
-  async changePassword(dto: ChangePasswordDto, role: UserRole): Promise<void> {
+  async changePassword(dto: ChangePasswordDto, role: UserRole): Promise<AuthResponseDto> {
     const { newPassword, ...authDto } = dto;
     const user: Omit<User, "password"> = await this.validateUser(authDto, role);
     if (!user) {
@@ -59,6 +59,7 @@ export class AuthService {
     user["password"] = newPassword;
     const updatedUser = this.userRepository.create(user);
     await this.userRepository.save(updatedUser);
+    return this.login({ username: user.username, password: newPassword }, role);
   }
   //
   // async resetPassword(dto: ResetPasswordDto): Promise<{ resetPasswordId: number }> {
