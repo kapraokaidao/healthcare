@@ -25,6 +25,9 @@ export class AddMemberDto {
   notifiedUrl: string;
 
   @ApiProperty()
+  recoveryUrl: string;
+
+  @ApiProperty()
   serviceId: number;
 }
 

@@ -67,6 +67,7 @@ export class AgencyService {
     newMember.agency = agency;
     newMember.healthcareToken = healthcareToken;
     newMember.notifiedUrl = dto.notifiedUrl;
+    newMember.recoveryUrl = dto.recoveryUrl;
     newMember.patient = patient.user;
     newMember.transferred = false;
     return this.memberRepository.save(newMember);
