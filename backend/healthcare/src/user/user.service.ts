@@ -204,7 +204,7 @@ export class UserService {
     if (password) {
       query.addSelect("password", "User_password");
     }
-    return query.getOneOrFail();
+    return query.getOne();
   }
 
   async findByUsernameAndRole(
@@ -214,11 +214,11 @@ export class UserService {
   ): Promise<User> {
     const query = this.userRepository.createQueryBuilder();
     query.where("username = :username", { username });
-    if (role === UserRole.Hospital) {
+    if (role === UserRole.Hospital || role === UserRole.HospitalAdmin) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.where("role = :role", { role: UserRole.Hospital });
-          qb.orWhere("role = :role", { role: UserRole.HospitalAdmin });
+          qb.where("role = :hospital", { hospital: UserRole.Hospital });
+          qb.orWhere("role = :hospitalAdmin", { hospitalAdmin: UserRole.HospitalAdmin });
         })
       );
     } else {
