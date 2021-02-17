@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from "typeorm";
 import { hashSync } from "bcryptjs";
 import { ApiProperty } from "@nestjs/swagger";
@@ -86,7 +87,7 @@ export class User {
   @OneToOne(() => Patient, (patient) => patient.user)
   patient: Patient;
 
-  @OneToMany(() => Keypair, (keyPair) => keyPair.user)
+  @ManyToMany(() => Keypair, (keyPair) => keyPair.users)
   keypairs: Keypair[];
 
   @OneToMany(() => UserToken, (UserToken) => UserToken.user)

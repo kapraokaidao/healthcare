@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/app.dart';
+import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
 import 'package:healthcare_app/utils/index.dart';
 import 'package:image_picker/image_picker.dart';
@@ -55,47 +57,55 @@ class _RegisterUploadKycState extends State<RegisterUploadKYC> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _nationalIdImage == null ? Text('No image selected.') : Image.file(_nationalIdImage),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                OutlineButton(
-                  onPressed: () => getImage('nationalId', ImageSource.gallery),
-                  child: Text('Pick'),
-                ),
-                OutlineButton(
-                  onPressed: () => getImage('nationalId', ImageSource.camera),
-                  child: Text('Take'),
-                ),
-              ],
-            ),
-            _selfieImage == null ? Text('No image selected.') : Image.file(_selfieImage),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                OutlineButton(
-                  onPressed: () => getImage('selfie', ImageSource.gallery),
-                  child: Text('Pick'),
-                ),
-                OutlineButton(
-                  onPressed: () => getImage('selfie', ImageSource.camera),
-                  child: Text('Take'),
-                ),
-              ],
-            ),
-            RaisedButton(
-              onPressed: () => submitKycImages(context),
-              child: Text("Submit"),
-            )
-          ],
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(builder: (ctx, state) {
+      return SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _nationalIdImage == null ? Text('No image selected.') : Image.file(_nationalIdImage),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  OutlineButton(
+                    onPressed: () => getImage('nationalId', ImageSource.gallery),
+                    child: Text('Pick'),
+                  ),
+                  OutlineButton(
+                    onPressed: () => getImage('nationalId', ImageSource.camera),
+                    child: Text('Take'),
+                  ),
+                ],
+              ),
+              _selfieImage == null ? Text('No image selected.') : Image.file(_selfieImage),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  OutlineButton(
+                    onPressed: () => getImage('selfie', ImageSource.gallery),
+                    child: Text('Pick'),
+                  ),
+                  OutlineButton(
+                    onPressed: () => getImage('selfie', ImageSource.camera),
+                    child: Text('Take'),
+                  ),
+                ],
+              ),
+              RaisedButton(
+                onPressed: () => submitKycImages(context),
+                child: Text("Submit"),
+              ),
+              RaisedButton(
+                onPressed: () {
+                  ctx.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
+                },
+                child: Text("Logout"),
+              )
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

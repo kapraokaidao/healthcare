@@ -131,40 +131,40 @@ export class HealthcareTokenService {
 
   async findValidTokens(
     userId: number,
-    pageOptions: PaginationOptions,
+    pageOptions: PaginationOptions
   ): Promise<Pagination<HealthcareToken>> {
     const user = await this.userService.findById(userId, true);
-    
+
     let query = this.basicRulesQuery(user)
-    .take(pageOptions.pageSize)
-    .skip((pageOptions.page - 1) * pageOptions.pageSize)
-    .andWhere("healthcare_token.is_active = 1")
-    .andWhere("healthcare_token.token_type = :tokenType", {
-      tokenType: TokenType.General,
-    })
-    .leftJoinAndSelect(
-      "healthcare_token.userTokens",
-      "user_token",
-      "user_token.user_id = :userId",
-      { userId: userId }
-    )
-    .leftJoinAndSelect(
-      "healthcare_token.members",
-      "member",
-      "member.patient_id = :userId",
-      { userId: userId }
-    )
-    .leftJoinAndSelect(
-      "healthcare_token.createdBy",
-      "created_by"
-    )
-    .andWhere(
-      new Brackets((qb) => {
-        qb.where("created_by.role = :NHSO", {NHSO: UserRole.NHSO})
-        .orWhere("created_by.role = :AGENCY AND member.id IS NOT NULL", {AGENCY: UserRole.Agency})
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize)
+      .andWhere("healthcare_token.is_active = 1")
+      .andWhere("healthcare_token.token_type = :tokenType", {
+        tokenType: TokenType.General,
       })
-    )
-    .andWhere("user_token.id IS NULL");
+      .leftJoinAndSelect(
+        "healthcare_token.userTokens",
+        "user_token",
+        "user_token.user_id = :userId",
+        { userId: userId }
+      )
+      .leftJoinAndSelect(
+        "healthcare_token.members",
+        "member",
+        "member.patient_id = :userId",
+        { userId: userId }
+      )
+      .leftJoinAndSelect("healthcare_token.createdBy", "created_by")
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("created_by.role = :NHSO", {
+            NHSO: UserRole.NHSO,
+          }).orWhere("created_by.role = :AGENCY AND member.id IS NOT NULL", {
+            AGENCY: UserRole.Agency,
+          });
+        })
+      )
+      .andWhere("user_token.id IS NULL");
 
     const [tokens, totalCount] = await query.getManyAndCount();
     return toPagination<HealthcareToken>(tokens, totalCount, pageOptions);
@@ -174,26 +174,27 @@ export class HealthcareTokenService {
     const user = await this.userService.findById(userId, true);
 
     let query = this.basicRulesQuery(user)
-    .andWhere("healthcare_token.is_active = 1")
-    .andWhere("healthcare_token.token_type = :tokenType", {
-      tokenType: TokenType.Special,
-    })
-    .leftJoinAndSelect(
-      "healthcare_token.userTokens",
-      "user_token",
-      "user_token.user_id = :userId",
-      { userId: userId }
-    )
-    .andWhere("user_token.id IS NULL");
+      .andWhere("healthcare_token.is_active = 1")
+      .andWhere("healthcare_token.token_type = :tokenType", {
+        tokenType: TokenType.Special,
+      })
+      .leftJoinAndSelect(
+        "healthcare_token.userTokens",
+        "user_token",
+        "user_token.user_id = :userId",
+        { userId: userId }
+      )
+      .andWhere("user_token.id IS NULL");
 
     const tokens = await query.getMany();
     return tokens;
   }
 
   async receiveToken(userId: number, serviceId: number, pin: string): Promise<void> {
-    const validGeneralTokens = await this.findValidTokens(
-      userId, {page: 0, pageSize: 0}
-    );
+    const validGeneralTokens = await this.findValidTokens(userId, {
+      page: 0,
+      pageSize: 0,
+    });
     if (
       validGeneralTokens.data.findIndex(
         (validGeneralToken) => validGeneralToken.id === serviceId
@@ -201,20 +202,32 @@ export class HealthcareTokenService {
     ) {
       throw new BadRequestException("This service is not valid for this user");
     }
-    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId, {relations: ["createdBy"]});
-    if(healthcareToken.createdBy.role === UserRole.NHSO){
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
+      serviceId,
+      { relations: ["createdBy"] }
+    );
+    if (healthcareToken.createdBy.role === UserRole.NHSO) {
       await this.transferTokenFromNHSO(userId, serviceId, pin);
-    }
-    else if(healthcareToken.createdBy.role === UserRole.Agency){
-      const checkKeypair = await this.keypairService.isActive(userId, healthcareToken.createdBy.id)
-      if(!checkKeypair.isActive){
-        await this.keypairService.createKeypair(userId, pin, healthcareToken.createdBy.id)
+    } else if (healthcareToken.createdBy.role === UserRole.Agency) {
+      const checkKeypair = await this.keypairService.isActive(
+        userId,
+        healthcareToken.createdBy.id
+      );
+      if (!checkKeypair.isActive) {
+        await this.keypairService.createKeypair(
+          userId,
+          pin,
+          healthcareToken.createdBy.id
+        );
       }
-      const publicKey = await this.keypairService.findPublicKey(userId, healthcareToken.createdBy.id)
+      const publicKey = await this.keypairService.findPublicKey(
+        userId,
+        healthcareToken.createdBy.id
+      );
       await this.addTrustline(userId, serviceId, pin, healthcareToken.createdBy.id);
       await this.agencyService.notifyAddedTrustline(userId, serviceId, publicKey);
     } else {
-      throw new BadRequestException("This service is not created by NHSO or Agency")
+      throw new BadRequestException("This service is not created by NHSO or Agency");
     }
 
     //Todo: update XDR
@@ -464,7 +477,12 @@ export class HealthcareTokenService {
     return slip;
   }
 
-  private async addTrustline(userId: number, serviceId: number, pin: string, agencyId?: number) {
+  private async addTrustline(
+    userId: number,
+    serviceId: number,
+    pin: string,
+    agencyId?: number
+  ) {
     const user = await this.userService.findById(userId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
     const privateKey = await this.keypairService.decryptPrivateKey(userId, pin, agencyId);
@@ -676,9 +694,7 @@ export class HealthcareTokenService {
           );
         })
       )
-      .andWhere(
-        "healthcare_token.remaining_token > 0"
-      )
-      return query
+      .andWhere("healthcare_token.remaining_token > 0");
+    return query;
   }
 }

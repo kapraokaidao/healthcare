@@ -9,45 +9,38 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UploadedFile,
+  Redirect,
   UseGuards,
-  UseInterceptors,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserId } from "../decorators/user-id.decorator";
 import { User } from "../entities/user.entity";
 import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
-import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
+import { UserRole } from "../constant/enum/user.enum";
 import { Pagination } from "../utils/pagination.util";
 import { SearchUsersDto } from "./user.dto";
-import { FileUploadDto } from "../config/file.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { S3Service } from "../s3/s3.service";
 import { isBetween } from "../utils/number.util";
-import { KycImageType, KycQueryType } from "../constant/enum/kyc.enum";
+import { KycQueryType } from "../constant/enum/kyc.enum";
 
 @ApiBearerAuth()
 @ApiTags("User")
 @Controller("user")
 @UseGuards(RolesGuard)
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly s3Service: S3Service
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient, UserRole.Agency)
+  @Roles(
+    UserRole.NHSO,
+    UserRole.HospitalAdmin,
+    UserRole.Hospital,
+    UserRole.Patient,
+    UserRole.Agency
+  )
   @Get("me")
   async me(@UserId() id: number): Promise<User> {
     return this.userService.findById(id, true);
-  }
-
-  @Roles(UserRole.Patient)
-  @Get("me/register/status")
-  async registerStatus(@UserId() id: number): Promise<RegisterStatus> {
-    return this.userService.registerStatus(id);
   }
 
   @Roles(UserRole.NHSO)
@@ -114,7 +107,25 @@ export class UserController {
     return this.userService.findSoftDeletedUsers();
   }
 
-  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.Patient)
+  @Roles(UserRole.NHSO)
+  @Post("password/reset/:id/approved")
+  async approveResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    await this.userService.approveResetPassword(id);
+  }
+
+  @Roles(UserRole.NHSO)
+  @Post("password/reset/:id/reject")
+  async rejectResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    await this.userService.rejectResetPassword(id);
+  }
+
+  @Roles(
+    UserRole.NHSO,
+    UserRole.Hospital,
+    UserRole.Patient,
+    UserRole.Agency,
+    UserRole.HospitalAdmin
+  )
   @Get(":id")
   async findById(@Param("id") id: number): Promise<User> {
     return this.userService.findById(id, true);
@@ -152,23 +163,19 @@ export class UserController {
 
   @Roles(UserRole.Patient)
   @Post("/upload/national-id")
-  @ApiConsumes("multipart/form-data")
-  @ApiBody({ type: FileUploadDto })
-  @UseInterceptors(FileInterceptor("image"))
-  async uploadNationalIdImage(@UserId() id: number, @UploadedFile() image) {
-    const path = `user_${id}/kyc/national-id_${Date.now()}.jpg`;
-    const imageUrl = await this.s3Service.uploadImage(image, path);
-    await this.userService.updateImage(id, imageUrl, KycImageType.NationalId);
+  @Redirect("patient/upload/national-id", 301)
+  async uploadNationalIdImage() {
+    // const path = `user_${id}/kyc/national-id_${Date.now()}.jpg`;
+    // const imageUrl = await this.s3Service.uploadImage(image, path);
+    // await this.userService.updateImage(id, imageUrl, KycImageType.NationalId);
   }
 
   @Roles(UserRole.Patient)
-  @Post("/upload/selfie")
-  @ApiConsumes("multipart/form-data")
-  @ApiBody({ type: FileUploadDto })
-  @UseInterceptors(FileInterceptor("image"))
-  async uploadSelfieImage(@UserId() id: number, @UploadedFile() image) {
-    const path = `user_${id}/kyc/selfie_${Date.now()}.jpg`;
-    const imageUrl = await this.s3Service.uploadImage(image, path);
-    await this.userService.updateImage(id, imageUrl, KycImageType.Selfie);
+  @Post("upload/selfie")
+  @Redirect("patient/upload/selfie", 301)
+  async uploadSelfieImage() {
+    // const path = `user_${id}/kyc/selfie_${Date.now()}.jpg`;
+    // const imageUrl = await this.s3Service.uploadImage(image, path);
+    // await this.userService.updateImage(id, imageUrl, KycImageType.Selfie);
   }
 }

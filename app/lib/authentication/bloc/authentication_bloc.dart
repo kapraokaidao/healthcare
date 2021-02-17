@@ -54,8 +54,8 @@ class AuthenticationBloc
       yield _mapAuthenticationLogoutRequestedToState(event);
     } else if (event is AuthenticationValidateStatus) {
       yield await _mapValidateStatusToState();
-    // } else if (event is AuthenticationOTPChanged) {
-    //   yield _mapOTPChangedToState(event, state);
+    } else if (event is AuthenticationRegisterRequest) {
+      yield await _mapRegisterRequestToState(event);
     // } else if (event is AuthenticationOTPRequested) {
     //   yield state.copyWith(status: AuthenticationStatus.authenticating);
       // yield await _mapOTPRequestedToState(event, state);
@@ -116,6 +116,32 @@ class AuthenticationBloc
     }
   }
 
+  Future<AuthenticationState> _mapRegisterRequestToState(AuthenticationRegisterRequest event) async {
+    final Map<String, dynamic>  userDto = event.user;
+    Map<String, dynamic> registerResult = await HttpClient.post('/auth/register', userDto);
+    return state.copyWith(status: AuthenticationStatus.authenticated, step: AuthenticationStep.register);
+    // if (registerResult['access_token'] != null) {
+    //   String accessToken = registerResult['access_token'];
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   await prefs.setString('accessToken', accessToken);
+    //   String registerStatus = await HttpClient.getWithoutDecode(path: '/user/me/register/status');
+    //   print(registerStatus);
+    //   User user = await _tryGetUser();
+    //   switch (registerStatus) {
+    //     case "Complete":
+    //       return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.complete);
+    //     case "AwaitApproval":
+    //       return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.awaitApproval);
+    //     case "UploadKYC":
+    //       return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.uploadKYC);
+    //     default:
+    //       throw ('Invalid register status');
+    //   }
+    // } else {
+    //   throw ('Unknown login error');
+    // }
+  }
+
   AuthenticationState _mapNationalIdChangedToState(AuthenticationNationalIdChanged event) {
     final nationalId = event.nationalId;
     return state.copyWith(nationalId: nationalId);
@@ -144,9 +170,6 @@ class AuthenticationBloc
   Future<AuthenticationState> _mapCredentialsLoginRequestToState(AuthenticationCredentialsSubmitted event) async {
     String nationalId = state.nationalId;
     String pin = state.pin;
-    // Map<String, dynamic> result = await this
-    //     ._authenticationRepository
-    //     .login(nationalId: nationalId, pin: pin);
     try {
       Map<String, dynamic> loginResult = await this
           ._authenticationRepository

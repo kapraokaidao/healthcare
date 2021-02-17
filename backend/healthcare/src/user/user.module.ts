@@ -6,18 +6,18 @@ import { UserController } from "./user.controller";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
 import { Patient } from "../entities/patient.entity";
-import { S3Service } from "../s3/s3.service";
-import { PatientService } from "./patient.service";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { Agency } from "../entities/agency.entity";
+import { S3Module } from "../s3/s3.module";
 
 @Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Agency, Hospital, NHSO, Patient, ResetPasswordKYC]),
+    S3Module,
   ],
   controllers: [UserController],
-  providers: [UserService, PatientService, S3Service],
-  exports: [UserService, PatientService],
+  providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

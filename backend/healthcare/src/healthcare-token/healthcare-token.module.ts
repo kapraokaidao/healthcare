@@ -15,7 +15,7 @@ import { AgencyModule } from "src/agency/agency.module";
     TypeOrmModule.forFeature([HealthcareToken, UserToken, TransferRequest]),
     KeypairModule,
     TransactionModule,
-    AgencyModule
+    AgencyModule,
   ],
   controllers: [HealthcareTokenController],
   providers: [HealthcareTokenService, StellarService],

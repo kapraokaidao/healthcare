@@ -11,6 +11,7 @@ import { UserGender } from "../constant/enum/user.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { ResetPasswordKYC } from "./reset-password-kyc.entity";
 import { Fetus } from "./fetus.entity";
+import { BloodRh, BloodType } from "../constant/enum/patient.enum";
 
 @Entity()
 export class Patient {
@@ -28,6 +29,24 @@ export class Patient {
   @ApiProperty()
   @Column("date", { name: "birth_date" })
   birthDate: Date;
+
+  @Column("decimal", { unsigned: true, precision: 5, scale: 2, nullable: true })
+  weight: number;
+
+  @Column("decimal", { unsigned: true, precision: 5, scale: 2, nullable: true })
+  height: number;
+
+  @Column("enum", { enum: BloodType, nullable: true })
+  bloodType: BloodType;
+
+  @Column("enum", { enum: BloodRh, nullable: true })
+  bloodRh: BloodRh;
+
+  @Column({ length: 500, nullable: true })
+  allergies: string;
+
+  @Column({ length: 500, nullable: true })
+  medications: string;
 
   @Column("boolean")
   approved: boolean;

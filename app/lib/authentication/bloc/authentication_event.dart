@@ -29,6 +29,15 @@ class AuthenticationLogoutRequested extends AuthenticationEvent {}
 
 class AuthenticationValidateStatus extends AuthenticationEvent {}
 
+class AuthenticationRegisterRequest extends AuthenticationEvent {
+  final Map<String, dynamic>  user;
+
+  const AuthenticationRegisterRequest(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
 class AuthenticationNationalIdChanged extends AuthenticationEvent {
   final String nationalId;
 

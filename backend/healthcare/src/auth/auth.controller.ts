@@ -31,15 +31,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @PublicAPI()
-  @Post("login")
-  async login(@Body() credential: AuthCredentialsDto) {
-    return this.authService.login(credential);
-  }
-
-  @PublicAPI()
-  @Post("patient/login")
-  async patientLogin(@Body() credential: PatientAuthCredentialsDto) {
-    return this.authService.login(credential);
+  @Post("nhso/login")
+  async nhsoLogin(@Body() credential: AuthCredentialsDto) {
+    return this.authService.login(credential, UserRole.NHSO);
   }
 
   @PublicAPI()
@@ -48,55 +42,51 @@ export class AuthController {
     return this.authService.register(user);
   }
 
-  @PublicAPI()
-  @Post("password/change")
-  async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
-    await this.authService.changePassword(dto);
-  }
+  // @PublicAPI()
+  // @Post("password/change")
+  // async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
+  //   await this.authService.changePassword(dto);
+  // }
+  //
+  // @PublicAPI()
+  // @Post("password/reset")
+  // async resetPassword(
+  //   @Body() dto: ResetPasswordDto
+  // ): Promise<{ resetPasswordId: number }> {
+  //   return this.authService.resetPassword(dto);
+  // }
 
-  @PublicAPI()
-  @Post("password/reset")
-  async resetPassword(
-    @Body() dto: ResetPasswordDto
-  ): Promise<{ resetPasswordId: number }> {
-    return this.authService.resetPassword(dto);
-  }
+  // @PublicAPI()
+  // @Post("password/reset/:id/upload/national-id")
+  // @ApiConsumes("multipart/form-data")
+  // @ApiBody({ type: FileUploadDto })
+  // @UseInterceptors(FileInterceptor("image"))
+  // async uploadNationalIdImage(
+  //   @Param("id", ParseIntPipe) id: number,
+  //   @UploadedFile() image
+  // ) {
+  //   await this.authService.uploadResetPasswordNationalIdImage(id, image);
+  // }
+  //
+  // @PublicAPI()
+  // @Post("password/reset/:id/upload/selfie")
+  // @ApiConsumes("multipart/form-data")
+  // @ApiBody({ type: FileUploadDto })
+  // @UseInterceptors(FileInterceptor("image"))
+  // async uploadSelfieImage(@Param("id", ParseIntPipe) id: number, @UploadedFile() image) {
+  //   await this.authService.uploadResetPasswordSelfieImage(id, image);
+  // }
 
-  @PublicAPI()
-  @Post("password/reset/:id/upload/national-id")
-  @ApiConsumes("multipart/form-data")
-  @ApiBody({ type: FileUploadDto })
-  @UseInterceptors(FileInterceptor("image"))
-  async uploadNationalIdImage(
-    @Param("id", ParseIntPipe) id: number,
-    @UploadedFile() image
-  ) {
-    await this.authService.uploadResetPasswordNationalIdImage(id, image);
-  }
-
-  @PublicAPI()
-  @Post("password/reset/:id/upload/selfie")
-  @ApiConsumes("multipart/form-data")
-  @ApiBody({ type: FileUploadDto })
-  @UseInterceptors(FileInterceptor("image"))
-  async uploadSelfieImage(@Param("id", ParseIntPipe) id: number, @UploadedFile() image) {
-    await this.authService.uploadResetPasswordSelfieImage(id, image);
-  }
-
-  /**
-   *  Start non-public API
-   */
-
-  @ApiBearerAuth()
-  @Roles(UserRole.NHSO)
-  @Post("password/reset/:id/approved")
-  async approveResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    await this.authService.approveResetPassword(id);
-  }
-
-  @Roles(UserRole.NHSO)
-  @Post("password/reset/:id/reject")
-  async rejectResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    await this.authService.rejectResetPassword(id);
-  }
+  // @ApiBearerAuth()
+  // @Roles(UserRole.NHSO)
+  // @Post("password/reset/:id/approved")
+  // async approveResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
+  //   await this.authService.approveResetPassword(id);
+  // }
+  //
+  // @Roles(UserRole.NHSO)
+  // @Post("password/reset/:id/reject")
+  // async rejectResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
+  //   await this.authService.rejectResetPassword(id);
+  // }
 }
