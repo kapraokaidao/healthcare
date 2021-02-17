@@ -56,7 +56,7 @@ export class PatientController {
 
   @PublicAPI()
   @Post("register-v2")
-  async registerV2(@Body() dto: PatientRegisterDto) {
+  async registerV2(@Body() dto: PatientRegisterDto): Promise<AuthResponseDto> {
     return this.patientService.registerV2(dto);
   }
 

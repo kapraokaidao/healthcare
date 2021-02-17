@@ -33,7 +33,7 @@ export class PatientService {
     private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {}
 
-  async registerV2(dto: PatientRegisterDto): Promise<User> {
+  async registerV2(dto: PatientRegisterDto): Promise<AuthResponseDto> {
     const existed = await this.patientRepository.findOne({
       nationalId: dto.nationalId,
     });
@@ -54,7 +54,9 @@ export class PatientService {
       gender: dto.gender,
       birthDate: dto.birthDate,
     });
-    return this.userRepository.save(newUser);
+    await this.userRepository.save(newUser);
+    const { nationalId: username, pin: password } = dto;
+    return this.authService.login({ username, password }, UserRole.Patient);
   }
 
   async login(credential: AuthCredentialsDto): Promise<AuthResponseDto> {

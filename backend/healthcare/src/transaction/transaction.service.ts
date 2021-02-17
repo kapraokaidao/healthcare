@@ -4,7 +4,6 @@ import { TransactionType } from "src/constant/enum/transaction.enum";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
 import { UserService } from "src/user/user.service";
-import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
 import { EntityManager } from "typeorm";
 import { TransactionSearchDto, TransactionSearchResponseDto } from "./transaction.dto";
 
@@ -54,7 +53,7 @@ export class TransactionService {
     userId: number,
     dto: TransactionSearchDto
   ): Promise<TransactionSearchResponseDto[]> {
-    let query = this.transactionRepository
+    const query = this.transactionRepository
       .createQueryBuilder("tx")
       .leftJoinAndSelect(
         "tx.healthcareToken",
