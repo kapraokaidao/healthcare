@@ -18,6 +18,9 @@ export class Member {
   @Column({ name: "notified_url" })
   notifiedUrl: string;
 
+  @Column({ name: "recovery_url" })
+  recoveryUrl: string;
+
   @Column({ default: false })
   transferred: boolean;
 
