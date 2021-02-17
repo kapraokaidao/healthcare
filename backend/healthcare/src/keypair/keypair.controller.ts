@@ -15,7 +15,7 @@ import { KeypairService } from "./keypair.service";
 export class KeypairController {
   constructor(private readonly keypairService: KeypairService) {}
 
-  @Roles(UserRole.HospitalAdmin, UserRole.Hospital, UserRole.Patient)
+  @Roles(UserRole.HospitalAdmin)
   @Post()
   async createKeypair(
     @UserId() userId: number,
@@ -24,7 +24,7 @@ export class KeypairController {
     return this.keypairService.createKeypair(userId, dto.pin);
   }
 
-  @Roles(UserRole.HospitalAdmin, UserRole.Patient)
+  @Roles(UserRole.HospitalAdmin)
   @Put("change")
   async changePin(@UserId() userId: number, @Body() dto: ChangePinDto): Promise<void> {
     return this.keypairService.changePin(userId, dto.currentPin, dto.newPin);
@@ -36,9 +36,4 @@ export class KeypairController {
     return this.keypairService.isActive(userId);
   }
 
-  @Roles(UserRole.Patient)
-  @Post("recover")
-  async recover(@UserId() userId: number, @Body() dto: CreateKeypairDto): Promise<void> {
-    return this.keypairService.recover(userId, dto.pin);
-  }
 }
