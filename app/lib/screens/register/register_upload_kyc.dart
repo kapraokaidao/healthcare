@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/app.dart';
+import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/screens/token/token_screen.dart';
 import 'package:healthcare_app/utils/index.dart';
@@ -23,16 +24,16 @@ class _RegisterUploadKycState extends State<RegisterUploadKYC> {
   final picker = ImagePicker();
 
   void submitKycImages(BuildContext context) async {
-    print(_nationalIdImage);
-    print(_selfieImage);
+    // print(_nationalIdImage);
+    // print(_selfieImage);
     if (_nationalIdImage == null || _selfieImage == null) {
       return;
     }
     final nationalIdResponse = await HttpClient.uploadKyc(filePath: _nationalIdImage.path, type: "national-id");
-    print("national id: ${nationalIdResponse.statusCode}");
+    // print("national id: ${nationalIdResponse.statusCode}");
     final selfieResponse = await HttpClient.uploadKyc(filePath: _selfieImage.path, type: "selfie");
-    print("selfie: ${selfieResponse.statusCode}");
-    Navigator.push(context, AppView.route());
+    // print("selfie: ${selfieResponse.statusCode}");
+    Navigator.pushReplacement(context, AuthenticationPage.route(null));
   }
 
   Future getImage(String type, ImageSource source) async {

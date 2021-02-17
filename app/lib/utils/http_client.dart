@@ -12,6 +12,7 @@ class HttpClient {
   // static final String baseUrl = 'http://localhost:3000'; // Local
   static final String baseUrl =
       'https://dev-healthcare-backend.kaoths.dev'; // Dev
+  // static final String baseUrl = 'http://10.0.2.2:3000'; // Dev
 
   static Future<Map<String, String>> _getDefaultHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -109,7 +110,7 @@ class HttpClient {
         @required String type,
         @required String filePath}) async {
     Map<String, dynamic> body = {};
-    String path = '/user/upload/' + type;
+    String path = '/patient/upload/' + type;
     Uri uri = Uri.parse(baseUrl + path);
     http.MultipartRequest request = http.MultipartRequest('POST', uri);
 

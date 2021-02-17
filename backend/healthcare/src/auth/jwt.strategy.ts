@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: { user: User; iat: number; exp: number }): Promise<User> {
     const { iat, exp, user } = payload;
     const passwordChangedDate = await this.userService.findPasswordChangedDate(user.id);
-    if (passwordChangedDate.getTime() > iat * 1000) {
+    if (passwordChangedDate.getTime() > (iat+1) * 1000) {
       throw new BadRequestException("Token Expired");
     }
     return user;
