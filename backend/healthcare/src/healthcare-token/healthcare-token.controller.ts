@@ -38,7 +38,7 @@ export class HealthcareTokenController {
   constructor(private readonly healthcareTokenService: HealthcareTokenService) {}
 
   @Get()
-  @Roles(UserRole.NHSO, UserRole.Hospital)
+  @Roles(UserRole.NHSO, UserRole.Hospital, UserRole.HospitalAdmin)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   @ApiQuery({
@@ -106,7 +106,7 @@ export class HealthcareTokenController {
   }
 
   @Get("verify")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   @ApiQuery({ name: "userId", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "serviceId", schema: { type: "integer" }, required: true })
   async getVerificationInfo(
@@ -117,14 +117,14 @@ export class HealthcareTokenController {
   }
 
   @Delete("redeem-request")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   @ApiQuery({ name: "id", schema: { type: "integer" }, required: true })
   async deleteRedeemRequest(@Query("id") id: number): Promise<void> {
     return this.healthcareTokenService.deleteRedeemRequest(id);
   }
 
   @Get("redeem-check")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   @ApiQuery({ name: "id", schema: { type: "integer" }, required: true })
   async checkConfirmedRedeemRequest(
     @Query("id") id: number
@@ -133,7 +133,7 @@ export class HealthcareTokenController {
   }
 
   @Post("redeem-request")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   async createRedeemRequest(
     @UserId() userId,
     @Body() dto: CreateRedeemRequestDto
@@ -163,7 +163,7 @@ export class HealthcareTokenController {
   }
 
   @Get("special-token/valid/:userId")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   async findValidSpecialTokens(
     @Param("userId") userId: number
   ): Promise<HealthcareToken[]> {
@@ -184,7 +184,7 @@ export class HealthcareTokenController {
   }
 
   @Post("special-token/request")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   async createSpecialTokenRequest(
     @UserId() userId,
     @Body() dto: CreateSpecialTokenRequestDto
@@ -200,7 +200,7 @@ export class HealthcareTokenController {
   @Get("balance")
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
-  @Roles(UserRole.Hospital, UserRole.Patient)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin, UserRole.Patient)
   async getBalance(
     @UserId() userId,
     @Query("page") qPage: number,
@@ -222,7 +222,7 @@ export class HealthcareTokenController {
   }
 
   @Post("withdraw")
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   async withdraw(@UserId() userId: number, @Body() dto: WithdrawDto): Promise<Slip> {
     return this.healthcareTokenService.withDraw(
       userId,

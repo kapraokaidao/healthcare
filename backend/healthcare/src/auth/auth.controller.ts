@@ -12,6 +12,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import {
   AuthCredentialsDto,
+  AuthResponseDto,
   ChangePasswordDto,
   PatientAuthCredentialsDto,
   ResetPasswordDto,
@@ -34,6 +35,12 @@ export class AuthController {
   @Post("nhso/login")
   async nhsoLogin(@Body() credential: AuthCredentialsDto) {
     return this.authService.login(credential, UserRole.NHSO);
+  }
+
+  @PublicAPI()
+  @Post("nhso/password/change")
+  async changePassword(@Body() dto: ChangePasswordDto): Promise<AuthResponseDto> {
+    return this.authService.changePassword(dto, UserRole.NHSO);
   }
 
   @PublicAPI()

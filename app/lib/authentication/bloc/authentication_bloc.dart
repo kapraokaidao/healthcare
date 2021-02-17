@@ -140,7 +140,6 @@ class AuthenticationBloc
   Future<AuthenticationState> _mapValidateStatusToState() async {
     String registerStatus = await HttpClient.getWithoutDecode(path: '/patient/register/status');
     User user = await _tryGetUser();
-    print("register status $registerStatus");
     switch (registerStatus) {
       case "Complete":
         return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.complete);
@@ -182,7 +181,6 @@ class AuthenticationBloc
         throw ('Unknown login error');
       }
     } catch (e) {
-
       return state.copyWith(status: AuthenticationStatus.unauthenticated);
     }
     // print(result);

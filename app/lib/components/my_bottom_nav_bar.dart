@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:healthcare_app/constants.dart';
 import 'package:healthcare_app/models/NavItem.dart';
 import 'package:healthcare_app/size_config.dart';
+import 'package:page_transition/page_transition.dart';
 
 class MyBottomNavBar extends StatelessWidget {
   const MyBottomNavBar({
@@ -44,9 +45,9 @@ class MyBottomNavBar extends StatelessWidget {
                   if (navItems.items[index].destinationChecker())
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => navItems.items[index].destination,
-                      ),
+                      PageTransition(
+                          type: PageTransitionType.fade,
+                          child: navItems.items[index].destination),
                     );
                 },
               ),
