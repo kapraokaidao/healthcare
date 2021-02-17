@@ -17,10 +17,29 @@ export class TransactionSearchDto {
   name: string;
 }
 
-export class TransactionSearchResponseDto {
-  id: number;
+export class TransactionSearcHistoryhDto {
+  @ApiProperty({ type: "enum", enum: TransactionType })
+  @IsEnum(TransactionType)
+  type: TransactionType;
 
+  @ApiProperty({ required: false })
+  startDate: Date;
+
+  @ApiProperty({ required: false })
+  endDate: Date;
+
+  @ApiProperty({ required: false })
   name: string;
 
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  pageSize: number;
+}
+
+export class TransactionSearchResponseDto {
+  id: number;
+  name: string;
   amount: number;
 }
