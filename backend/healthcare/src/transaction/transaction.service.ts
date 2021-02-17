@@ -1,8 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionType } from "src/constant/enum/transaction.enum";
+import { UserRole } from "src/constant/enum/user.enum";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
+import { KeypairService } from "src/keypair/keypair.service";
 import { UserService } from "src/user/user.service";
 import { EntityManager } from "typeorm";
 import { TransactionSearchDto, TransactionSearchResponseDto } from "./transaction.dto";
@@ -12,6 +14,7 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction) private readonly transactionRepository,
     @InjectRepository(HealthcareToken) private readonly healthcareTokenRepository,
+    private readonly keypairService: KeypairService,
     private readonly userService: UserService
   ) {}
 
@@ -58,8 +61,7 @@ export class TransactionService {
       .leftJoinAndSelect(
         "tx.healthcareToken",
         "healthcareToken",
-        "healthcareToken.id = tx.healthcare_token_id",
-        { userId: userId }
+        "healthcareToken.id = tx.healthcare_token_id"
       )
       .addSelect("SUM(tx.amount) as amount")
       .groupBy("tx.healthcare_token_id");
@@ -76,12 +78,14 @@ export class TransactionService {
     }
 
     if (dto.type === TransactionType.Debit) {
-      query.andWhere("tx.destination_user_id = :userId", {
-        userId: userId,
+      const publicKey = await this.keypairService.findPublicKey(userId);
+      query.andWhere("tx.destination_public_key = :publicKey", {
+        publicKey,
       });
     } else if (dto.type === TransactionType.Credit) {
-      query.andWhere("tx.source_user_id = :userId", {
-        userId: userId,
+      const publicKey = await this.keypairService.findPublicKey(userId);
+      query.andWhere("tx.source_public_key = :publicKey", {
+        publicKey,
       });
     } else {
       throw new BadRequestException("Invalid transaction type");
@@ -94,6 +98,7 @@ export class TransactionService {
     }
 
     const queryResult = await query.getRawMany();
+
     const transactions: TransactionSearchResponseDto[] = queryResult.map((e) => {
       const transaction: TransactionSearchResponseDto = {
         id: e.healthcareToken_id,
@@ -103,5 +108,70 @@ export class TransactionService {
       return transaction;
     });
     return transactions;
+  }
+
+  async searchHistory(
+    userId: number,
+    dto: TransactionSearchDto,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<any>> {
+    let query = this.transactionRepository
+      .createQueryBuilder("tx")
+      .leftJoinAndSelect(
+        "tx.healthcareToken",
+        "healthcareToken",
+        "healthcareToken.id = tx.healthcare_token_id"
+      )
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize)
+      .orderBy("tx.createdDate", "DESC");
+
+    if (dto.startDate) {
+      query.andWhere("CAST(tx.created_date as date) >= :startDate", {
+        startDate: dto.startDate,
+      });
+    }
+    if (dto.endDate) {
+      query.andWhere("CAST(tx.created_date as date) <= :endDate", {
+        endDate: dto.endDate,
+      });
+    }
+
+    if (dto.type === TransactionType.Debit) {
+      query.leftJoinAndSelect("tx.sourceUser", "user", "user.id = tx.source_user_id");
+      const { role } = await this.userService.findById(userId, false);
+      if (role === UserRole.HospitalAdmin) {
+        const publicKey = await this.keypairService.findPublicKey(userId);
+        query.andWhere("tx.destination_public_key = :publicKey", {
+          publicKey,
+        });
+      } else {
+        query.andWhere("tx.destination_user_id = :userId", {
+          userId,
+        });
+      }
+    } else if (dto.type === TransactionType.Credit) {
+      query.leftJoinAndSelect(
+        "tx.destinationUser",
+        "user",
+        "user.id = tx.destination_user_id"
+      );
+      const { role } = await this.userService.findById(userId, false);
+      if (role === UserRole.HospitalAdmin) {
+        const publicKey = await this.keypairService.findPublicKey(userId);
+        query.andWhere("tx.source_public_key = :publicKey", {
+          publicKey,
+        });
+      } else {
+        query.andWhere("tx.source_user_id = :userId", {
+          userId,
+        });
+      }
+    } else {
+      throw new BadRequestException("Invalid transaction type");
+    }
+
+    const [history, totalCount] = await query.getManyAndCount();
+    return toPagination<any>(history, totalCount, pageOptions);
   }
 }

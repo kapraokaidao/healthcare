@@ -8,6 +8,7 @@ import {
   Length,
   Matches,
 } from "class-validator";
+import { User } from "src/entities/user.entity";
 
 export class SearchHospitalDto {
   @ApiProperty()
@@ -18,6 +19,17 @@ export class SearchHospitalDto {
 
   @ApiProperty()
   hospital: Partial<Hospital>;
+}
+
+export class SearchHospitalAccountDto {
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  pageSize: number;
+
+  @ApiProperty()
+  user: Partial<User>;
 }
 
 export class CreateHospitalDto {
