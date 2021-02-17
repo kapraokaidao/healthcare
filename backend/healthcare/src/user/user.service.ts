@@ -252,6 +252,12 @@ export class UserService {
         if (!hospital) {
           throw new BadRequestException(`Invalid hospital's code9`);
         }
+        const existingUser = await this.userRepository.findOne({
+          hospital
+        })
+        if(existingUser){
+          throw new BadRequestException(`There is already hospital admin for this hospital`);
+        }
         newUser.hospital = hospital;
         await entityManager.save(newUser);
         return newUser;
