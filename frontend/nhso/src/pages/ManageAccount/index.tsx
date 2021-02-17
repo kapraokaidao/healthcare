@@ -87,7 +87,10 @@ const ManageAccount = () => {
     }
   }, [selectedUser, page]);
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
     setPage(value);
   };
 
@@ -123,7 +126,9 @@ const ManageAccount = () => {
               } else {
                 setFilterUser({ role });
               }
-              (document.getElementById("base-filter") as HTMLFormElement).reset();
+              (document.getElementById(
+                "base-filter"
+              ) as HTMLFormElement).reset();
             }}
           >
             <option value={"None"}>None</option>
@@ -238,7 +243,8 @@ const ManageAccount = () => {
                     onChange={(e) => {
                       const user = filterUser;
                       if (!user.patient) user.patient = {};
-                      user.patient.birthDate = (e.target.value as unknown) as Date;
+                      user.patient.birthDate = (e.target
+                        .value as unknown) as Date;
                       setFilterUser(user);
                     }}
                   />

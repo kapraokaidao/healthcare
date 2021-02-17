@@ -63,7 +63,12 @@ const ChangePassword = observer(() => {
           </tr>
         </table>
         <div className="mt-15 align-right">
-          <Button onClick={changePasswordCallback} variant="contained" color="primary" size="large">
+          <Button
+            onClick={changePasswordCallback}
+            variant="contained"
+            color="primary"
+            size="large"
+          >
             Change Password
           </Button>
         </div>

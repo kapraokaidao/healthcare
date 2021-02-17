@@ -43,12 +43,16 @@ const CreateAccount = () => {
     setRole(newRole);
     setAccount({ ...account, ["role"]: newRole });
   };
-  const handleInputChange = (props: any) => (event: { target: { value: any } }) => {
+  const handleInputChange = (props: any) => (event: {
+    target: { value: any };
+  }) => {
     setAccount({ ...account, [props]: event.target.value });
   };
 
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(
+    null
+  );
   const fetchHospital = useCallback(
     debounce(async (name: string) => {
       const { data } = await axios.post("/hospital/search", {
@@ -115,7 +119,9 @@ const CreateAccount = () => {
                     options={hospitals}
                     getOptionLabel={(option) => option.fullname || ""}
                     style={{ width: 300 }}
-                    renderInput={(params) => <TextField {...params} variant="outlined" />}
+                    renderInput={(params) => (
+                      <TextField {...params} variant="outlined" />
+                    )}
                   />
                 </Grid>
               </>

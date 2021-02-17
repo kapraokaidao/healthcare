@@ -31,7 +31,9 @@ const CreateAccount = () => {
     history.push("/account");
   };
 
-  const handleInputChange = (props: any) => (event: { target: { value: any } }) => {
+  const handleInputChange = (props: any) => (event: {
+    target: { value: any };
+  }) => {
     setAccount({ ...account, [props]: event.target.value });
   };
 
@@ -134,7 +136,12 @@ const CreateAccount = () => {
           >
             Cancel
           </Button>
-          <Button onClick={createAccount} variant="contained" color="primary" size="large">
+          <Button
+            onClick={createAccount}
+            variant="contained"
+            color="primary"
+            size="large"
+          >
             Create
           </Button>
         </div>

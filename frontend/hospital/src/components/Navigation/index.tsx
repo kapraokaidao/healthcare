@@ -11,7 +11,10 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
-import { default as AccountCircle, default as AccountCircleIcon } from "@material-ui/icons/AccountCircle";
+import {
+  default as AccountCircle,
+  default as AccountCircleIcon,
+} from "@material-ui/icons/AccountCircle";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
@@ -158,7 +161,11 @@ const Navigation = observer(() => {
           >
             <div className={classes.drawerHeader}>
               <IconButton onClick={handleDrawerClose}>
-                {theme.direction === "ltr" ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                {theme.direction === "ltr" ? (
+                  <ChevronLeftIcon />
+                ) : (
+                  <ChevronRightIcon />
+                )}
               </IconButton>
             </div>
             <Divider />

@@ -41,24 +41,68 @@ const Routes = () => {
   return (
     <div className="container">
       <Switch>
-        <Route exact path="/" component={(props: any) => <RequireAuth {...props} Component={SiteHome} />} />
+        <Route
+          exact
+          path="/"
+          component={(props: any) => (
+            <RequireAuth {...props} Component={SiteHome} />
+          )}
+        />
         <Route exact path="/signin" component={Signin} />
         <Route
           exact
           path="/password/change"
-          component={(props: any) => <RequireAuth {...props} Component={ChangePassword} />}
+          component={(props: any) => (
+            <RequireAuth {...props} Component={ChangePassword} />
+          )}
         />
-        <Route exact path="/pin/change" component={(props: any) => <RequireAuth {...props} Component={ChangePin} />} />
-        <Route exact path="/pin" component={(props: any) => <RequireAuth {...props} Component={Pin} />} />
-        <Route exact path="/scanner" component={(props: any) => <RequireAuth {...props} Component={Scanner} />} />
-        <Route exact path="/wallet" component={(props: any) => <RequireAuth {...props} Component={Wallet} />} />
-        <Route exact path="/history" component={(props: any) => <RequireAuth {...props} Component={LogHistory} />} />
+        <Route
+          exact
+          path="/pin/change"
+          component={(props: any) => (
+            <RequireAuth {...props} Component={ChangePin} />
+          )}
+        />
+        <Route
+          exact
+          path="/pin"
+          component={(props: any) => <RequireAuth {...props} Component={Pin} />}
+        />
+        <Route
+          exact
+          path="/scanner"
+          component={(props: any) => (
+            <RequireAuth {...props} Component={Scanner} />
+          )}
+        />
+        <Route
+          exact
+          path="/wallet"
+          component={(props: any) => (
+            <RequireAuth {...props} Component={Wallet} />
+          )}
+        />
+        <Route
+          exact
+          path="/history"
+          component={(props: any) => (
+            <RequireAuth {...props} Component={LogHistory} />
+          )}
+        />
         <Route
           exact
           path="/account/create"
-          component={(props: any) => <RequireAuth {...props} Component={CreateAccount} />}
+          component={(props: any) => (
+            <RequireAuth {...props} Component={CreateAccount} />
+          )}
         />
-        <Route exact path="/account" component={(props: any) => <RequireAuth {...props} Component={ManageAccount} />} />
+        <Route
+          exact
+          path="/account"
+          component={(props: any) => (
+            <RequireAuth {...props} Component={ManageAccount} />
+          )}
+        />
       </Switch>
     </div>
   );
