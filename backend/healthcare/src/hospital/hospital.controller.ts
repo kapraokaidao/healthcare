@@ -10,7 +10,7 @@ import { Hospital } from "../entities/hospital.entity";
 import { isBetween } from "../utils/number.util";
 import { UserId } from "../decorators/user-id.decorator";
 import { PublicAPI } from "../decorators/public-api.decorator";
-import { AuthCredentialsDto, ChangePasswordDto } from "../auth/auth.dto";
+import { AuthCredentialsDto, AuthResponseDto, ChangePasswordDto } from "../auth/auth.dto";
 import { AuthService } from "../auth/auth.service";
 
 @ApiBearerAuth()
@@ -47,7 +47,7 @@ export class HospitalController {
   @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   @PublicAPI()
   @Post("password/change")
-  async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
-    await this.authService.changePassword(dto, UserRole.Hospital);
+  async changePassword(@Body() dto: ChangePasswordDto): Promise<AuthResponseDto> {
+    return this.authService.changePassword(dto, UserRole.Hospital);
   }
 }
