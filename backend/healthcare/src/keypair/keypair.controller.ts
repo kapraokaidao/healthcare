@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { UserRole } from "src/constant/enum/user.enum";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserId } from "src/decorators/user-id.decorator";
+import { Keypair } from "src/entities/keypair.entity";
 import { RolesGuard } from "src/guards/roles.guard";
 import { ChangePinDto, CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
 import { KeypairService } from "./keypair.service";
@@ -19,11 +20,11 @@ export class KeypairController {
   async createKeypair(
     @UserId() userId: number,
     @Body() dto: CreateKeypairDto
-  ): Promise<void> {
+  ): Promise<Keypair> {
     return this.keypairService.createKeypair(userId, dto.pin);
   }
 
-  @Roles(UserRole.HospitalAdmin)
+  @Roles(UserRole.HospitalAdmin, UserRole.Patient)
   @Put("change")
   async changePin(@UserId() userId: number, @Body() dto: ChangePinDto): Promise<void> {
     return this.keypairService.changePin(userId, dto.currentPin, dto.newPin);

@@ -365,6 +365,7 @@ export class UserService {
     updatedPatient.nationalIdImage = resetPasswordKYC.nationalIdImage;
     updatedPatient.selfieImage = resetPasswordKYC.selfieImage;
     updatedPatient.user = updatedUser;
+    updatedPatient.requiredRecovery = true;
     await this.patientRepository.save(updatedPatient);
   }
 

@@ -45,7 +45,7 @@ export class PatientController {
   @PublicAPI()
   @Post("login")
   async patientLogin(@Body() credential: PatientAuthCredentialsDto) {
-    return this.authService.login(credential, UserRole.Patient);
+    return this.patientService.login(credential);
   }
 
   @PublicAPI()
@@ -86,7 +86,7 @@ export class PatientController {
   @PublicAPI()
   @Post("password/change")
   async changePassword(@Body() dto: ChangePasswordDto): Promise<AuthResponseDto> {
-    return this.authService.changePassword(dto, UserRole.Patient);
+    return this.patientService.changePassword(dto);
   }
 
   @PublicAPI()

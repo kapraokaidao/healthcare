@@ -17,6 +17,10 @@ export class AuthService {
     private readonly userRepository: Repository<User>
   ) {}
 
+  sign(payload): string {
+    return this.jwtService.sign(payload);
+  }
+
   async validateUser(
     credentials: AuthCredentialsDto,
     role: UserRole

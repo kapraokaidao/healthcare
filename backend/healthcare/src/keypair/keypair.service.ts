@@ -14,6 +14,7 @@ import { User } from "src/entities/user.entity";
 import { UserToken } from "src/entities/user-token.entity";
 import { Member } from "src/entities/member.entity";
 import axios from "axios";
+import { Patient } from "src/entities/patient.entity";
 
 @Injectable()
 export class KeypairService {
@@ -29,6 +30,8 @@ export class KeypairService {
     private readonly memberRepositoy: Repository<Member>,
     @InjectRepository(UserToken)
     private readonly userTokenRepository: Repository<UserToken>,
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
     private readonly stellarService: StellarService,
     private readonly userService: UserService,
     private readonly configService: ConfigService
@@ -60,7 +63,7 @@ export class KeypairService {
     return `${salt}$$$${encryptedPrivateKey}`;
   }
 
-  async createKeypair(userId: number, pin: string, agencyId?: number): Promise<void> {
+  async createKeypair(userId: number, pin: string, agencyId?: number): Promise<Keypair> {
     const user = await this.userService.findById(userId);
 
     const existedKeypair = await this.findActiveKeypair(userId, agencyId);
@@ -93,7 +96,7 @@ export class KeypairService {
     newKeypair.users = [user];
     newKeypair.accountMergeXdr = accontMergeXdr;
     newKeypair.agency = agencyId ? await this.userService.findById(agencyId) : null;
-    await this.keypairRepository.save(newKeypair);
+    return await this.keypairRepository.save(newKeypair);
   }
 
   async addHospitalKeypair(userId: number, hospitalUserId: number): Promise<void> {
@@ -183,7 +186,7 @@ export class KeypairService {
     const { userTokens } = user;
     for(let userToken of userTokens) {
       if (userToken.healthcareToken.issuingPublicKey === issuingKeys.publicKey()) {
-        this.stellarService.issueToken(
+        await this.stellarService.issueToken(
           this.stellarIssuingSecret,
           privateKey,
           userToken.healthcareToken.assetCode,
@@ -198,8 +201,12 @@ export class KeypairService {
           relations: ["agency"]
         });
         if (member) {
-          member.transferred = false;
-          await this.createKeypair(userId, pin, member.agency.id);
+          let agencyKeypair = await this.findActiveKeypair(userId, member.agency.id)
+          if(!agencyKeypair){
+            agencyKeypair = await this.createKeypair(userId, pin, member.agency.id);
+          }
+          const agencyPrivateKey = await this.decryptPrivateKey(userId, pin, member.agency.id);
+          await this.stellarService.changeTrust( agencyPrivateKey, userToken.healthcareToken.assetCode, userToken.healthcareToken.issuingPublicKey)
           const keypair = await this.findActiveKeypair(userId, member.agency.id);
           await axios.post(member.notifiedUrl, {
             nationalId: user.patient.nationalId,
@@ -207,12 +214,16 @@ export class KeypairService {
             balance: userToken.balance,
             publicKey: keypair.publicKey,
           });
+          member.transferred = false;
           await this.memberRepositoy.save(member);
         }
         userToken.balance = 0;
       }
     };
-    this.userTokenRepository.save(userTokens);
+    await this.userTokenRepository.save(userTokens);
+    const { patient } = user;
+    patient.requiredRecovery = false;
+    await this.patientRepository.save(user);
   }
 
   async validatePin(userId: number, pin: string): Promise<boolean> {

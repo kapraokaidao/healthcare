@@ -51,6 +51,9 @@ export class Patient {
   @Column("boolean")
   approved: boolean;
 
+  @Column("boolean", {name: "required_recovery", default: false})
+  requiredRecovery: boolean;
+
   @Column({ name: "national_id_image", nullable: true, default: null })
   nationalIdImage: string;
 

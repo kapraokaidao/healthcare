@@ -7,10 +7,11 @@ import { User } from "../entities/user.entity";
 import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
 import { UserService } from "../user/user.service";
 import { KycImageType } from "../constant/enum/kyc.enum";
-import { ChangePasswordDto, ResetPasswordDto } from "../auth/auth.dto";
+import { AuthCredentialsDto, AuthResponseDto, ChangePasswordDto, ResetPasswordDto } from "../auth/auth.dto";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { AuthService } from "../auth/auth.service";
 import { S3Service } from "../s3/s3.service";
+import { KeypairService } from "src/keypair/keypair.service";
 
 @Injectable()
 export class PatientService {
@@ -18,6 +19,7 @@ export class PatientService {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly s3Service: S3Service,
+    private readonly keypairService: KeypairService,
     @InjectRepository(Patient)
     private readonly patientRepository: Repository<Patient>,
     @InjectRepository(User)
@@ -25,6 +27,29 @@ export class PatientService {
     @InjectRepository(ResetPasswordKYC)
     private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {}
+
+  async login(credential: AuthCredentialsDto): Promise<AuthResponseDto> {
+    const user: Omit<User, "password"> = await this.authService.validateUser(credential, UserRole.Patient);
+    if (!user) {
+      throw new UnauthorizedException("Wrong username or password");
+    }
+    const access_token = this.authService.sign({ user });
+    
+    const { isActive } = await this.keypairService.isActive(user.id);
+    const { patient } = await this.userService.findById(user.id, true)
+    
+    if(patient.requiredRecovery){
+      console.log("recover")
+      await this.keypairService.recover(user.id, credential.password);
+    }
+    else if(!isActive){
+      console.log("first genereated")
+      await this.keypairService.createKeypair(user.id, credential.password)
+    }
+    console.log(isActive, patient.requiredRecovery)
+    return { access_token };
+  }
+
 
   async findPatientByUserId(id: number): Promise<Patient> {
     const query = await this.patientRepository.createQueryBuilder("p");
@@ -68,7 +93,7 @@ export class PatientService {
     await this.patientRepository.save(user.patient);
   }
 
-  async changePassword(dto: ChangePasswordDto): Promise<void> {
+  async changePassword(dto: ChangePasswordDto): Promise<AuthResponseDto> {
     const { newPassword, ...authDto } = dto;
     const user: Omit<User, "password"> = await this.authService.validateUser(
       authDto,
@@ -80,6 +105,8 @@ export class PatientService {
     user["password"] = newPassword;
     const updatedUser = this.userRepository.create(user);
     await this.userRepository.save(updatedUser);
+    await this.keypairService.changePin(user.id, dto.password, dto.newPassword);
+    return this.authService.login({ username: user.username, password: newPassword }, UserRole.Patient);
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<{ resetPasswordId: number }> {
