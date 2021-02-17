@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Keypair } from "src/entities/keypair.entity";
 import { StellarService } from "src/stellar/stellar.service";
-import { Repository } from "typeorm";
+import { MoreThan, Repository } from "typeorm";
 import { CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
 import { AES, enc, SHA256 } from "crypto-js";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
@@ -11,22 +11,29 @@ import StellarSdk from "stellar-sdk";
 import { UserRole } from "src/constant/enum/user.enum";
 import { UserService } from "src/user/user.service";
 import { User } from "src/entities/user.entity";
+import { UserToken } from "src/entities/user-token.entity";
 
 @Injectable()
 export class KeypairService {
   private readonly stellarReceivingSecret;
+  private readonly stellarIssuingSecret;
 
   constructor(
     @InjectRepository(Keypair)
     private readonly keypairRepository: Repository<Keypair>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(UserToken)
+    private readonly userTokenRepository: Repository<UserToken>,
     private readonly stellarService: StellarService,
     private readonly userService: UserService,
     private readonly configService: ConfigService
   ) {
     this.stellarReceivingSecret = this.configService.get<string>(
       "stellar.receivingSecret"
+    );
+    this.stellarIssuingSecret = this.configService.get<string>(
+      "stellar.issuingSecret"
     );
   }
 
@@ -124,6 +131,9 @@ export class KeypairService {
     agencyId?: number
   ): Promise<string> {
     const keypair = await this.findActiveKeypair(userId, agencyId);
+    if(!keypair){
+      throw new BadRequestException("Cannot find keypair for this user")
+    }
 
     const privateKey = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
 
@@ -151,6 +161,30 @@ export class KeypairService {
       keypair.hashPin = newHashPin;
       await this.keypairRepository.save(keypair);
     }
+  }
+
+  async recover(userId: number, pin: string): Promise<void> {
+    const keypairs = await this.findAllActiveKeypair(userId);
+    keypairs.forEach((keypair) => {
+      keypair.isActive = false
+    })
+    await this.keypairRepository.save(keypairs);
+
+    await this.createKeypair(userId, pin);
+
+    const issuingKeys = StellarSdk.Keypair.fromSecret(this.stellarIssuingSecret);
+    const privateKey = await this.decryptPrivateKey(userId, pin);
+
+    const { userTokens } = await this.userRepository.findOneOrFail(userId, {relations: ["userTokens", "userTokens.healthcareToken", "userTokens.healthcareToken.agency"]});
+    userTokens.forEach((userToken) => {
+      if(userToken.healthcareToken.issuingPublicKey === issuingKeys.publicKey()){
+        this.stellarService.issueToken(this.stellarIssuingSecret, privateKey, userToken.healthcareToken.assetCode, userToken.balance)
+      } else {
+        userToken.balance = 0
+      }
+    })
+    this.userTokenRepository.save(userTokens);
+    
   }
 
   async validatePin(userId: number, pin: string): Promise<boolean> {

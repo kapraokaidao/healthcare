@@ -28,6 +28,7 @@ import {
   ResetPasswordDto,
 } from "../auth/auth.dto";
 import { AuthService } from "../auth/auth.service";
+import { User } from "../entities/user.entity";
 
 @ApiBearerAuth()
 @ApiTags("Patient")
@@ -44,6 +45,12 @@ export class PatientController {
   @Post("login")
   async patientLogin(@Body() credential: PatientAuthCredentialsDto) {
     return this.authService.login(credential, UserRole.Patient);
+  }
+
+  @PublicAPI()
+  @Post("register")
+  async register(@Body() user: User) {
+    return this.authService.register(user);
   }
 
   @Patch()

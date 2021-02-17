@@ -48,7 +48,7 @@ class AuthenticationRepository {
         @required String nationalId,
         @required String pin}) async {
     Map<String, dynamic> response = await HttpClient.post(
-        '/auth/login', {'username': nationalId, 'password': pin});
+        '/patient/login', {'username': nationalId, 'password': pin});
     return response;
   }
 

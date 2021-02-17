@@ -119,27 +119,12 @@ class AuthenticationBloc
   Future<AuthenticationState> _mapRegisterRequestToState(AuthenticationRegisterRequest event) async {
     final Map<String, dynamic>  userDto = event.user;
     Map<String, dynamic> registerResult = await HttpClient.post('/auth/register', userDto);
-    return state.copyWith(status: AuthenticationStatus.authenticated, step: AuthenticationStep.register);
-    // if (registerResult['access_token'] != null) {
-    //   String accessToken = registerResult['access_token'];
-    //   SharedPreferences prefs = await SharedPreferences.getInstance();
-    //   await prefs.setString('accessToken', accessToken);
-    //   String registerStatus = await HttpClient.getWithoutDecode(path: '/user/me/register/status');
-    //   print(registerStatus);
-    //   User user = await _tryGetUser();
-    //   switch (registerStatus) {
-    //     case "Complete":
-    //       return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.complete);
-    //     case "AwaitApproval":
-    //       return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.awaitApproval);
-    //     case "UploadKYC":
-    //       return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.uploadKYC);
-    //     default:
-    //       throw ('Invalid register status');
-    //   }
-    // } else {
-    //   throw ('Unknown login error');
-    // }
+    if (registerResult['access_token'] != null) {
+      String accessToken = registerResult['access_token'];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', accessToken);
+    }
+    return state.copyWith(status: AuthenticationStatus.authenticated, step: AuthenticationStep.uploadKYC);
   }
 
   AuthenticationState _mapNationalIdChangedToState(AuthenticationNationalIdChanged event) {
@@ -153,17 +138,18 @@ class AuthenticationBloc
   }
 
   Future<AuthenticationState> _mapValidateStatusToState() async {
-    String registerStatus = await HttpClient.getWithoutDecode(path: '/user/me/register/status');
+    String registerStatus = await HttpClient.getWithoutDecode(path: '/patient/register/status');
     User user = await _tryGetUser();
+    print("register status $registerStatus");
     switch (registerStatus) {
       case "Complete":
-        return state.copyWith(step: AuthenticationStep.complete);
+        return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.complete);
       case "AwaitApproval":
-        return state.copyWith(step: AuthenticationStep.awaitApproval);
+        return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.awaitApproval);
       case "UploadKYC":
-        return state.copyWith(step: AuthenticationStep.uploadKYC);
+        return state.copyWith(status: AuthenticationStatus.authenticated, user: user, step: AuthenticationStep.uploadKYC);
       default:
-        return state.copyWith(status: AuthenticationStatus.unauthenticated, user: null, step: AuthenticationStep.login);
+        return state.copyWith(status: AuthenticationStatus.unauthenticated, user: user, step: AuthenticationStep.login);
     }
   }
 
@@ -174,11 +160,13 @@ class AuthenticationBloc
       Map<String, dynamic> loginResult = await this
           ._authenticationRepository
           .login(nationalId: nationalId, pin: pin);
+      print("Login result $loginResult");
       if (loginResult['access_token'] != null) {
         String accessToken = loginResult['access_token'];
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('accessToken', accessToken);
-        String registerStatus = await HttpClient.getWithoutDecode(path: '/user/me/register/status');
+        String registerStatus = await HttpClient.getWithoutDecode(path: '/patient/register/status');
+        print("register status $registerStatus");
         User user = await _tryGetUser();
         switch (registerStatus) {
           case "Complete":
