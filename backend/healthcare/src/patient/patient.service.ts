@@ -47,6 +47,9 @@ export class PatientService {
     const { patient } = await this.userService.findById(user.id, true);
 
     if (patient.requiredRecovery) {
+      // TODO: Cannot login after *RESET* password
+      //  function recover throws "TypeError: encoded argument must be of type String"
+      //  Also, check is change password causes this bug
       await this.keypairService.recover(user.id, credential.password);
     } else if (!isActive) {
       await this.keypairService.createKeypair(user.id, credential.password);
@@ -152,7 +155,7 @@ export class PatientService {
       .getOneOrFail();
     const userId = resetPasswordKYC.patient.user.id;
     const path = `user_${userId}/reset-password/national-id_${Date.now()}.jpg`;
-    resetPasswordKYC.selfieImage = await this.s3Service.uploadImage(image, path);
+    resetPasswordKYC.nationalIdImage = await this.s3Service.uploadImage(image, path);
     await this.resetPasswordKycRepository.save(resetPasswordKYC);
   }
 

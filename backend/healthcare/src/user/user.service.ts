@@ -165,8 +165,10 @@ export class UserService {
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
-      query = query.andWhere("reset_password_kyc.nationalIdImage is not null");
-      query = query.andWhere("reset_password_kyc.selfieImage is not null");
+      query.andWhere("reset_password_kyc.nationalIdImage is not null");
+      query.andWhere("reset_password_kyc.nationalIdImage <> ''");
+      query.andWhere("reset_password_kyc.selfieImage is not null");
+      query.andWhere("reset_password_kyc.selfieImage <> ''");
     }
     const [resetPasswordKYCs, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = resetPasswordKYCs.map((rp) => {
@@ -192,7 +194,7 @@ export class UserService {
     this.smsService.sendSms(
       user.phone,
       "บัญชี healthcare token ของคุณได้รับการยืนยันแล้ว"
-    ); // Do not await
+    );
   }
 
   async rejectKyc(id: number): Promise<void> {
@@ -383,8 +385,8 @@ export class UserService {
     await this.patientRepository.save(updatedPatient);
     this.smsService.sendSms(
       updatedUser.phone,
-      "บัญชี healthcare token ของคุณได้รับการยืนยันแล้ว"
-    ); // Do not await
+      "รหัสผ่าน healthcare token ของคุณถูกรีเซตแล้ว"
+    );
   }
 
   async rejectResetPassword(id: number): Promise<void> {
