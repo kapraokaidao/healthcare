@@ -47,8 +47,4 @@ export class CreateHospitalDto {
   @ApiProperty()
   @IsString()
   address: string;
-
-  @ApiProperty({ type: "boolean" })
-  @IsBoolean()
-  isAdmin: boolean;
 }

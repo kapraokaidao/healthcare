@@ -51,7 +51,7 @@ export class HospitalService {
     dto: CreateHospitalDto,
     @TransactionManager() entityManager?: EntityManager
   ): Promise<User> {
-    const { username, password, firstname, lastname, phone, address, isAdmin } = dto;
+    const { username, password, firstname, lastname, phone, address } = dto;
     const creator = await this.userService.findById(creatorId, true);
     const newUser = this.userRepository.create({
       username,
@@ -60,7 +60,7 @@ export class HospitalService {
       lastname,
       phone,
       address,
-      role: isAdmin ? UserRole.HospitalAdmin : UserRole.Hospital,
+      role: UserRole.Hospital,
     });
     const hospital = await this.hospitalRepository.findOne({
       code9: creator.hospital.code9,

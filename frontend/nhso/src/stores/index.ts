@@ -1,5 +1,5 @@
-import { createContext } from 'react';
-import AuthStore from './AuthStore';
+import { createContext } from "react";
+import AuthStore from "./AuthStore";
 
 export const authStore = new AuthStore();
 

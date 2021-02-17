@@ -17,9 +17,7 @@ const CreateAccount = () => {
     setTitle("Create Account");
   }, [setTitle]);
   const history = useHistory();
-  const [role, setRole] = useState<Role>("NHSO");
   const [account, setAccount] = useState<UserCreate>({
-    role: "NHSO",
     firstname: "",
     lastname: "",
     address: "",
@@ -29,53 +27,15 @@ const CreateAccount = () => {
   });
 
   const createAccount = async () => {
-    const sendAccount = account;
-    if (role == "Hospital" && selectedHospital !== null) {
-      sendAccount.hospital = {
-        code9: selectedHospital.code9,
-      };
-    }
-    await axios.post("/user", sendAccount);
+    await axios.post("/hospital", account);
     history.push("/account");
   };
-  const handleRoleChange = (event: { target: { value: string } }) => {
-    const newRole = event.target.value as Role;
-    setRole(newRole);
-    setAccount({ ...account, ["role"]: newRole });
-  };
+
   const handleInputChange = (props: any) => (event: {
     target: { value: any };
   }) => {
     setAccount({ ...account, [props]: event.target.value });
   };
-
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(
-    null
-  );
-  const fetchHospital = useCallback(
-    debounce(async (name: string) => {
-      const { data } = await axios.post("/hospital/search", {
-        page: 1,
-        pageSize: 100,
-        hospital: {
-          fullname: name,
-        },
-      });
-      setHospitals(data.data);
-    }, 1000),
-    []
-  );
-  useEffect(() => {
-    fetchHospital("");
-  }, []);
-  useEffect(() => {
-    if (selectedHospital) {
-      const tmp = account;
-      tmp.username = selectedHospital.code9;
-      setAccount(tmp);
-    }
-  }, [selectedHospital]);
 
   return (
     <>
@@ -85,48 +45,6 @@ const CreateAccount = () => {
         </div>
         <div className="mt-15">
           <Grid container spacing={2}>
-            <Grid item xs={4} container alignItems="flex-end">
-              Role
-            </Grid>
-            <Grid item xs={8}>
-              <NativeSelect
-                value={account.role}
-                onChange={handleRoleChange}
-                variant="outlined"
-                inputProps={{
-                  name: "type",
-                  id: "role-native-helper",
-                }}
-              >
-                <option value={"NHSO"}>NHSO</option>
-                <option value={"Hospital"}>Hospital</option>
-              </NativeSelect>
-            </Grid>
-            {role === "Hospital" && (
-              <>
-                <Grid item xs={4} container alignItems="flex-end">
-                  Hospital
-                </Grid>
-                <Grid item xs={8}>
-                  <Autocomplete
-                    value={selectedHospital}
-                    onChange={(_, newValue) => {
-                      setSelectedHospital(newValue);
-                    }}
-                    onInputChange={(_, newInputValue) => {
-                      fetchHospital(newInputValue);
-                    }}
-                    options={hospitals}
-                    getOptionLabel={(option) => option.fullname || ""}
-                    style={{ width: 300 }}
-                    renderInput={(params) => (
-                      <TextField {...params} variant="outlined" />
-                    )}
-                  />
-                </Grid>
-              </>
-            )}
-
             <Grid item xs={4} container alignItems="flex-end">
               Firstname
             </Grid>
