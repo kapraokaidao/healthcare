@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:healthcare_app/app.dart';
+import 'package:healthcare_app/authentication/authentication.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/components/round_button.dart';
 import 'package:healthcare_app/components/styled_text_form_field.dart';
@@ -162,10 +164,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         // await HttpClient.post('/auth/register', user);
 
                         ctx.read<AuthenticationBloc>().add(AuthenticationRegisterRequest(user));
-                        ctx.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalIdController.value.text));
-                        ctx.read<AuthenticationBloc>().add(AuthenticationPinChanged(pinController.value.text));
-                        ctx.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
-                        ctx.read<AuthenticationBloc>().add(AuthenticationValidateStatus());
+                        // ctx.read<AuthenticationBloc>().add(AuthenticationValidateStatus());
+                        // Future.delayed(const Duration(seconds: 3), () {});
+                        Navigator.pushReplacement(context, AuthenticationPage.route(null));
+                        // ctx.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalIdController.value.text));
+                        // ctx.read<AuthenticationBloc>().add(AuthenticationPinChanged(pinController.value.text));
+                        // ctx.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
+                        // ctx.read<AuthenticationBloc>().add(AuthenticationValidateStatus());
 
                       },
                     )
