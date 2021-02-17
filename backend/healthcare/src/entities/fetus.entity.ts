@@ -1,11 +1,13 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Patient } from "./patient.entity";
 import { User } from "./user.entity";
@@ -27,9 +29,9 @@ export class Fetus {
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;
 
-  @CreateDateColumn({ name: "updated_date" })
+  @UpdateDateColumn({ name: "updated_date" })
   updatedDate: Date;
 
-  @CreateDateColumn({ name: "deleted_date" })
+  @DeleteDateColumn({ name: "deleted_date" })
   deletedDate: Date;
 }

@@ -1,10 +1,13 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { User } from "./user.entity";
 import { UserGender } from "../constant/enum/user.enum";
@@ -69,4 +72,13 @@ export class Patient {
 
   @OneToMany(() => Fetus, (fetus) => fetus.patient)
   fetuses: Fetus[];
+
+  @CreateDateColumn({ update: false, name: "created_date" })
+  createdDate: Date;
+
+  @UpdateDateColumn({ name: "updated_date" })
+  updatedDate: Date;
+
+  @DeleteDateColumn({ name: "deleted_date" })
+  deletedDate: Date;
 }

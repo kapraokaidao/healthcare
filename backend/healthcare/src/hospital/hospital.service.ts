@@ -45,6 +45,61 @@ export class HospitalService {
     return toPagination<Hospital>(hospitals, totalCount, pageOptions);
   }
 
+  async searchHospitalAccount(
+    userId: number,
+    user: Partial<User>,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<User>> {
+    const { hospital } = await this.userService.findById(userId, true);
+    let query = this.userRepository
+      .createQueryBuilder("u")
+      .leftJoinAndSelect("u.hospital", "h")
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize)
+      .where("u.role = :role", { role: UserRole.Hospital })
+      .andWhere("h.code9 = :code9", { code9: hospital.code9 })
+    if (user.username) {
+      query = query.andWhere("u.username like :username", {
+        username: `%${user.username}%`,
+      });
+    }
+    if (user.firstname) {
+      query = query.andWhere("u.firstname like :firstname", {
+        firstname: `%${user.firstname}%`,
+      });
+    }
+    if (user.lastname) {
+      query = query.andWhere("u.lastname like :lastname", {
+        lastname: `%${user.lastname}%`,
+      });
+    }
+    if (user.phone) {
+      query = query.andWhere("u.phone like :phone", {
+        phone: `%${user.phone}%`,
+      });
+    }
+    if (user.address) {
+      query = query.andWhere("u.address like :address", {
+        address: `%${user.address}%`,
+      });
+    }
+    const [users, totalCount] = await query.getManyAndCount();
+    return toPagination<User>(users, totalCount, pageOptions);
+  }
+
+  async delete(adminUserId: number, userId: number): Promise<void> {
+    const adminUser = await this.userService.findById(adminUserId, true);
+    const user = await this.userService.findById(userId, true);
+    if(user.role !== UserRole.Hospital) {
+      throw new BadRequestException(`You can't delete ${user.role} role`)
+    }
+    if(user.hospital.code9 === adminUser.hospital.code9) {
+      await this.userRepository.softDelete(userId);
+    } else {
+      throw new BadRequestException("Hospital code9 doesn't match with yours")
+    }
+  }
+
   @Transaction()
   async create(
     creatorId: number,
