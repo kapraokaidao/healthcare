@@ -34,4 +34,10 @@ export class KeypairController {
   async findActiveKeypair(@UserId() userId: number): Promise<IsActiveResponseDto> {
     return this.keypairService.isActive(userId);
   }
+
+  @Roles(UserRole.Patient)
+  @Post("recover")
+  async recover(@UserId() userId: number, @Body() dto: CreateKeypairDto): Promise<void> {
+    return this.keypairService.recover(userId, dto.pin);
+  }
 }
