@@ -23,6 +23,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { KycImageType } from "../constant/enum/kyc.enum";
 import { PublicAPI } from "../decorators/public-api.decorator";
 import {
+  AuthResponseDto,
   ChangePasswordDto,
   PatientAuthCredentialsDto,
   ResetPasswordDto,
@@ -84,8 +85,8 @@ export class PatientController {
 
   @PublicAPI()
   @Post("password/change")
-  async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
-    await this.authService.changePassword(dto, UserRole.Patient);
+  async changePassword(@Body() dto: ChangePasswordDto): Promise<AuthResponseDto> {
+    return this.authService.changePassword(dto, UserRole.Patient);
   }
 
   @PublicAPI()
