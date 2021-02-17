@@ -54,7 +54,7 @@ export class PatientController {
     return await this.patientService.update(id, dto);
   }
 
-  @Get()
+  @Get("register/status")
   async getRegisterStatus(@UserId() id: number): Promise<RegisterStatus> {
     return this.patientService.getRegisterStatus(id);
   }
