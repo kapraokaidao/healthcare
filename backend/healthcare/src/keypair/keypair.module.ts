@@ -6,9 +6,10 @@ import { Keypair } from "src/entities/keypair.entity";
 import { StellarService } from "src/stellar/stellar.service";
 import { User } from "src/entities/user.entity";
 import { UserToken } from "src/entities/user-token.entity";
+import { Member } from "src/entities/member.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Keypair, User, UserToken])],
+  imports: [TypeOrmModule.forFeature([Keypair, User, UserToken, Member])],
   providers: [KeypairService, StellarService],
   controllers: [KeypairController],
   exports: [KeypairService],

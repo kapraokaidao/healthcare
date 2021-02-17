@@ -12,6 +12,8 @@ import { UserRole } from "src/constant/enum/user.enum";
 import { UserService } from "src/user/user.service";
 import { User } from "src/entities/user.entity";
 import { UserToken } from "src/entities/user-token.entity";
+import { Member } from "src/entities/member.entity";
+import axios from "axios";
 
 @Injectable()
 export class KeypairService {
@@ -23,6 +25,8 @@ export class KeypairService {
     private readonly keypairRepository: Repository<Keypair>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Member)
+    private readonly memberRepositoy: Repository<Member>,
     @InjectRepository(UserToken)
     private readonly userTokenRepository: Repository<UserToken>,
     private readonly stellarService: StellarService,
@@ -32,9 +36,7 @@ export class KeypairService {
     this.stellarReceivingSecret = this.configService.get<string>(
       "stellar.receivingSecret"
     );
-    this.stellarIssuingSecret = this.configService.get<string>(
-      "stellar.issuingSecret"
-    );
+    this.stellarIssuingSecret = this.configService.get<string>("stellar.issuingSecret");
   }
 
   async encryptPrivateKey(
@@ -95,7 +97,7 @@ export class KeypairService {
   }
 
   async addHospitalKeypair(userId: number, hospitalUserId: number): Promise<void> {
-    const hospital = await this.userService.findById(userId);
+    const hospital = await this.userService.findById(hospitalUserId);
     const keypair = await this.findActiveKeypair(userId);
     hospital.keypairs = [...hospital.keypairs, keypair];
     await this.userRepository.save(hospital);
@@ -131,8 +133,8 @@ export class KeypairService {
     agencyId?: number
   ): Promise<string> {
     const keypair = await this.findActiveKeypair(userId, agencyId);
-    if(!keypair){
-      throw new BadRequestException("Cannot find keypair for this user")
+    if (!keypair) {
+      throw new BadRequestException("Cannot find keypair for this user");
     }
 
     const privateKey = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
@@ -165,26 +167,52 @@ export class KeypairService {
 
   async recover(userId: number, pin: string): Promise<void> {
     const keypairs = await this.findAllActiveKeypair(userId);
-    keypairs.forEach((keypair) => {
-      keypair.isActive = false
-    })
-    await this.keypairRepository.save(keypairs);
+    for(let keypair of keypairs) {
+      keypair.isActive = false;
+    }
+    await this.keypairRepository.save(keypairs)
 
     await this.createKeypair(userId, pin);
 
     const issuingKeys = StellarSdk.Keypair.fromSecret(this.stellarIssuingSecret);
     const privateKey = await this.decryptPrivateKey(userId, pin);
 
-    const { userTokens } = await this.userRepository.findOneOrFail(userId, {relations: ["userTokens", "userTokens.healthcareToken", "userTokens.healthcareToken.agency"]});
-    userTokens.forEach((userToken) => {
-      if(userToken.healthcareToken.issuingPublicKey === issuingKeys.publicKey()){
-        this.stellarService.issueToken(this.stellarIssuingSecret, privateKey, userToken.healthcareToken.assetCode, userToken.balance)
+    const user = await this.userRepository.findOneOrFail(userId, {
+      relations: ["patient", "userTokens", "userTokens.healthcareToken"],
+    });
+    const { userTokens } = user;
+    for(let userToken of userTokens) {
+      if (userToken.healthcareToken.issuingPublicKey === issuingKeys.publicKey()) {
+        this.stellarService.issueToken(
+          this.stellarIssuingSecret,
+          privateKey,
+          userToken.healthcareToken.assetCode,
+          userToken.balance
+        );
       } else {
-        userToken.balance = 0
+        const member = await this.memberRepositoy.findOne({
+          where: {
+            patient: { id: userId },
+            healthcareToken: { id: userToken.healthcareToken.id },
+          },
+          relations: ["agency"]
+        });
+        if (member) {
+          member.transferred = false;
+          await this.createKeypair(userId, pin, member.agency.id);
+          const keypair = await this.findActiveKeypair(userId, member.agency.id);
+          await axios.post(member.notifiedUrl, {
+            nationalId: user.patient.nationalId,
+            service: userToken.healthcareToken,
+            balance: userToken.balance,
+            publicKey: keypair.publicKey,
+          });
+          await this.memberRepositoy.save(member);
+        }
+        userToken.balance = 0;
       }
-    })
+    };
     this.userTokenRepository.save(userTokens);
-    
   }
 
   async validatePin(userId: number, pin: string): Promise<boolean> {

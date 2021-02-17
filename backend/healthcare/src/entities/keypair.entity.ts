@@ -7,6 +7,10 @@ import {
   OneToOne,
   ManyToMany,
   JoinTable,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
@@ -40,7 +44,16 @@ export class Keypair {
   @JoinTable({ name: "user_keypair" })
   users: User[];
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn({ name: "agency_id" })
   agency: User;
+
+  @CreateDateColumn({ update: false, name: "created_date" })
+  createdDate!: Date;
+
+  @UpdateDateColumn({ name: "updated_date" })
+  updatedDate!: Date;
+
+  @DeleteDateColumn({ name: "deleted_date" })
+  deletedDate!: Date;
 }

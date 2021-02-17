@@ -1,7 +1,13 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
-import { Brackets, EntityManager, Repository, Transaction, TransactionManager, } from "typeorm";
+import {
+  Brackets,
+  EntityManager,
+  Repository,
+  Transaction,
+  TransactionManager,
+} from "typeorm";
 import { UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";

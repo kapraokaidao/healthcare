@@ -34,7 +34,7 @@ export class PatientService {
 
   async update(userId: number, dto: PatientInfoUpdateDto): Promise<Patient> {
     const patient: Patient = await this.findPatientByUserId(userId);
-    return  this.patientRepository.save({ ...patient, ...dto });
+    return this.patientRepository.save({ ...patient, ...dto });
   }
 
   async findById(id: number, relation?: boolean): Promise<Patient> {
