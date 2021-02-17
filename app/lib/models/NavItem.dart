@@ -35,7 +35,7 @@ class NavItems extends ChangeNotifier {
   List<NavItem> items = [
     NavItem(id: 1, icon: "assets/icons/inbox.svg", destination: TokenScreen()),
     NavItem(
-        id: 1,
+        id: 2,
         icon: "assets/icons/paper-plane.svg",
         destination: ValidTokenScreen()),
     NavItem(

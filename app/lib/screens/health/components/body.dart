@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
+import 'package:healthcare_app/screens/account/account_screen.dart';
 import 'package:healthcare_app/screens/squirm/squirm_screen.dart';
+// import 'package:healthcare_app/utils/index.dart';
+import 'package:page_transition/page_transition.dart';
 
 class Body extends StatefulWidget {
   Body({Key key}) : super(key: key);
@@ -10,8 +13,42 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
-  bool _change = false;
-  final data = TextEditingController(text: 'ยอดเยี่ยม');
+  // Future<dynamic> fetchHealth() async {
+  //   final response =
+  //       await HttpClient.get(path: '/user/me/health);
+  //   return response;
+  // }
+
+  // _updateHealth(context) async {
+  //   final response = await HttpClient.post('/user/me/health', {
+  //     "height": this.dataH,
+  //     "weight": this.dataW,
+  //     "blood": this.dataB,
+  //     "pressure": this.dataP,
+  //     "heartrate": this.dataHR,
+  //     "temp": this.dataT,
+  //   });
+  //   if (response.containsKey("statusCode") && response["statusCode"] != 200) {
+  //     return showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             title: Text('Error'),
+  //             content: Text(response["message"]),
+  //           );
+  //         });
+  //   } else {
+  //     return showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             content: Text('กรุณาใส่ค่าให้ถูกต้อง'),
+  //           );
+  //         });
+  //   }
+  // }
+
+  bool _change = true;
   final dataH = TextEditingController(text: '170');
   final dataW = TextEditingController(text: '53');
   final dataB = TextEditingController(text: 'A');
@@ -31,188 +68,153 @@ class _BodyState extends State<Body> {
             Container(
                 margin: EdgeInsets.all(20),
                 padding: EdgeInsets.all(20),
-                child: Table(
-                  children: [
-                    TableRow(children: [
-                      Text(
-                        'สุขภาพ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
-                        ),
-                      ),
-                      TextField(
-                          // onChanged: (String value) {
-                          //   _change = true;
-                          // },
+                child: Column(children: [
+                  Table(
+                    columnWidths: {
+                      0: FlexColumnWidth(6),
+                      1: FlexColumnWidth(2),
+                    },
+                    children: [
+                      TableRow(children: [
+                        Text(
+                          'ส่วนสูง (ซม.)',
                           style: TextStyle(
-                            height: 0.5,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                          controller: data,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
-                    ]),
-                    rowSpacer,
-                    TableRow(children: [
-                      Text(
-                        'ส่วนสูง',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
                         ),
-                      ),
-                      Row(children: <Widget>[
-                        Expanded(
-                            child: TextField(
-                                onChanged: (String value) {
-                                  _change = true;
-                                },
-                                style: TextStyle(
-                                  height: 0.5,
-                                ),
-                                controller: dataH,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                ))),
-                        Expanded(
-                            child: Text('ซม.',
-                                style: TextStyle(
-                                  height: 0.25,
-                                ))),
-                      ])
-                    ]),
-                    rowSpacer,
-                    TableRow(children: [
-                      Text(
-                        'น้ำหนัก',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
-                        ),
-                      ),
-                      Row(children: <Widget>[
-                        Expanded(
-                            child: TextField(
-                                // onChanged: (String value) {
-                                //   _change = true;
-                                // },
-                                style: TextStyle(
-                                  height: 0.5,
-                                ),
-                                controller: dataW,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                ))),
-                        Expanded(
-                            child: Text('กก.',
-                                style: TextStyle(
-                                  height: 0.25,
-                                ))),
-                      ])
-                    ]),
-                    rowSpacer,
-                    TableRow(children: [
-                      Text(
-                        'กรุ๊ปเลือด',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
-                        ),
-                      ),
-                      TextField(
-                          // onChanged: (String value) {
-                          //   _change = true;
-                          // },
+                        TextField(
+                            onChanged: (String value) {
+                              _change = true;
+                            },
+                            style: TextStyle(fontSize: 14),
+                            controller: dataH,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            )),
+                      ]),
+                      rowSpacer,
+                      TableRow(children: [
+                        Text(
+                          'น้ำหนัก (กก.)',
                           style: TextStyle(
-                            height: 0.5,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                          controller: dataB,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
-                    ]),
-                    rowSpacer,
-                    TableRow(children: [
-                      Text(
-                        'ความดัน',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
                         ),
-                      ),
-                      TextField(
-                          // onChanged: (String value) {
-                          //   _change = true;
-                          // },
+                        TextField(
+                            // onChanged: (String value) {
+                            //   _change = true;
+                            // },
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                            controller: dataW,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            )),
+                      ]),
+                      rowSpacer,
+                      TableRow(children: [
+                        Text(
+                          'กรุ๊ปเลือด',
                           style: TextStyle(
-                            height: 0.5,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                          controller: dataP,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          )),
-                    ]),
-                    rowSpacer,
-                    TableRow(children: [
-                      Text(
-                        'อัตราการเต้นของหัวใจ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
                         ),
-                      ),
-                      Row(children: <Widget>[
-                        Expanded(
-                            child: TextField(
-                                // onChanged: (String value) {
-                                //   _change = true;
-                                // },
-                                style: TextStyle(
-                                  height: 0.5,
-                                ),
-                                controller: dataHR,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                ))),
-                        Expanded(
-                            child: Text('bpm',
-                                style: TextStyle(
-                                  height: 0.25,
-                                ))),
-                      ])
-                    ]),
-                    rowSpacer,
-                    TableRow(children: [
-                      Text(
-                        'อุณหภูมิ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 2.2,
+                        TextField(
+                            // onChanged: (String value) {
+                            //   _change = true;
+                            // },
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                            controller: dataB,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            )),
+                      ]),
+                      rowSpacer,
+                      TableRow(children: [
+                        Text(
+                          'ความดัน',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
-                      ),
-                      Row(children: <Widget>[
-                        Expanded(
-                            child: TextField(
-                                // onChanged: (String value) {
-                                //   _change = true;
-                                // },
-                                style: TextStyle(
-                                  height: 0.5,
-                                ),
-                                controller: dataT,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                ))),
-                        Expanded(
-                            child: Text('องศาเซลเซียส',
-                                style: TextStyle(
-                                  height: 0.25,
-                                ))),
+                        TextField(
+                            // onChanged: (String value) {
+                            //   _change = true;
+                            // },
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                            controller: dataP,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            )),
+                      ]),
+                      rowSpacer,
+                      TableRow(children: [
+                        Text(
+                          'อัตราการเต้นของหัวใจ (bpm)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        TextField(
+                            // onChanged: (String value) {
+                            //   _change = true;
+                            // },
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                            controller: dataHR,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            )),
+                      ]),
+                      rowSpacer,
+                      TableRow(children: [
+                        Text(
+                          'อุณหภูมิ (องศาเซลเซียส)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        TextField(
+                            // onChanged: (String value) {
+                            //   _change = true;
+                            // },
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                            controller: dataT,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            )),
                       ])
-                    ])
-                  ],
-                ),
+                    ],
+                  ),
+                  RaisedButton(
+                    color: _change ? Colors.grey : Colors.grey,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => AccountScreen()),
+                      );
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    // _updateHealth([this.data, this.dataH, this.dataT]),
+                    child: Icon(Icons.update),
+                  )
+                ]),
                 width: double.infinity,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -236,28 +238,13 @@ class _BodyState extends State<Body> {
                     child: const Text('นับลูกดื้น',
                         style: TextStyle(fontSize: 16, color: Colors.white)),
                     onPressed: () {
-                      Navigator.push(context, SquirmScreen.route());
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.fade,
+                              child: SquirmScreen()));
                     }),
               ),
-            )
-            RaisedButton(
-              color: _change ? Colors.blue : Colors.grey,
-              onPressed: _change
-                  ? () {
-                      print(data.text);
-                      print(dataH.text);
-                      print(dataW.text);
-                      print(dataB.text);
-                      print(dataP.text);
-                      print(dataHR.text);
-                      print(dataT.text);
-                      print(_change);
-                    }
-                  : () {
-                      print('disable');
-                      print(_change);
-                    },
-              child: const Text('อัพเดท', style: TextStyle(fontSize: 14)),
             ),
           ],
         );
