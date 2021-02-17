@@ -46,7 +46,7 @@ export class HospitalController {
 
   @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   @PublicAPI()
-  @Post("nhso/password/change")
+  @Post("password/change")
   async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
     await this.authService.changePassword(dto, UserRole.Hospital);
   }

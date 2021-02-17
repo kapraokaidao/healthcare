@@ -12,6 +12,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import {
   AuthCredentialsDto,
+  AuthResponseDto,
   ChangePasswordDto,
   PatientAuthCredentialsDto,
   ResetPasswordDto,
@@ -38,8 +39,8 @@ export class AuthController {
 
   @PublicAPI()
   @Post("nhso/password/change")
-  async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
-    await this.authService.changePassword(dto, UserRole.NHSO);
+  async changePassword(@Body() dto: ChangePasswordDto): Promise<AuthResponseDto> {
+    return this.authService.changePassword(dto, UserRole.NHSO);
   }
 
   @PublicAPI()
