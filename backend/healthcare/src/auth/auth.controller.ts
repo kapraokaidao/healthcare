@@ -37,6 +37,12 @@ export class AuthController {
   }
 
   @PublicAPI()
+  @Post("nhso/password/change")
+  async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
+    await this.authService.changePassword(dto, UserRole.NHSO);
+  }
+
+  @PublicAPI()
   @Post("register")
   async register(@Body() user: User) {
     return this.authService.register(user);

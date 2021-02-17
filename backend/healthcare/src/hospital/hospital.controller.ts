@@ -10,7 +10,7 @@ import { Hospital } from "../entities/hospital.entity";
 import { isBetween } from "../utils/number.util";
 import { UserId } from "../decorators/user-id.decorator";
 import { PublicAPI } from "../decorators/public-api.decorator";
-import { AuthCredentialsDto } from "../auth/auth.dto";
+import { AuthCredentialsDto, ChangePasswordDto } from "../auth/auth.dto";
 import { AuthService } from "../auth/auth.service";
 
 @ApiBearerAuth()
@@ -42,5 +42,12 @@ export class HospitalController {
     const page = Number.isInteger(dto.page) && dto.page > 0 ? dto.page : 1;
     const pageSize = isBetween(dto.pageSize, 0, 1001) ? dto.pageSize : 100;
     return this.hospitalService.search(dto.hospital, { page, pageSize });
+  }
+
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
+  @PublicAPI()
+  @Post("nhso/password/change")
+  async changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
+    await this.authService.changePassword(dto, UserRole.Hospital);
   }
 }
