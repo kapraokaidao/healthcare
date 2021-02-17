@@ -16,6 +16,7 @@ import { AgencyModule } from "./agency/agency.module";
 import { FetusModule } from "./fetus/fetus.module";
 import { PatientModule } from "./patient/patient.module";
 import { S3Module } from "./s3/s3.module";
+import { SmsModule } from "./sms/sms.module";
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { S3Module } from "./s3/s3.module";
     FetusModule,
     PatientModule,
     S3Module,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

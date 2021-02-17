@@ -19,11 +19,13 @@ import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { KycQueryType } from "../constant/enum/kyc.enum";
 import { Agency } from "../entities/agency.entity";
 import { getUserObject } from "../utils/patient.util";
+import { SmsService } from "../sms/sms.service";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly s3Service: S3Service,
+    private readonly smsService: SmsService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Agency)
@@ -182,16 +184,20 @@ export class UserService {
 
   async approveKyc(id: number): Promise<void> {
     const user = await this.findById(id, true);
-    if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
+    if (!user.patient.nationalIdImage || !user.patient.selfieImage) {
       throw new BadRequestException("User has missing kyc image(s)");
     }
     user.patient.approved = true;
     await this.patientRepository.save(user.patient);
+    this.smsService.sendSms(
+      user.phone,
+      "บัญชี healthcare token ของคุณได้รับการยืนยันแล้ว"
+    ); // Do not await
   }
 
   async rejectKyc(id: number): Promise<void> {
     const user = await this.findById(id, true);
-    if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
+    if (!user.patient.nationalIdImage || !user.patient.selfieImage) {
       throw new BadRequestException("User has missing kyc image(s)");
     }
     user.patient.approved = false;
@@ -253,10 +259,12 @@ export class UserService {
           throw new BadRequestException(`Invalid hospital's code9`);
         }
         const existingUser = await this.userRepository.findOne({
-          hospital
-        })
-        if(existingUser){
-          throw new BadRequestException(`There is already hospital admin for this hospital`);
+          hospital,
+        });
+        if (existingUser) {
+          throw new BadRequestException(
+            `There is already hospital admin for this hospital`
+          );
         }
         newUser.hospital = hospital;
         await entityManager.save(newUser);
@@ -373,6 +381,10 @@ export class UserService {
     updatedPatient.user = updatedUser;
     updatedPatient.requiredRecovery = true;
     await this.patientRepository.save(updatedPatient);
+    this.smsService.sendSms(
+      updatedUser.phone,
+      "บัญชี healthcare token ของคุณได้รับการยืนยันแล้ว"
+    ); // Do not await
   }
 
   async rejectResetPassword(id: number): Promise<void> {

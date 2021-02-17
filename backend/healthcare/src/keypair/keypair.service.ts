@@ -170,10 +170,10 @@ export class KeypairService {
 
   async recover(userId: number, pin: string): Promise<void> {
     const keypairs = await this.findAllActiveKeypair(userId);
-    for(let keypair of keypairs) {
+    for (let keypair of keypairs) {
       keypair.isActive = false;
     }
-    await this.keypairRepository.save(keypairs)
+    await this.keypairRepository.save(keypairs);
 
     await this.createKeypair(userId, pin);
 
@@ -184,7 +184,7 @@ export class KeypairService {
       relations: ["patient", "userTokens", "userTokens.healthcareToken"],
     });
     const { userTokens } = user;
-    for(let userToken of userTokens) {
+    for (let userToken of userTokens) {
       if (userToken.healthcareToken.issuingPublicKey === issuingKeys.publicKey()) {
         await this.stellarService.issueToken(
           this.stellarIssuingSecret,
@@ -198,15 +198,23 @@ export class KeypairService {
             patient: { id: userId },
             healthcareToken: { id: userToken.healthcareToken.id },
           },
-          relations: ["agency"]
+          relations: ["agency"],
         });
         if (member) {
-          let agencyKeypair = await this.findActiveKeypair(userId, member.agency.id)
-          if(!agencyKeypair){
+          let agencyKeypair = await this.findActiveKeypair(userId, member.agency.id);
+          if (!agencyKeypair) {
             agencyKeypair = await this.createKeypair(userId, pin, member.agency.id);
           }
-          const agencyPrivateKey = await this.decryptPrivateKey(userId, pin, member.agency.id);
-          await this.stellarService.changeTrust( agencyPrivateKey, userToken.healthcareToken.assetCode, userToken.healthcareToken.issuingPublicKey)
+          const agencyPrivateKey = await this.decryptPrivateKey(
+            userId,
+            pin,
+            member.agency.id
+          );
+          await this.stellarService.changeTrust(
+            agencyPrivateKey,
+            userToken.healthcareToken.assetCode,
+            userToken.healthcareToken.issuingPublicKey
+          );
           const keypair = await this.findActiveKeypair(userId, member.agency.id);
           await axios.post(member.notifiedUrl, {
             nationalId: user.patient.nationalId,
@@ -219,7 +227,7 @@ export class KeypairService {
         }
         userToken.balance = 0;
       }
-    };
+    }
     await this.userTokenRepository.save(userTokens);
     const { patient } = user;
     patient.requiredRecovery = false;
