@@ -235,9 +235,7 @@ export class KeypairService {
   }
 
   async validatePin(userId: number, pin: string): Promise<boolean> {
-    const keypair = await this.keypairRepository.findOne({
-      where: { user: { id: userId }, isActive: true },
-    });
+    const keypair = await this.findActiveKeypair(userId);
     if (!keypair) {
       throw new BadRequestException("There is no active keypair");
     }
