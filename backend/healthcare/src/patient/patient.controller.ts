@@ -14,7 +14,7 @@ import { PatientService } from "./patient.service";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { Patient } from "../entities/patient.entity";
 import { UserId } from "../decorators/user-id.decorator";
-import { PatientInfoUpdateDto } from "./patient.dto";
+import { PatientInfoUpdateDto, PatientRegisterDto } from "./patient.dto";
 import { RegisterStatus, UserRole } from "../constant/enum/user.enum";
 import { RolesGuard } from "../guards/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
@@ -52,6 +52,12 @@ export class PatientController {
   @Post("register")
   async register(@Body() user: User) {
     return this.authService.register(user);
+  }
+
+  @PublicAPI()
+  @Post("register-v2")
+  async registerV2(@Body() dto: PatientRegisterDto): Promise<AuthResponseDto> {
+    return this.patientService.registerV2(dto);
   }
 
   @Patch()

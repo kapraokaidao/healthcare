@@ -71,11 +71,15 @@ export class User {
   address: string;
 
   @ApiProperty()
-  @OneToOne(() => NHSO, (nhso) => nhso.user)
+  @OneToOne(() => NHSO, (nhso) => nhso.user, {
+    cascade: ["insert", "update", "soft-remove"],
+  })
   nhso: NHSO;
 
   @ApiProperty()
-  @OneToOne(() => Agency, (agency) => agency.user)
+  @OneToOne(() => Agency, (agency) => agency.user, {
+    cascade: ["insert", "update", "soft-remove"],
+  })
   agency: Agency;
 
   @ApiProperty()
@@ -84,7 +88,9 @@ export class User {
   hospital: Hospital;
 
   @ApiProperty()
-  @OneToOne(() => Patient, (patient) => patient.user)
+  @OneToOne(() => Patient, (patient) => patient.user, {
+    cascade: ["insert", "update", "soft-remove"],
+  })
   patient: Patient;
 
   @ManyToMany(() => Keypair, (keyPair) => keyPair.users)

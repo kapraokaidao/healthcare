@@ -82,8 +82,8 @@ export class StellarService {
     const serviceAsset = new StellarSdk.Asset(name, issuingKeys.publicKey());
     try {
       /** begin allowing trust transaction */
-      await this.changeTrust(receivingSecret, name, issuingKeys.publicKey() )
-      
+      await this.changeTrust(receivingSecret, name, issuingKeys.publicKey());
+
       /** begin transfer transaction */
       const issuer = await server.loadAccount(issuingKeys.publicKey());
       const transferTransaction = new StellarSdk.TransactionBuilder(issuer, {
@@ -106,7 +106,7 @@ export class StellarService {
         receivingPublicKey: receivingKeys.publicKey(),
       };
     } catch (e) {
-      console.log(e.response.data.extras)
+      console.log(e.response.data.extras);
       throw e;
     }
   }

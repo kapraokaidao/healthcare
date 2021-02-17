@@ -9,12 +9,14 @@ import { Patient } from "../entities/patient.entity";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { Agency } from "../entities/agency.entity";
 import { S3Module } from "../s3/s3.module";
+import { SmsModule } from "../sms/sms.module";
 
 @Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Agency, Hospital, NHSO, Patient, ResetPasswordKYC]),
     S3Module,
+    SmsModule,
   ],
   controllers: [UserController],
   providers: [UserService],

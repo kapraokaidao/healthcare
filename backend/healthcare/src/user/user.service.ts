@@ -19,11 +19,14 @@ import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { KycQueryType } from "../constant/enum/kyc.enum";
 import { Agency } from "../entities/agency.entity";
 import { getUserObject } from "../utils/patient.util";
+import { SmsService } from "../sms/sms.service";
 
 @Injectable()
 export class UserService {
   constructor(
+    private readonly entityManager: EntityManager,
     private readonly s3Service: S3Service,
+    private readonly smsService: SmsService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Agency)
@@ -128,18 +131,18 @@ export class UserService {
     ready: boolean,
     pageOptions: PaginationOptions
   ): Promise<[KYC[], number]> {
-    let query = this.userRepository
+    const query = this.userRepository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.patient", "patient")
       .where("user.role = :role", { role: UserRole.Patient })
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
-      query = query.andWhere("patient.nationalIdImage is not null");
-      query = query.andWhere("patient.selfieImage is not null");
+      query.andWhere("patient.nationalIdImage is not null");
+      query.andWhere("patient.selfieImage is not null");
     }
     if (approved) {
-      query = query.andWhere("patient.approved = :approved", { approved });
+      query.andWhere("patient.approved = :approved", { approved });
     }
     const [users, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = users.map((user) => ({
@@ -156,15 +159,17 @@ export class UserService {
     ready: boolean,
     pageOptions: PaginationOptions
   ): Promise<[KYC[], number]> {
-    let query = this.resetPasswordKycRepository
+    const query = this.resetPasswordKycRepository
       .createQueryBuilder("reset_password_kyc")
       .leftJoinAndSelect("reset_password_kyc.patient", "patient")
       .leftJoinAndSelect("patient.user", "user")
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
-      query = query.andWhere("reset_password_kyc.nationalIdImage is not null");
-      query = query.andWhere("reset_password_kyc.selfieImage is not null");
+      query.andWhere("reset_password_kyc.nationalIdImage is not null");
+      query.andWhere("reset_password_kyc.nationalIdImage <> ''");
+      query.andWhere("reset_password_kyc.selfieImage is not null");
+      query.andWhere("reset_password_kyc.selfieImage <> ''");
     }
     const [resetPasswordKYCs, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = resetPasswordKYCs.map((rp) => {
@@ -182,16 +187,20 @@ export class UserService {
 
   async approveKyc(id: number): Promise<void> {
     const user = await this.findById(id, true);
-    if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
+    if (!user.patient.nationalIdImage || !user.patient.selfieImage) {
       throw new BadRequestException("User has missing kyc image(s)");
     }
     user.patient.approved = true;
     await this.patientRepository.save(user.patient);
+    this.smsService.sendSms(
+      user.phone,
+      "บัญชี healthcare token ของคุณได้รับการยืนยันแล้ว"
+    );
   }
 
   async rejectKyc(id: number): Promise<void> {
     const user = await this.findById(id, true);
-    if (user.patient.nationalIdImage === null || user.patient.selfieImage === null) {
+    if (!user.patient.nationalIdImage || !user.patient.selfieImage) {
       throw new BadRequestException("User has missing kyc image(s)");
     }
     user.patient.approved = false;
@@ -253,38 +262,33 @@ export class UserService {
           throw new BadRequestException(`Invalid hospital's code9`);
         }
         const existingUser = await this.userRepository.findOne({
-          hospital
-        })
-        if(existingUser){
-          throw new BadRequestException(`There is already hospital admin for this hospital`);
+          hospital,
+        });
+        if (existingUser) {
+          throw new BadRequestException(
+            `There is already hospital admin for this hospital`
+          );
         }
         newUser.hospital = hospital;
-        await entityManager.save(newUser);
-        return newUser;
+        return entityManager.save(newUser);
 
       case UserRole.NHSO:
-        const nhso = await this.nhsoRepository.create(user.nhso);
-        nhso.user = newUser;
-        await entityManager.save(nhso);
-        return newUser;
+        newUser.nhso = this.nhsoRepository.create(user.nhso);
+        return entityManager.save(newUser);
 
       case UserRole.Agency:
-        const agency = await this.agencyRepository.create(user.agency);
-        agency.user = newUser;
-        await entityManager.save(agency);
-        return newUser;
+        newUser.agency = this.agencyRepository.create(user.agency);
+        return entityManager.save(newUser);
 
       case UserRole.Patient:
-        let patient = await this.patientRepository.findOne({
+        const existed = await this.patientRepository.findOne({
           nationalId: user.patient.nationalId,
         });
-        if (patient) {
+        if (existed) {
           throw new BadRequestException("Duplicate Patient's National ID");
         }
-        patient = this.patientRepository.create(user.patient);
-        patient.user = newUser;
-        await entityManager.save(patient);
-        return newUser;
+        newUser.patient = this.patientRepository.create(user.patient);
+        return entityManager.save(newUser);
 
       default:
         throw new BadRequestException("Invalid user's role");
@@ -373,6 +377,10 @@ export class UserService {
     updatedPatient.user = updatedUser;
     updatedPatient.requiredRecovery = true;
     await this.patientRepository.save(updatedPatient);
+    this.smsService.sendSms(
+      updatedUser.phone,
+      "รหัสผ่าน healthcare token ของคุณถูกรีเซตแล้ว"
+    );
   }
 
   async rejectResetPassword(id: number): Promise<void> {
@@ -392,7 +400,8 @@ export class UserService {
   }
 
   async softDelete(id: number): Promise<void> {
-    await this.userRepository.softDelete(id);
+    const user = await this.findById(id, true);
+    await this.userRepository.softRemove(user);
   }
 
   async restore(id: number): Promise<void> {

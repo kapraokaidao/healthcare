@@ -1,10 +1,13 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { User } from "./user.entity";
 import { UserGender } from "../constant/enum/user.enum";
@@ -51,7 +54,7 @@ export class Patient {
   @Column("boolean")
   approved: boolean;
 
-  @Column("boolean", {name: "required_recovery", default: false})
+  @Column("boolean", { name: "required_recovery", default: false })
   requiredRecovery: boolean;
 
   @Column({ name: "national_id_image", nullable: true, default: null })
@@ -60,7 +63,7 @@ export class Patient {
   @Column({ name: "selfie_image", nullable: true, default: null })
   selfieImage: string;
 
-  @OneToOne(() => User, { onDelete: "CASCADE", cascade: true })
+  @OneToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 
@@ -69,4 +72,13 @@ export class Patient {
 
   @OneToMany(() => Fetus, (fetus) => fetus.patient)
   fetuses: Fetus[];
+
+  @CreateDateColumn({ update: false, name: "created_date" })
+  createdDate!: Date;
+
+  @UpdateDateColumn({ name: "updated_date" })
+  updatedDate!: Date;
+
+  @DeleteDateColumn({ name: "deleted_date" })
+  deletedDate!: Date;
 }

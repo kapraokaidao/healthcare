@@ -9,7 +9,7 @@ export class Agency {
   @Column()
   name: string;
 
-  @OneToOne(() => User, (user) => user.agency, { onDelete: "CASCADE", cascade: true })
+  @OneToOne(() => User, (user) => user.agency, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 }

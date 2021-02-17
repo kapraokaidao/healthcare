@@ -108,7 +108,7 @@ export class UserController {
   }
 
   @Roles(UserRole.NHSO)
-  @Post("password/reset/:id/approved")
+  @Post("password/reset/:id/approve")
   async approveResetPassword(@Param("id", ParseIntPipe) id: number): Promise<void> {
     await this.userService.approveResetPassword(id);
   }

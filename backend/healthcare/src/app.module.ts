@@ -16,6 +16,7 @@ import { AgencyModule } from "./agency/agency.module";
 import { FetusModule } from "./fetus/fetus.module";
 import { PatientModule } from "./patient/patient.module";
 import { S3Module } from "./s3/s3.module";
+import { SmsModule } from "./sms/sms.module";
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { S3Module } from "./s3/s3.module";
         password: configService.get<string>("db.password"),
         database: configService.get<string>("db.database"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: configService.get<string>("node_env") !== "production",
+        synchronize: configService.get<string>("nodeEnv") === "development",
       }),
     }),
     AuthModule,
@@ -50,6 +51,7 @@ import { S3Module } from "./s3/s3.module";
     FetusModule,
     PatientModule,
     S3Module,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

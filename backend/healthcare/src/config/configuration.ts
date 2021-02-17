@@ -1,5 +1,5 @@
 export default () => ({
-  node_env: process.env.NODE_ENV,
+  nodeEnv: process.env.NODE_ENV,
   port: parseInt(process.env.PORT, 10) || 3000,
   db: {
     host: process.env.DB_HOST,
@@ -30,4 +30,5 @@ export default () => ({
     dsn: process.env.SENTRY_DSN,
     enable: process.env.SENTRY_ENABLE === "true",
   },
+  smsServiceUrl: process.env.SMS_SERVICE_URL,
 });
