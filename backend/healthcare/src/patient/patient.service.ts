@@ -39,14 +39,11 @@ export class PatientService {
     const { patient } = await this.userService.findById(user.id, true)
     
     if(patient.requiredRecovery){
-      console.log("recover")
       await this.keypairService.recover(user.id, credential.password);
     }
     else if(!isActive){
-      console.log("first genereated")
       await this.keypairService.createKeypair(user.id, credential.password)
     }
-    console.log(isActive, patient.requiredRecovery)
     return { access_token };
   }
 
@@ -110,7 +107,7 @@ export class PatientService {
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<{ resetPasswordId: number }> {
-    let user: User = await this.userService.findByUsername(dto.username, false);
+    let user: User = await this.userService.findByUsernameAndRole(dto.username, UserRole.Patient, false);
     user = await this.userService.findById(user.id, true);
     const resetPasswordKyc = this.resetPasswordKycRepository.create({
       patient: user.patient,

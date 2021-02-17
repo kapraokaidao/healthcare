@@ -223,7 +223,7 @@ export class KeypairService {
     await this.userTokenRepository.save(userTokens);
     const { patient } = user;
     patient.requiredRecovery = false;
-    await this.patientRepository.save(user);
+    await this.patientRepository.save(patient);
   }
 
   async validatePin(userId: number, pin: string): Promise<boolean> {
