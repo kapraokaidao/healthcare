@@ -1,13 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
-import {
-  Brackets,
-  EntityManager,
-  Repository,
-  Transaction,
-  TransactionManager,
-} from "typeorm";
+import { Brackets, EntityManager, Repository, Transaction, TransactionManager, } from "typeorm";
 import { UserRole } from "../constant/enum/user.enum";
 import { Hospital } from "../entities/hospital.entity";
 import { NHSO } from "../entities/nhso.entity";
@@ -16,7 +10,7 @@ import { Pagination, PaginationOptions, toPagination } from "../utils/pagination
 import { KYC } from "./user.dto";
 import { S3Service } from "../s3/s3.service";
 import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
-import { KycImageType, KycQueryType } from "../constant/enum/kyc.enum";
+import { KycQueryType } from "../constant/enum/kyc.enum";
 import { Agency } from "../entities/agency.entity";
 import { getUserObject } from "../utils/patient.util";
 
@@ -245,6 +239,7 @@ export class UserService {
     switch (user.role) {
       case UserRole.HospitalAdmin:
       case UserRole.Hospital:
+        user.role = UserRole.HospitalAdmin;
         const hospital = await this.hospitalRepository.findOne({
           code9: user.hospital.code9,
         });
