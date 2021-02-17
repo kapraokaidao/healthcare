@@ -22,7 +22,7 @@ export class TransactionController {
     return this.transactionService.findTokens(userId);
   }
 
-  @Roles(UserRole.Hospital)
+  @Roles(UserRole.Hospital, UserRole.HospitalAdmin)
   @Post("search/group-by-service")
   async searchGroupByService(
     @UserId() userId,
