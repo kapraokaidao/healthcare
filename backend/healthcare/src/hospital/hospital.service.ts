@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Hospital } from "../entities/hospital.entity";
-import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
-import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
-import { User } from "../entities/user.entity";
-import { UserRole } from "../constant/enum/user.enum";
-import { CreateHospitalDto } from "./hospital.dto";
-import { UserService } from "../user/user.service";
 import { KeypairService } from "src/keypair/keypair.service";
+import { EntityManager, Repository, Transaction, TransactionManager } from "typeorm";
+import { UserRole } from "../constant/enum/user.enum";
+import { Hospital } from "../entities/hospital.entity";
+import { User } from "../entities/user.entity";
+import { UserService } from "../user/user.service";
+import { Pagination, PaginationOptions, toPagination } from "../utils/pagination.util";
+import { CreateHospitalDto } from "./hospital.dto";
 
 @Injectable()
 export class HospitalService {
@@ -57,7 +57,7 @@ export class HospitalService {
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize)
       .where("u.role = :role", { role: UserRole.Hospital })
-      .andWhere("h.code9 = :code9", { code9: hospital.code9 })
+      .andWhere("h.code9 = :code9", { code9: hospital.code9 });
     if (user.username) {
       query = query.andWhere("u.username like :username", {
         username: `%${user.username}%`,
@@ -90,13 +90,13 @@ export class HospitalService {
   async delete(adminUserId: number, userId: number): Promise<void> {
     const adminUser = await this.userService.findById(adminUserId, true);
     const user = await this.userService.findById(userId, true);
-    if(user.role !== UserRole.Hospital) {
-      throw new BadRequestException(`You can't delete ${user.role} role`)
+    if (user.role !== UserRole.Hospital) {
+      throw new BadRequestException(`You can't delete ${user.role} role`);
     }
-    if(user.hospital.code9 === adminUser.hospital.code9) {
+    if (user.hospital.code9 === adminUser.hospital.code9) {
       await this.userRepository.softDelete(userId);
     } else {
-      throw new BadRequestException("Hospital code9 doesn't match with yours")
+      throw new BadRequestException("Hospital code9 doesn't match with yours");
     }
   }
 
@@ -122,6 +122,10 @@ export class HospitalService {
     });
     if (!hospital) {
       throw new BadRequestException(`Invalid hospital's code9`);
+    }
+    const checkUser = await this.userService.findByUsername(username);
+    if (checkUser) {
+      throw new BadRequestException(`Username already exists`);
     }
     const keypair = await this.keypairService.findActiveKeypair(creatorId);
     if (!keypair) {

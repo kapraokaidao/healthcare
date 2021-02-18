@@ -57,19 +57,19 @@ const ManageAccount = () => {
 	const [open, setOpen] = useState(false);
 	const [confirm, setConfirm] = useState(false);
 	const [fetchData, setFetchData] = useState(false);
-	// useEffect(() => {
-	//   axios
-	//     .post("/user/search", {
-	//       page,
-	//       pageSize: 20,
-	//       user: filterUser || {},
-	//     })
-	//     .then(({ data }) => {
-	//       setUsers(data.data);
-	//       setPage(data.page);
-	//       setPageCount(data.pageCount);
-	//     });
-	// }, [page, filterUser, fetchData]);
+	useEffect(() => {
+		axios
+			.post('/hospital/hospital-account/search', {
+				page,
+				pageSize: 20,
+				user: filterUser || {},
+			})
+			.then(({ data }) => {
+				setUsers(data.data);
+				setPage(data.page);
+				setPageCount(data.pageCount);
+			});
+	}, [page, filterUser, fetchData]);
 
 	const viewUserDetail = useCallback((user: User) => {
 		setSelectedUser(user);
@@ -78,7 +78,7 @@ const ManageAccount = () => {
 
 	const deleteUser = useCallback(async () => {
 		if (selectedUser) {
-			await axios.delete(`/user/${selectedUser.id}`);
+			await axios.delete(`/hospital/hospital-account/${selectedUser.id}`);
 			setFetchData(!fetchData);
 			setConfirm(false);
 		}
@@ -109,7 +109,7 @@ const ManageAccount = () => {
 			</Grid>
 
 			<Grid container spacing={1}>
-				<Grid item xs={4}>
+				<Grid item xs={11}>
 					<form id="base-filter">
 						<table>
 							<tr>
@@ -250,10 +250,6 @@ const ManageAccount = () => {
 							<tr>
 								<td>Last Name</td>
 								<td>{selectedUser?.lastname}</td>
-							</tr>
-							<tr>
-								<td>Gender</td>
-								<td>{selectedUser?.patient?.gender || '-'}</td>
 							</tr>
 							<tr>
 								<td>Address</td>
