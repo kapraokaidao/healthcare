@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { TransactionType } from "src/constant/enum/transaction.enum";
+import { TransactionType, TxType } from "src/constant/enum/transaction.enum";
 import { UserRole } from "src/constant/enum/user.enum";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
@@ -26,6 +26,7 @@ export class TransactionService {
     destinationPublicKey: string,
     serviceId: number,
     amount: number,
+    type: TxType,
     manager?: EntityManager
   ): Promise<Transaction> {
     const newTransaction = new Transaction();
@@ -41,6 +42,7 @@ export class TransactionService {
     newTransaction.sourceUser = sourceUserId
       ? await this.userService.findById(sourceUserId)
       : null;
+    newTransaction.type = type;
     return manager
       ? manager.save(newTransaction)
       : this.transactionRepository.save(newTransaction);

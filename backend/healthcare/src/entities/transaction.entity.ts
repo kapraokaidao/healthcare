@@ -9,6 +9,8 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
+import { TxType } from "src/constant/enum/transaction.enum";
+import { IsEnum } from "class-validator";
 
 @Entity()
 export class Transaction {
@@ -26,6 +28,11 @@ export class Transaction {
   @ApiProperty()
   @Column({ name: "destination_public_key" })
   destinationPublicKey: string;
+
+  @IsEnum(TxType)
+  @ApiProperty({ enum: TxType, required: true })
+  @Column({ name: "type", type: "enum", enum: TxType })
+  type: TxType;
 
   @ManyToOne(() => HealthcareToken, (healthcareToken) => healthcareToken.transactions, {
     onDelete: "CASCADE",

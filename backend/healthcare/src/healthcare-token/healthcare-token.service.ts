@@ -17,6 +17,7 @@ import { UserService } from "src/user/user.service";
 import { User } from "src/entities/user.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 import { AgencyService } from "src/agency/agency.service";
+import { TxType } from "src/constant/enum/transaction.enum";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -139,6 +140,7 @@ export class HealthcareTokenService {
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize)
       .andWhere("healthcare_token.is_active = 1")
+      .andWhere("healthcare_token.remaining_token >= healthcare_token.token_per_person")
       .andWhere("healthcare_token.token_type = :tokenType", {
         tokenType: TokenType.General,
       })
@@ -175,6 +177,7 @@ export class HealthcareTokenService {
 
     let query = this.basicRulesQuery(user)
       .andWhere("healthcare_token.is_active = 1")
+      .andWhere("healthcare_token.remaining_token >= healthcare_token.token_per_person")
       .andWhere("healthcare_token.token_type = :tokenType", {
         tokenType: TokenType.Special,
       })
@@ -417,7 +420,12 @@ export class HealthcareTokenService {
       throw new BadRequestException("This service is not valid for this user");
     }
 
-    await this.transferTokenFromNHSO(userId, serviceId, pin);
+    await this.transferTokenFromNHSO(
+      userId,
+      serviceId,
+      pin,
+      existedTransferRequest.hospital.id
+    );
     existedTransferRequest.isConfirmed = true;
     await this.transferRequestRepository.save(existedTransferRequest);
   }
@@ -450,6 +458,7 @@ export class HealthcareTokenService {
         healthcareToken.issuingPublicKey,
         serviceId,
         amount,
+        TxType.Withdraw,
         manager
       );
       await manager.decrement(
@@ -538,6 +547,7 @@ export class HealthcareTokenService {
         destinationPublicKey,
         serviceId,
         amount,
+        TxType.Redeem,
         manager
       );
       await manager.decrement(
@@ -563,7 +573,12 @@ export class HealthcareTokenService {
     //Todo: update XDR
   }
 
-  private async transferTokenFromNHSO(userId: number, serviceId: number, pin: string) {
+  private async transferTokenFromNHSO(
+    userId: number,
+    serviceId: number,
+    pin: string,
+    sourceUserId?: number
+  ) {
     const user = await this.userService.findById(userId);
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
       serviceId,
@@ -584,12 +599,15 @@ export class HealthcareTokenService {
 
     await this.connection.transaction(async (manager) => {
       await this.transactionService.create(
-        healthcareToken.createdBy.id,
-        healthcareToken.receivingPublicKey,
+        sourceUserId ? sourceUserId : healthcareToken.createdBy.id,
+        sourceUserId
+          ? await this.keypairService.findPublicKey(sourceUserId)
+          : healthcareToken.receivingPublicKey,
         userId,
         publicKey,
         serviceId,
         healthcareToken.tokenPerPerson,
+        TxType.Provide,
         manager
       );
       await manager.decrement(

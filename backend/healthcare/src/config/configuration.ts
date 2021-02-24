@@ -32,6 +32,6 @@ export default () => ({
   },
   sms: {
     enable: process.env.SMS_ENABLE === "true",
-    serviceUrl: process.env.SMS_SERVICE_URL
+    serviceUrl: process.env.SMS_SERVICE_URL,
   },
 });
