@@ -42,6 +42,21 @@ export class Patient {
   @Column("enum", { enum: BloodType, nullable: true })
   bloodType: BloodType;
 
+  @Column("int", { unsigned: true, nullable: true })
+  systolic: number;
+
+  @Column("int", { unsigned: true, nullable: true })
+  diastolic: number;
+
+  @Column("int", { name: 'hearth_rate', unsigned: true, nullable: true })
+  hearthRate: number;
+
+  @Column("decimal", { unsigned: true, precision: 5, scale: 2, nullable: true })
+  temperature: number;
+  
+  @Column("decimal", {name: 'pregnant_bmi', unsigned: true, precision: 5, scale: 2, nullable: true })
+  pregnantBMI: number;
+
   @Column("enum", { enum: BloodRh, nullable: true })
   bloodRh: BloodRh;
 
