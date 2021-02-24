@@ -135,75 +135,110 @@ class _BodyState extends State<Body> {
                 ],
               ),
             ),
-            FutureBuilder<dynamic>(
-                future: fetchFetus(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    final fetusData = snapshot.data;
-                    List<Map<String, dynamic>> show = new List();
-                    for (var fdata in fetusData) {
-                      show.add({
-                        "date": fdata["date"],
-                        "amount": fdata["amount"],
-                        "weight": fdata["weight"]
-                      });
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Color(0xFFBBC4CE)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: FutureBuilder<dynamic>(
+                  future: fetchFetus(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      final fetusData = snapshot.data;
+                      List<Map<String, dynamic>> show = new List();
+                      for (var fdata in fetusData) {
+                        show.add({
+                          "date": fdata["date"],
+                          "amount": fdata["amount"],
+                          "weight": fdata["weight"]
+                        });
+                      }
+                      return DataTable(
+                        headingRowColor: MaterialStateColor.resolveWith(
+                            (states) => Color(0xff98d583)),
+                        columns: const <DataColumn>[
+                          DataColumn(
+                            label: Text(
+                              'วันที่',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'จำนวนครั้งที่ดิ้น',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'น้ำหนักเฉลี่ย',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                        rows: show.map(
+                          (fdata) {
+                            return DataRow(
+                                color: MaterialStateColor.resolveWith((states) {
+                                  return Colors.white;
+                                }),
+                                cells: <DataCell>[
+                                  DataCell(Text(fdata['date'],
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ))),
+                                  DataCell(Text('${fdata['amount']}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ))),
+                                  DataCell(Text('${fdata['weight']}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      )))
+                                ]);
+                          },
+                        ).toList(),
+                      );
+                    } else {
+                      return Center(child: CircularProgressIndicator());
                     }
-                    return DataTable(
-                      headingRowColor: MaterialStateColor.resolveWith(
-                          (states) => Color(0xff98d583)),
-                      columns: const <DataColumn>[
-                        DataColumn(
-                          label: Text(
-                            'วันที่',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'จำนวนครั้งที่ดิ้น',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'น้ำหนักเฉลี่ย',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                      rows: show.map(
-                        (fdata) {
-                          return DataRow(
-                              color: MaterialStateColor.resolveWith((states) {
-                                return Colors.white;
-                              }),
-                              cells: <DataCell>[
-                                DataCell(Text(fdata['date'],
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                    ))),
-                                DataCell(Text('${fdata['amount']}',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                    ))),
-                                DataCell(Text('${fdata['weight']}',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                    )))
-                              ]);
-                        },
-                      ).toList(),
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                })
+                  }),
+            ),
+            Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                border: Border.all(color: Color(0xFFBBC4CE)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Text('ค่าดัชนีมวลกายหลังเริ่มตั้งครรภ์'),
+                  Expanded(
+                      child: Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'ค่า bmi',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14, // This is not so important
+                      ),
+                    ),
+                  ))
+                ],
+              ),
+            )
           ],
         ));
       } else {
