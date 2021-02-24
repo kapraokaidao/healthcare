@@ -521,12 +521,22 @@ export class HealthcareTokenService {
     pin: string
   ) {
     const sourceUser = await this.userService.findById(sourceUserId);
-    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(serviceId);
+    const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
+      serviceId,
+      { relations: ["createdBy"] }
+    );
     const sourceUserBalance = await this.userTokenRepository.findOneOrFail({
       where: { user: sourceUser, healthcareToken: healthcareToken },
     });
-    const privateKey = await this.keypairService.decryptPrivateKey(sourceUserId, pin);
-    const sourcePublicKey = await this.keypairService.findPublicKey(sourceUserId);
+    const privateKey = await this.keypairService.decryptPrivateKey(
+      sourceUserId,
+      pin,
+      healthcareToken.createdBy ? healthcareToken.createdBy.id : null
+    );
+    const sourcePublicKey = await this.keypairService.findPublicKey(
+      sourceUserId,
+      healthcareToken.createdBy ? healthcareToken.createdBy.id : null
+    );
     const destinationPublicKey = await this.keypairService.findPublicKey(
       destinationUserId
     );
