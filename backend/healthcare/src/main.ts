@@ -9,9 +9,7 @@ import { SentryInterceptor } from "./interceptors/sentry.interceptor";
 import { EntityNotFoundFilter } from "./exception-filters/entity-not-found.filter";
 import { ValidationPipe } from "@nestjs/common";
 import { SanitizationPipe } from "./pipes/sanitization.pipe";
-import * as dayjs from "dayjs";
-import * as utc from "dayjs/plugin/utc";
-dayjs.extend(utc);
+Date.prototype.toString = Date.prototype.toUTCString;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
