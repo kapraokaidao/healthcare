@@ -1,3 +1,4 @@
+import * as dayjs from "dayjs";
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -129,7 +130,7 @@ export class User {
   private hashPasswordAndStampTime() {
     if (this.password && this.password.slice(0, 7) !== "$2a$10$") {
       this.password = hashSync(this.password);
-      this.passwordChangedDate = new Date();
+      this.passwordChangedDate = dayjs.utc().toDate();
     }
   }
 }

@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { User } from "../entities/user.entity";
 import { UserService } from "../user/user.service";
@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { iat, exp, user } = payload;
     const passwordChangedDate = await this.userService.findPasswordChangedDate(user.id);
     if (passwordChangedDate.getTime() > (iat + 1) * 1000) {
-      throw new BadRequestException("Token Expired");
+      throw new UnauthorizedException("Token Expired");
     }
     return user;
   }
