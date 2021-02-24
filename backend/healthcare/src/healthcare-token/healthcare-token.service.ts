@@ -531,11 +531,11 @@ export class HealthcareTokenService {
     const privateKey = await this.keypairService.decryptPrivateKey(
       sourceUserId,
       pin,
-      healthcareToken.createdBy ? healthcareToken.createdBy.id : null
+      healthcareToken.createdBy.role === UserRole.Agency ? healthcareToken.createdBy.id : null
     );
     const sourcePublicKey = await this.keypairService.findPublicKey(
       sourceUserId,
-      healthcareToken.createdBy ? healthcareToken.createdBy.id : null
+      healthcareToken.createdBy.role  === UserRole.Agency ? healthcareToken.createdBy.id : null
     );
     const destinationPublicKey = await this.keypairService.findPublicKey(
       destinationUserId
