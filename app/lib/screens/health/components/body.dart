@@ -231,10 +231,128 @@ class _BodyState extends State<Body> {
                 child: RaisedButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18.0),
-                        side: BorderSide(color: Color(0xff0c96e4))),
+                        side: BorderSide(color: Color(0xff8DC6BF))),
                     padding: EdgeInsets.only(
                         left: 20, right: 20, top: 15, bottom: 15),
-                    color: Color(0xff0c96e4),
+                    color: Color(0xff8DC6BF),
+                    child: const Text('คำนวนสุขภาพเบื้องต้น',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          child: AlertDialog(
+                              title: const Text("สุขภาพเบื้องต้น",
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                              content: Table(columnWidths: {
+                                0: FlexColumnWidth(3),
+                                1: FlexColumnWidth(2),
+                                2: FlexColumnWidth(3),
+                              }, children: [
+                                TableRow(children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'ค่าดัชนีมวลกาย',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Text(''),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'ผอม',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'ความดัน',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Text(''),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'ปกติ',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'อัตราการเต้นของหัวใจ',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Text(''),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'ปกติ',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'อุณหภูมิ',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Text(''),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      'ปกติ',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ),
+                                ]),
+                              ])));
+                    }),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 20, right: 20),
+              child: ButtonTheme(
+                minWidth: double.infinity,
+                child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        side: BorderSide(color: Color(0xffFCBC66))),
+                    padding: EdgeInsets.only(
+                        left: 20, right: 20, top: 15, bottom: 15),
+                    color: Color(0xffFCBC66),
                     child: const Text('นับลูกดื้น',
                         style: TextStyle(fontSize: 16, color: Colors.white)),
                     onPressed: () {
