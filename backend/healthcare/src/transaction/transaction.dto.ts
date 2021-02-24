@@ -1,11 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum } from "class-validator";
-import { TransactionType } from "src/constant/enum/transaction.enum";
+import { TxType } from "src/constant/enum/transaction.enum";
 
 export class TransactionSearchDto {
-  @ApiProperty({ type: "enum", enum: TransactionType })
-  @IsEnum(TransactionType)
-  type: TransactionType;
+  @ApiProperty({ type: "enum", enum: TxType })
+  @IsEnum(TxType)
+  type: TxType;
 
   @ApiProperty({ required: false })
   startDate: Date;
@@ -18,9 +18,9 @@ export class TransactionSearchDto {
 }
 
 export class TransactionSearcHistoryhDto {
-  @ApiProperty({ type: "enum", enum: TransactionType })
-  @IsEnum(TransactionType)
-  type: TransactionType;
+  @ApiProperty({ type: "enum", enum: TxType })
+  @IsEnum(TxType)
+  type: TxType;
 
   @ApiProperty({ required: false })
   startDate: Date;

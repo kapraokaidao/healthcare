@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { TransactionType, TxType } from "src/constant/enum/transaction.enum";
+import { TxType } from "src/constant/enum/transaction.enum";
 import { UserRole } from "src/constant/enum/user.enum";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
 import { Transaction } from "src/entities/transaction.entity";
@@ -80,17 +80,28 @@ export class TransactionService {
       });
     }
 
-    if (dto.type === TransactionType.Debit) {
+    if (dto.type === TxType.Redeem) {
       const publicKey = await this.keypairService.findPublicKey(userId);
       query.andWhere("tx.destination_public_key = :publicKey", {
         publicKey,
       });
-    } else if (dto.type === TransactionType.Credit) {
+    } else if (dto.type === TxType.Provide) {
+      query.andWhere("tx.type = :txType", {
+        txType: TxType.Provide,
+      });
       const publicKey = await this.keypairService.findPublicKey(userId);
       query.andWhere("tx.source_public_key = :publicKey", {
         publicKey,
       });
-    } else {
+    } else if(dto.type === TxType.Withdraw){
+      query.andWhere("tx.type = :txType", {
+        txType: TxType.Withdraw,
+      });
+      const publicKey = await this.keypairService.findPublicKey(userId);
+      query.andWhere("tx.source_public_key = :publicKey", {
+        publicKey,
+      });
+    }else {
       throw new BadRequestException("Invalid transaction type");
     }
 
@@ -140,7 +151,7 @@ export class TransactionService {
       });
     }
 
-    if (dto.type === TransactionType.Debit) {
+    if (dto.type === TxType.Redeem) {
       query.leftJoinAndSelect("tx.sourceUser", "user", "user.id = tx.source_user_id");
       const { role } = await this.userService.findById(userId, false);
       if (role === UserRole.HospitalAdmin) {
@@ -153,12 +164,15 @@ export class TransactionService {
           userId,
         });
       }
-    } else if (dto.type === TransactionType.Credit) {
+    } else if (dto.type === TxType.Provide) {
       query.leftJoinAndSelect(
         "tx.destinationUser",
         "user",
         "user.id = tx.destination_user_id"
       );
+      query.andWhere("tx.type = :txType", {
+        txType: TxType.Provide,
+      });
       const { role } = await this.userService.findById(userId, false);
       if (role === UserRole.HospitalAdmin) {
         const publicKey = await this.keypairService.findPublicKey(userId);
@@ -170,7 +184,27 @@ export class TransactionService {
           userId,
         });
       }
-    } else {
+    } else if (dto.type === TxType.Withdraw){
+      query.leftJoinAndSelect(
+        "tx.destinationUser",
+        "user",
+        "user.id = tx.destination_user_id"
+      );
+      query.andWhere("tx.type = :txType", {
+        txType: TxType.Withdraw,
+      });
+      const { role } = await this.userService.findById(userId, false);
+      if (role === UserRole.HospitalAdmin) {
+        const publicKey = await this.keypairService.findPublicKey(userId);
+        query.andWhere("tx.source_public_key = :publicKey", {
+          publicKey,
+        });
+      } else {
+        query.andWhere("tx.source_user_id = :userId", {
+          userId,
+        });
+      }
+    }else {
       throw new BadRequestException("Invalid transaction type");
     }
 
