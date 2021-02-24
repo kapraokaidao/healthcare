@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ServiceConfigurationOptions } from "aws-sdk/lib/service";
 import * as AWS from "aws-sdk";
-import * as dayjs from "dayjs";
 
 @Injectable()
 export class S3Service {
