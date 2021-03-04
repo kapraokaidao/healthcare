@@ -99,7 +99,7 @@ class _RegisterUploadKycState extends State<RegisterUploadKYC> {
               Text("ภาพเซลฟี่คู่กับบัตรประจำตัวประชาชน"),
               Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
-                  child: _nationalIdImage == null ? Image.asset("assets/images/person-circle.png"): Image.file(_selfieImage)
+                  child: _selfieImage == null ? Image.asset("assets/images/person-circle.png"): Image.file(_selfieImage)
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

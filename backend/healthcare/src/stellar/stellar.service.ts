@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import StellarSdk, { Horizon } from "stellar-sdk";
 import { ConfigService } from "@nestjs/config";
 import BalanceLine = Horizon.BalanceLine;
@@ -106,8 +106,8 @@ export class StellarService {
         receivingPublicKey: receivingKeys.publicKey(),
       };
     } catch (e) {
-      console.log(e.response.data.extras);
-      throw e;
+      // console.log(e.response.data.extras);
+      throw new BadRequestException(e);
     }
   }
 
