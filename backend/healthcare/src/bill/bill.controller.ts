@@ -24,7 +24,7 @@ export class BillController {
 
   @Post("search")
   @Roles(UserRole.NHSO)
-  async searchBill(@Body() dto: SearchBillDto): Promise<Bill[]> {
+  async searchBill(@Body() dto: SearchBillDto): Promise<Pagination<Bill>> {
     return this.billService.searchBill(dto);
   }
 

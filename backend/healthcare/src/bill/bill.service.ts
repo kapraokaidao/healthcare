@@ -123,7 +123,7 @@ export class BillService {
     return;
   }
 
-  async searchBill(dto: SearchBillDto): Promise<Bill[]> {
+  async searchBill(dto: SearchBillDto): Promise<Pagination<Bill>> {
     const query = this.billRepository
       .createQueryBuilder("bill")
       .leftJoinAndSelect("bill.hospital", "hospital", "hospital.code9 = bill.hospital_id")
@@ -133,6 +133,8 @@ export class BillService {
         "healthcareToken",
         "healthcareToken.id = billDetail.healthcare_token_id"
       )
+      .take(dto.pageSize)
+      .skip((dto.page - 1) * dto.pageSize)
       .select(["bill.id", "hospital.code9", "hospital.fullname", "hospital.type", "bill.createdDate"])
 
     if (dto.startDate) {
@@ -159,9 +161,9 @@ export class BillService {
       });
     }
 
-    const queryResult = await query.getMany();
+    const [queryResult, totalCount] = await query.getManyAndCount();
 
-    return queryResult;
+    return toPagination<Bill>(queryResult, totalCount, {page: dto.page, pageSize: dto.pageSize});
   }
 
   async getBillDetails(id: number): Promise<ServiceItem[]> {
