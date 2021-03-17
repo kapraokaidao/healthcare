@@ -28,7 +28,6 @@ const BillDetail = (props: any) => {
 			});
 		}
 	}, [props.match.params.id]);
-	console.log(services);
 	return (
 		<>
 			<h1>Bill Detail</h1>
