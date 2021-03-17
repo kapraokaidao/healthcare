@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TxType } from "src/constant/enum/transaction.enum";
+import { UserRole } from "src/constant/enum/user.enum";
+import { Roles } from "src/decorators/roles.decorator";
 import { BillDetailLine } from "src/entities/bill-detail-line.entity";
 import { BillDetail } from "src/entities/bill-detail.entity";
 import { Bill } from "src/entities/bill.entity";
@@ -95,22 +97,21 @@ export class BillService {
 
       for (let tx of transactions) {
         if (tx.outstanding < withdraw.amount) {
-          const newbillDetailLine = this.billDetailLineRepository.create()
+          const newbillDetailLine = this.billDetailLineRepository.create();
           newbillDetailLine.amount = tx.outstanding;
           newbillDetailLine.effectiveDate = tx.createdDate;
           newbillDetailLine.user = tx.sourceUser;
-          newBillDetail.billDetailLines.push(newbillDetailLine)
+          newBillDetail.billDetailLines.push(newbillDetailLine);
 
           withdraw.amount -= tx.outstanding;
           tx.outstanding = 0;
           await this.transactionRepository.save(tx);
-
         } else {
-          const newbillDetailLine = this.billDetailLineRepository.create()
+          const newbillDetailLine = this.billDetailLineRepository.create();
           newbillDetailLine.amount = withdraw.amount;
           newbillDetailLine.effectiveDate = tx.createdDate;
           newbillDetailLine.user = tx.sourceUser;
-          newBillDetail.billDetailLines.push(newbillDetailLine)
+          newBillDetail.billDetailLines.push(newbillDetailLine);
 
           tx.outstanding -= withdraw.amount;
           withdraw.amount = 0;
@@ -123,7 +124,8 @@ export class BillService {
     return;
   }
 
-  async searchBill(dto: SearchBillDto): Promise<Pagination<Bill>> {
+  async searchBill(userId: number, dto: SearchBillDto): Promise<Pagination<Bill>> {
+    const user = await this.userService.findById(userId, true);
     const query = this.billRepository
       .createQueryBuilder("bill")
       .leftJoinAndSelect("bill.hospital", "hospital", "hospital.code9 = bill.hospital_id")
@@ -135,7 +137,19 @@ export class BillService {
       )
       .take(dto.pageSize)
       .skip((dto.page - 1) * dto.pageSize)
-      .select(["bill.id", "hospital.code9", "hospital.fullname", "hospital.type", "bill.createdDate"])
+      .select([
+        "bill.id",
+        "hospital.code9",
+        "hospital.fullname",
+        "hospital.type",
+        "bill.createdDate",
+      ]);
+
+    if (user.role == UserRole.HospitalAdmin) {
+      query.andWhere("bill.hospital.code9 = :hospitalId", {
+        hospitalId: user.hospital.code9,
+      });
+    }
 
     if (dto.startDate) {
       query.andWhere("CAST(bill.created_date as date) >= :startDate", {
@@ -150,9 +164,9 @@ export class BillService {
     }
 
     if (dto.hospitalCode) {
-      query.andWhere("hospital.code9 = :hospitalCode", 
-        {hospitalCode: dto.hospitalCode}
-      );
+      query.andWhere("hospital.code9 = :hospitalCode", {
+        hospitalCode: dto.hospitalCode,
+      });
     }
 
     if (dto.serviceName) {
@@ -163,49 +177,60 @@ export class BillService {
 
     const [queryResult, totalCount] = await query.getManyAndCount();
 
-    return toPagination<Bill>(queryResult, totalCount, {page: dto.page, pageSize: dto.pageSize});
+    return toPagination<Bill>(queryResult, totalCount, {
+      page: dto.page,
+      pageSize: dto.pageSize,
+    });
   }
 
   async getBillDetails(id: number): Promise<ServiceItem[]> {
-    const bill = await this.billRepository.findOneOrFail(id, {relations: ["billDetails", "billDetails.healthcareToken"]})
-    const services = []
+    const bill = await this.billRepository.findOneOrFail(id, {
+      relations: ["billDetails", "billDetails.healthcareToken"],
+    });
+    const services = [];
     bill.billDetails.forEach((billDetail) => {
-      const serviceItem = new ServiceItem()
-      serviceItem.billDetailId = billDetail.id
-      serviceItem.serviceName = billDetail.healthcareToken.name
-      serviceItem.amount = billDetail.amount
-      services.push(serviceItem)
-    })
-    return services
+      const serviceItem = new ServiceItem();
+      serviceItem.billDetailId = billDetail.id;
+      serviceItem.serviceName = billDetail.healthcareToken.name;
+      serviceItem.amount = billDetail.amount;
+      services.push(serviceItem);
+    });
+    return services;
   }
 
-  async getBillDetailLines(id: number, pageOptions: PaginationOptions): Promise<Pagination<LineItem>> {
-    
+  async getBillDetailLines(
+    id: number,
+    pageOptions: PaginationOptions
+  ): Promise<Pagination<LineItem>> {
     const query = this.billDetailLineRepository
-    .createQueryBuilder("billDetailLine")
-    .leftJoinAndSelect("billDetailLine.billDetail", "billDetail", "billDetail.id = billDetailLine.bill_detail_id")
-    .leftJoinAndSelect("billDetailLine.user", "user", "user.id = billDetailLine.user_id")
-    .andWhere("billDetail.id = :id", {id})
-    .take(pageOptions.pageSize)
-    .skip((pageOptions.page - 1) * pageOptions.pageSize)
+      .createQueryBuilder("billDetailLine")
+      .leftJoinAndSelect(
+        "billDetailLine.billDetail",
+        "billDetail",
+        "billDetail.id = billDetailLine.bill_detail_id"
+      )
+      .leftJoinAndSelect(
+        "billDetailLine.user",
+        "user",
+        "user.id = billDetailLine.user_id"
+      )
+      .andWhere("billDetail.id = :id", { id })
+      .take(pageOptions.pageSize)
+      .skip((pageOptions.page - 1) * pageOptions.pageSize);
 
-    const [queryResult, totalCount] = await query.getManyAndCount()
-  
-    const lines = []
-  
+    const [queryResult, totalCount] = await query.getManyAndCount();
+
+    const lines = [];
 
     queryResult.forEach((line) => {
-      const lineItem = new LineItem()
-      lineItem.amount = line.amount
-      lineItem.effectiveDate = line.effectiveDate
-      lineItem.firstname= line.user.firstname
-      lineItem.lastname = line.user.lastname
-      lines.push(lineItem)
-    })
+      const lineItem = new LineItem();
+      lineItem.amount = line.amount;
+      lineItem.effectiveDate = line.effectiveDate;
+      lineItem.firstname = line.user.firstname;
+      lineItem.lastname = line.user.lastname;
+      lines.push(lineItem);
+    });
 
-    return toPagination<LineItem>(lines, totalCount, pageOptions)
+    return toPagination<LineItem>(lines, totalCount, pageOptions);
   }
-
 }
-
-
