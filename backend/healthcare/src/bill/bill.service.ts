@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TxType } from "src/constant/enum/transaction.enum";
 import { UserRole } from "src/constant/enum/user.enum";
@@ -183,10 +183,17 @@ export class BillService {
     });
   }
 
-  async getBillDetails(id: number): Promise<ServiceItem[]> {
+  async getBillDetails(userId: number, id: number): Promise<ServiceItem[]> {
+    const user = await this.userService.findById(userId, true);
+    
     const bill = await this.billRepository.findOneOrFail(id, {
-      relations: ["billDetails", "billDetails.healthcareToken"],
+      relations: ["billDetails", "billDetails.healthcareToken", "hospital"],
     });
+
+    if(user.role === UserRole.HospitalAdmin && bill.hospital.code9 !== user.hospital.code9) {
+      throw new UnauthorizedException("You can't view other hospital bill")
+    }
+
     const services = [];
     bill.billDetails.forEach((billDetail) => {
       const serviceItem = new ServiceItem();
@@ -199,9 +206,18 @@ export class BillService {
   }
 
   async getBillDetailLines(
+    userId: number,
     id: number,
     pageOptions: PaginationOptions
   ): Promise<Pagination<LineItem>> {
+    const user = await this.userService.findById(userId, true);
+    if(user.role === UserRole.HospitalAdmin) {
+      const billDetail = await this.billDetailRepository.findOneOrFail(id, {relations: ["bill", "bill.hospital"]})
+      if(billDetail.bill.hospital.code9 != user.hospital.code9) {
+        throw new UnauthorizedException("You can't view other hospital bill")
+      }
+    }
+
     const query = this.billDetailLineRepository
       .createQueryBuilder("billDetailLine")
       .leftJoinAndSelect(
