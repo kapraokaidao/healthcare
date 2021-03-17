@@ -23,23 +23,20 @@ export class BillController {
   }
 
   @Post("search")
-  // @Roles(UserRole.NHSO)
-  @Roles(UserRole.HospitalAdmin)
+  @Roles(UserRole.NHSO)
   async searchBill(@Body() dto: SearchBillDto): Promise<Bill[]> {
     return this.billService.searchBill(dto);
   }
 
   @Get("/:id")
-  // @Roles(UserRole.NHSO)
-  @Roles(UserRole.HospitalAdmin)
+  @Roles(UserRole.NHSO)
   async getBillDetails(@Param("id") id: number): Promise<ServiceItem[]> {
     return this.billService.getBillDetails(id);
   }
 
 
   @Get("/detail/:id")
-  // @Roles(UserRole.NHSO)
-  @Roles(UserRole.HospitalAdmin)
+  @Roles(UserRole.NHSO)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   async getTransactionsFromBillDetailId(
