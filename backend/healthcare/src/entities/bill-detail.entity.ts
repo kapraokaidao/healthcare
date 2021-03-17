@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { BillDetailLine } from "./bill-detail-line.entity";
 import { Bill } from "./bill.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
 import { Transaction } from "./transaction.entity";
@@ -24,6 +25,9 @@ export class BillDetail {
   @Column()
   amount: number;
 
+  @OneToMany(() => BillDetailLine, (billDetailLine) => billDetailLine.billDetail, { cascade: true })
+  billDetailLines: BillDetailLine[];
+
   @ManyToOne(() => Bill, (bill) => bill.billDetails, {
     onDelete: "CASCADE",
   })
@@ -35,20 +39,6 @@ export class BillDetail {
   })
   @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
-
-  @ManyToMany(() => Transaction, (transaction) => transaction.billDetails, {
-    onDelete: "CASCADE",
-  })
-  @JoinTable({
-    name: "transaction_bill_detail",
-    joinColumn: {
-      name: "bill_detail_id",
-    },
-    inverseJoinColumn: {
-      name: "transaction_id",
-    },
-  })
-  transactions: Transaction[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate: Date;

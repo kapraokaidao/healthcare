@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { BillDetailLine } from "src/entities/bill-detail-line.entity";
 import { BillDetail } from "src/entities/bill-detail.entity";
 import { Bill } from "src/entities/bill.entity";
 import { HealthcareToken } from "src/entities/healthcare-token.entity";
@@ -12,7 +13,7 @@ import { BillService } from "./bill.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Bill, BillDetail, UserToken, Transaction]),
+    TypeOrmModule.forFeature([Bill, BillDetail, BillDetailLine, UserToken, Transaction]),
     HealthcareTokenModule,
     KeypairModule,
   ],

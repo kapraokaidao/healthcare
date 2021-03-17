@@ -55,8 +55,6 @@ export class Transaction {
   @JoinColumn({ name: "destination_user_id" })
   destinationUser: User;
 
-  @ManyToMany(() => BillDetail, (billDetail) => billDetail.transactions)
-  billDetails: BillDetail[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;

@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TxType } from "src/constant/enum/transaction.enum";
+import { BillDetailLine } from "src/entities/bill-detail-line.entity";
 import { BillDetail } from "src/entities/bill-detail.entity";
 import { Bill } from "src/entities/bill.entity";
 import { Transaction } from "src/entities/transaction.entity";
@@ -8,8 +9,9 @@ import { UserToken } from "src/entities/user-token.entity";
 import { HealthcareTokenService } from "src/healthcare-token/healthcare-token.service";
 import { KeypairService } from "src/keypair/keypair.service";
 import { UserService } from "src/user/user.service";
+import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
 import { Repository } from "typeorm";
-import { BillDetailResponse, CreateBillDto, SearchBillDto, SearchBillResponse, ServiceItem } from "./bill.dto";
+import { CreateBillDto, LineItem, SearchBillDto, ServiceItem } from "./bill.dto";
 
 @Injectable()
 export class BillService {
@@ -18,6 +20,8 @@ export class BillService {
     private readonly billRepository: Repository<Bill>,
     @InjectRepository(BillDetail)
     private readonly billDetailRepository: Repository<BillDetail>,
+    @InjectRepository(BillDetailLine)
+    private readonly billDetailLineRepository: Repository<BillDetailLine>,
     @InjectRepository(UserToken)
     private readonly userTokenRepository: Repository<UserToken>,
     @InjectRepository(Transaction)
@@ -29,12 +33,10 @@ export class BillService {
 
   async createBill(userId: number, dto: CreateBillDto) {
     for (let withdraw of dto.withdrawItems) {
-      console.log(withdraw);
       const userToken = await this.healthcareTokenService.getBalanceByServiceId(
         userId,
         withdraw.serviceId
       );
-      console.log("after");
       if (!userToken || userToken.balance < withdraw.amount) {
         throw new BadRequestException("Cannot withdraw exceed your balance");
       }
@@ -63,7 +65,7 @@ export class BillService {
       newBillDetail.bill = bill;
       newBillDetail.amount = withdraw.amount;
       newBillDetail.healthcareToken = healthcareToken;
-      newBillDetail.transactions = [];
+      newBillDetail.billDetailLines = [];
 
       const publicKey = await this.keypairService.findPublicKey(userId);
 
@@ -73,6 +75,11 @@ export class BillService {
           "tx.healthcareToken",
           "healthcareToken",
           "healthcareToken.id = tx.healthcare_token_id"
+        )
+        .leftJoinAndSelect(
+          "tx.sourceUser",
+          "sourceUser",
+          "sourceUser.id = tx.source_user_id"
         )
         .andWhere("tx.type = :type", { type: TxType.Redeem })
         .andWhere("tx.healthcare_token_id = :serviceId", {
@@ -85,23 +92,32 @@ export class BillService {
         .orderBy("tx.created_date", "ASC");
 
       const transactions = await query.getMany();
-      console.log(transactions);
 
       for (let tx of transactions) {
         if (tx.outstanding < withdraw.amount) {
+          const newbillDetailLine = this.billDetailLineRepository.create()
+          newbillDetailLine.amount = tx.outstanding;
+          newbillDetailLine.effectiveDate = tx.createdDate;
+          newbillDetailLine.user = tx.sourceUser;
+          newBillDetail.billDetailLines.push(newbillDetailLine)
+
           withdraw.amount -= tx.outstanding;
           tx.outstanding = 0;
           await this.transactionRepository.save(tx);
-          newBillDetail.transactions = [...newBillDetail.transactions, tx];
+
         } else {
+          const newbillDetailLine = this.billDetailLineRepository.create()
+          newbillDetailLine.amount = withdraw.amount;
+          newbillDetailLine.effectiveDate = tx.createdDate;
+          newbillDetailLine.user = tx.sourceUser;
+          newBillDetail.billDetailLines.push(newbillDetailLine)
+
           tx.outstanding -= withdraw.amount;
           withdraw.amount = 0;
           await this.transactionRepository.save(tx);
-          newBillDetail.transactions = [...newBillDetail.transactions, tx];
           break;
         }
       }
-      console.log(newBillDetail);
       await this.billDetailRepository.save(newBillDetail);
     }
     return;
@@ -148,23 +164,46 @@ export class BillService {
     return queryResult;
   }
 
-  async getBillDetails(id: number): Promise<BillDetailResponse> {
+  async getBillDetails(id: number): Promise<ServiceItem[]> {
     const bill = await this.billRepository.findOneOrFail(id, {relations: ["billDetails", "billDetails.healthcareToken"]})
-    const result = new BillDetailResponse()
-    result.id = bill.id
-    result.services = []
+    const services = []
     bill.billDetails.forEach((billDetail) => {
       const serviceItem = new ServiceItem()
       serviceItem.billDetailId = billDetail.id
       serviceItem.serviceName = billDetail.healthcareToken.name
       serviceItem.amount = billDetail.amount
-      result.services.push(serviceItem)
+      services.push(serviceItem)
     })
-    return result
+    return services
   }
 
-  // async getTransactionsFromBillDetailId(id: number) {
+  async getBillDetailLines(id: number, pageOptions: PaginationOptions): Promise<Pagination<LineItem>> {
+    
+    const query = this.billDetailLineRepository
+    .createQueryBuilder("billDetailLine")
+    .leftJoinAndSelect("billDetailLine.billDetail", "billDetail", "billDetail.id = billDetailLine.bill_detail_id")
+    .leftJoinAndSelect("billDetailLine.user", "user", "user.id = billDetailLine.user_id")
+    .andWhere("billDetail.id = :id", {id})
+    .take(pageOptions.pageSize)
+    .skip((pageOptions.page - 1) * pageOptions.pageSize)
 
-  // }
+    const [queryResult, totalCount] = await query.getManyAndCount()
+  
+    const lines = []
+  
+
+    queryResult.forEach((line) => {
+      const lineItem = new LineItem()
+      lineItem.amount = line.amount
+      lineItem.effectiveDate = line.effectiveDate
+      lineItem.firstname= line.user.firstname
+      lineItem.lastname = line.user.lastname
+      lines.push(lineItem)
+    })
+
+    return toPagination<LineItem>(lines, totalCount, pageOptions)
+  }
 
 }
+
+

@@ -57,9 +57,14 @@ export class ServiceItem {
   amount: number
 }
 
-export class BillDetailResponse {
+export class LineItem {
   id: number
 
-  services: ServiceItem[]
-}
+  firstname: string
 
+  lastname: string
+
+  amount: number
+
+  effectiveDate: Date
+}
