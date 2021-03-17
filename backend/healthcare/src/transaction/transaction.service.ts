@@ -43,6 +43,11 @@ export class TransactionService {
       ? await this.userService.findById(sourceUserId)
       : null;
     newTransaction.type = type;
+
+    if (type === TxType.Redeem) {
+      newTransaction.outstanding = amount;
+    }
+
     return manager
       ? manager.save(newTransaction)
       : this.transactionRepository.save(newTransaction);
@@ -93,7 +98,7 @@ export class TransactionService {
       query.andWhere("tx.source_public_key = :publicKey", {
         publicKey,
       });
-    } else if(dto.type === TxType.Withdraw){
+    } else if (dto.type === TxType.Withdraw) {
       query.andWhere("tx.type = :txType", {
         txType: TxType.Withdraw,
       });
@@ -101,7 +106,7 @@ export class TransactionService {
       query.andWhere("tx.source_public_key = :publicKey", {
         publicKey,
       });
-    }else {
+    } else {
       throw new BadRequestException("Invalid transaction type");
     }
 
@@ -184,7 +189,7 @@ export class TransactionService {
           userId,
         });
       }
-    } else if (dto.type === TxType.Withdraw){
+    } else if (dto.type === TxType.Withdraw) {
       query.leftJoinAndSelect(
         "tx.destinationUser",
         "user",
@@ -204,7 +209,7 @@ export class TransactionService {
           userId,
         });
       }
-    }else {
+    } else {
       throw new BadRequestException("Invalid transaction type");
     }
 

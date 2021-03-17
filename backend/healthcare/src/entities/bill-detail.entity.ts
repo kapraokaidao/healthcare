@@ -1,4 +1,17 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Bill } from "./bill.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
 import { Transaction } from "./transaction.entity";
@@ -20,10 +33,12 @@ export class BillDetail {
   @ManyToOne(() => HealthcareToken, {
     onDelete: "CASCADE",
   })
-  @JoinColumn({ name: "healtcare_token_id" })
+  @JoinColumn({ name: "healthcare_token_id" })
   healthcareToken: HealthcareToken;
 
-  @ManyToMany(() => Transaction, (transaction) => transaction.billDetails, { onDelete: "CASCADE" })
+  @ManyToMany(() => Transaction, (transaction) => transaction.billDetails, {
+    onDelete: "CASCADE",
+  })
   @JoinTable({
     name: "transaction_bill_detail",
     joinColumn: {
@@ -43,5 +58,4 @@ export class BillDetail {
 
   @DeleteDateColumn({ name: "deleted_date" })
   deletedDate: Date;
-
 }

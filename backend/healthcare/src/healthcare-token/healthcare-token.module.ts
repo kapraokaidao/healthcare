@@ -19,5 +19,6 @@ import { AgencyModule } from "src/agency/agency.module";
   ],
   controllers: [HealthcareTokenController],
   providers: [HealthcareTokenService, StellarService],
+  exports: [HealthcareTokenService],
 })
 export class HealthcareTokenModule {}

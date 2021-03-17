@@ -17,7 +17,8 @@ import { FetusModule } from "./fetus/fetus.module";
 import { PatientModule } from "./patient/patient.module";
 import { S3Module } from "./s3/s3.module";
 import { SmsModule } from "./sms/sms.module";
-import { HealthModule } from './health/health.module';
+import { HealthModule } from "./health/health.module";
+import { BillModule } from "./bill/bill.module";
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { HealthModule } from './health/health.module';
     S3Module,
     SmsModule,
     HealthModule,
+    BillModule,
   ],
   controllers: [AppController],
   providers: [AppService],

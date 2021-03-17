@@ -1,4 +1,15 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { BillDetail } from "./bill-detail.entity";
 import { Hospital } from "./hospital.entity";
 
@@ -6,9 +17,6 @@ import { Hospital } from "./hospital.entity";
 export class Bill {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column("boolean", { name: "is_paid", default: false })
-  isPaid: boolean;
 
   @OneToMany(() => BillDetail, (billDetail) => billDetail.bill)
   billDetails: BillDetail[];
