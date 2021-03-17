@@ -55,7 +55,6 @@ export class Transaction {
   @JoinColumn({ name: "destination_user_id" })
   destinationUser: User;
 
-
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;
 }

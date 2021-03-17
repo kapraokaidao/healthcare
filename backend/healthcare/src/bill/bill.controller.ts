@@ -6,7 +6,7 @@ import { UserId } from "src/decorators/user-id.decorator";
 import { Bill } from "src/entities/bill.entity";
 import { RolesGuard } from "src/guards/roles.guard";
 import { Pagination } from "src/utils/pagination.util";
-import {CreateBillDto, LineItem, SearchBillDto, ServiceItem } from "./bill.dto";
+import { CreateBillDto, LineItem, SearchBillDto, ServiceItem } from "./bill.dto";
 import { BillService } from "./bill.service";
 
 @ApiBearerAuth()
@@ -23,32 +23,31 @@ export class BillController {
   }
 
   @Post("search")
-  @Roles(UserRole.NHSO)
-  async searchBill(@Body() dto: SearchBillDto): Promise<Pagination<Bill>> {
-    return this.billService.searchBill(dto);
+  @Roles(UserRole.NHSO, UserRole.HospitalAdmin)
+  async searchBill(
+    @UserId() userId,
+    @Body() dto: SearchBillDto
+  ): Promise<Pagination<Bill>> {
+    return this.billService.searchBill(userId, dto);
   }
 
   @Get("/:id")
-  @Roles(UserRole.NHSO)
+  @Roles(UserRole.NHSO, UserRole.HospitalAdmin)
   async getBillDetails(@Param("id") id: number): Promise<ServiceItem[]> {
     return this.billService.getBillDetails(id);
   }
 
-
   @Get("/detail/:id")
-  @Roles(UserRole.NHSO)
+  @Roles(UserRole.NHSO, UserRole.HospitalAdmin)
   @ApiQuery({ name: "page", schema: { type: "integer" }, required: true })
   @ApiQuery({ name: "pageSize", schema: { type: "integer" }, required: true })
   async getTransactionsFromBillDetailId(
     @Param("id") id: number,
     @Query("page") qPage: string,
     @Query("pageSize") qPageSize: string
-    ): Promise<Pagination<LineItem>> {
+  ): Promise<Pagination<LineItem>> {
     const page = qPage ? parseInt(qPage) : 1;
     const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    return this.billService.getBillDetailLines(id, { page, pageSize} );
+    return this.billService.getBillDetailLines(id, { page, pageSize });
   }
-
 }
-
-

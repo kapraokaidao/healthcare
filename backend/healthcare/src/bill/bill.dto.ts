@@ -40,7 +40,7 @@ export class SearchBillDto {
 
   @ApiProperty()
   @ToInt()
-  page: number
+  page: number;
 
   @ApiProperty()
   @ToInt()
@@ -48,31 +48,31 @@ export class SearchBillDto {
 }
 
 export class SearchBillResponse {
-  id: number
+  id: number;
 
-  hospitalName: string
+  hospitalName: string;
 
-  services: ServiceItem[]
+  services: ServiceItem[];
 
-  createdDate: Date
+  createdDate: Date;
 }
 
 export class ServiceItem {
-  billDetailId: number
+  billDetailId: number;
 
-  serviceName: string
+  serviceName: string;
 
-  amount: number
+  amount: number;
 }
 
 export class LineItem {
-  id: number
+  id: number;
 
-  firstname: string
+  firstname: string;
 
-  lastname: string
+  lastname: string;
 
-  amount: number
+  amount: number;
 
-  effectiveDate: Date
+  effectiveDate: Date;
 }

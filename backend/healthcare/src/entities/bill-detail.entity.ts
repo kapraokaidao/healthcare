@@ -25,7 +25,9 @@ export class BillDetail {
   @Column()
   amount: number;
 
-  @OneToMany(() => BillDetailLine, (billDetailLine) => billDetailLine.billDetail, { cascade: true })
+  @OneToMany(() => BillDetailLine, (billDetailLine) => billDetailLine.billDetail, {
+    cascade: true,
+  })
   billDetailLines: BillDetailLine[];
 
   @ManyToOne(() => Bill, (bill) => bill.billDetails, {
