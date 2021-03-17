@@ -14,6 +14,7 @@ import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
 import { default as AccountCircle, default as AccountCircleIcon } from '@material-ui/icons/AccountCircle';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import FileCopy from '@material-ui/icons/FileCopy';
 import HistoryIcon from '@material-ui/icons/History';
 import LockIcon from '@material-ui/icons/Lock';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -187,17 +188,30 @@ const Navigation = observer(() => {
 								<ListItemText primary="Scan Patient" />
 							</ListItem>
 							{authStore.user?.role === 'HospitalAdmin' && (
-								<ListItem
-									button
-									onClick={() => {
-										history.push('/wallet');
-									}}
-								>
-									<ListItemIcon>
-										<AccountBalanceWalletIcon fontSize="large" />
-									</ListItemIcon>
-									<ListItemText primary="Wallet" />
-								</ListItem>
+								<>
+									<ListItem
+										button
+										onClick={() => {
+											history.push('/wallet');
+										}}
+									>
+										<ListItemIcon>
+											<AccountBalanceWalletIcon fontSize="large" />
+										</ListItemIcon>
+										<ListItemText primary="Wallet" />
+									</ListItem>
+									<ListItem
+										button
+										onClick={() => {
+											history.push('/bill');
+										}}
+									>
+										<ListItemIcon>
+											<FileCopy fontSize="large" />
+										</ListItemIcon>
+										<ListItemText primary="Bill" />
+									</ListItem>
+								</>
 							)}
 							{authStore.user?.role === 'HospitalAdmin' && (
 								<ListItem

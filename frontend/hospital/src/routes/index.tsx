@@ -3,6 +3,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { PathContext } from '../App';
 import RequireAuth from '../components/RequireAuth';
+import Bill from '../pages/Bill';
+import BillTable from '../pages/BillTable';
 import ChangePassword from '../pages/ChangePassword';
 import ChangePin from '../pages/ChangePin';
 import CreateAccount from '../pages/CreateAccount';
@@ -61,6 +63,8 @@ const Routes = () => {
 					component={(props: any) => <RequireAuth {...props} Component={CreateAccount} />}
 				/>
 				<Route exact path="/account" component={(props: any) => <RequireAuth {...props} Component={ManageAccount} />} />
+				<Route exact path="/bill/:id" component={(props: any) => <RequireAuth {...props} Component={Bill} />} />
+				<Route exact path="/bill" component={(props: any) => <RequireAuth {...props} Component={BillTable} />} />
 			</Switch>
 		</div>
 	);
