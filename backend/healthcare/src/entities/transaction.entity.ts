@@ -5,12 +5,14 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  ManyToMany,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "../entities/user.entity";
 import { HealthcareToken } from "./healthcare-token.entity";
 import { TxType } from "src/constant/enum/transaction.enum";
 import { IsEnum } from "class-validator";
+import { BillDetail } from "./bill-detail.entity";
 
 @Entity()
 export class Transaction {
@@ -20,6 +22,9 @@ export class Transaction {
   @ApiProperty()
   @Column()
   amount: number;
+
+  @Column()
+  outstanding: number;
 
   @ApiProperty()
   @Column({ name: "source_public_key" })
@@ -49,6 +54,9 @@ export class Transaction {
   })
   @JoinColumn({ name: "destination_user_id" })
   destinationUser: User;
+
+  @ManyToMany(() => BillDetail, (billDetail) => billDetail.transactions)
+  billDetails: BillDetail[];
 
   @CreateDateColumn({ update: false, name: "created_date" })
   createdDate!: Date;
