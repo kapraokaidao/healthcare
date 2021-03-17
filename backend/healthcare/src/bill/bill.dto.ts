@@ -37,6 +37,14 @@ export class SearchBillDto {
 
   @ApiProperty()
   endDate: Date;
+
+  @ApiProperty()
+  @ToInt()
+  page: number
+
+  @ApiProperty()
+  @ToInt()
+  pageSize: number;
 }
 
 export class SearchBillResponse {
