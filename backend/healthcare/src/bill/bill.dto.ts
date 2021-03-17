@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ToInt } from "class-sanitizer";
-import { IsNumberString, Length, Min } from "class-validator";
+import { Type } from "class-transformer";
+import { ArrayMinSize, IsArray, IsNumberString, Length, Min, ValidateNested } from "class-validator";
 
 export class WithdrawItem {
   @ApiProperty()
@@ -9,7 +10,7 @@ export class WithdrawItem {
 
   @ApiProperty()
   @ToInt()
-  @Min(0)
+  @Min(1)
   amount: number;
 }
 
@@ -20,6 +21,10 @@ export class CreateBillDto {
   pin: string;
 
   @ApiProperty({ type: [WithdrawItem] })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({each: true})
+  @Type(() => WithdrawItem)
   withdrawItems: WithdrawItem[];
 }
 
