@@ -24,10 +24,16 @@ class _BodyState extends State<Body> {
     return json.decode(response);
   }
 
+  Future<dynamic> fetchBmi() async {
+    final response = await HttpClient.getWithoutDecode(path: "/health");
+    return json.decode(response);
+  }
+
   String _amount = '';
   String _weight = '';
   TextEditingController _amountController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
+  TextEditingController _bmiController = TextEditingController();
 
   updateFetu() async {
     final regex = RegExp(r'^[0-9.]+$');
@@ -40,6 +46,12 @@ class _BodyState extends State<Body> {
         _weightController.text = '';
       });
     }
+  }
+
+  updateBmi() async {
+    await HttpClient.put('/health', {
+      "bmi": _bmiController.text,
+    });
   }
 
   @override
@@ -220,24 +232,45 @@ class _BodyState extends State<Body> {
                 border: Border.all(color: Color(0xFFBBC4CE)),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Row(
-                children: [
-                  Text('ค่าดัชนีมวลกายหลังเริ่มตั้งครรภ์'),
-                  Expanded(
-                      child: Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'ค่า bmi',
-                      ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14, // This is not so important
-                      ),
-                    ),
-                  ))
-                ],
-              ),
+              child: FutureBuilder<dynamic>(
+                  future: fetchBmi(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      final hData = snapshot.data;
+                      _bmiController.text = hData['BMI'].toString();
+                      return Row(
+                        children: [
+                          Text('ค่าดัชนีมวลกายหลังเริ่มตั้งครรภ์'),
+                          Expanded(
+                              child: Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: TextField(
+                              controller: _bmiController,
+                              decoration: const InputDecoration(
+                                hintText: 'ค่า bmi',
+                              ),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14, // This is not so important
+                              ),
+                            ),
+                          )),
+                          ButtonTheme(
+                              minWidth: 30.0,
+                              height: 30.0,
+                              child: RaisedButton(
+                                color: Colors.grey[300],
+                                onPressed: updateBmi,
+                                shape: CircleBorder(),
+                                // _updateHealth([this.data, this.dataH, this.dataT]),
+                                child: Icon(Icons.update),
+                              )),
+                        ],
+                      );
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  }),
             )
           ],
         ));
