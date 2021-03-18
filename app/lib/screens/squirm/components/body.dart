@@ -33,7 +33,7 @@ class _BodyState extends State<Body> {
   String _weight = '';
   TextEditingController _amountController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
-  TextEditingController _bmiController = TextEditingController();
+  TextEditingController _pregnantBMIController = TextEditingController();
 
   updateFetu() async {
     final regex = RegExp(r'^[0-9.]+$');
@@ -49,9 +49,27 @@ class _BodyState extends State<Body> {
   }
 
   updateBmi() async {
-    await HttpClient.put('/health', {
-      "bmi": _bmiController.text,
+    final response = await HttpClient.put('/health', {
+      "pregnantBMI": _pregnantBMIController.text,
     });
+    if (response.containsKey("statusCode") && response["statusCode"] != 200) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text(response["message"]),
+            );
+          });
+    } else {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text('อัพเดทข้อมูลเรียบร้อย'),
+            );
+          });
+    }
   }
 
   @override
@@ -237,7 +255,12 @@ class _BodyState extends State<Body> {
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
                       final hData = snapshot.data;
-                      _bmiController.text = hData['BMI'].toString();
+                      if (hData['pregnantBMI'] == null) {
+                        _pregnantBMIController.text = '';
+                      } else {
+                        _pregnantBMIController.text =
+                            hData['pregnantBMI'].toString();
+                      }
                       return Row(
                         children: [
                           Text('ค่าดัชนีมวลกายหลังเริ่มตั้งครรภ์'),
@@ -245,7 +268,7 @@ class _BodyState extends State<Body> {
                               child: Padding(
                             padding: EdgeInsets.only(left: 20),
                             child: TextField(
-                              controller: _bmiController,
+                              controller: _pregnantBMIController,
                               decoration: const InputDecoration(
                                 hintText: 'ค่า bmi',
                               ),
