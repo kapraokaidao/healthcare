@@ -37,6 +37,14 @@ export class PatientRegisterDto {
   phone: string;
 
   @ApiProperty()
+  @Matches(/\d{6}/)
+  otp: string;
+
+  @ApiProperty()
+  @Matches(/[A-Z0-9]{6}/)
+  ref: string;
+
+  @ApiProperty()
   address: string;
 
   @ApiProperty({ type: "enum", enum: UserGender })

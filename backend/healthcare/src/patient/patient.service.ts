@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, HttpService, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Patient } from "../entities/patient.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -17,21 +17,27 @@ import { ResetPasswordKYC } from "../entities/reset-password-kyc.entity";
 import { AuthService } from "../auth/auth.service";
 import { S3Service } from "../s3/s3.service";
 import { KeypairService } from "src/keypair/keypair.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class PatientService {
+  private readonly smsServiceUrl
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly s3Service: S3Service,
     private readonly keypairService: KeypairService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
     @InjectRepository(Patient)
     private readonly patientRepository: Repository<Patient>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(ResetPasswordKYC)
     private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
-  ) {}
+  ) {
+    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl")
+  }
 
   async registerV2(dto: PatientRegisterDto): Promise<AuthResponseDto> {
     const existed = await this.patientRepository.findOne({
@@ -40,6 +46,11 @@ export class PatientService {
     if (existed) {
       throw new BadRequestException("Duplicate Patient's National ID");
     }
+    const otpBody = {
+      otp: dto.otp,
+      ref: dto.ref
+    }
+    await this.httpService.post(this.smsServiceUrl + 'otp/verify', otpBody).toPromise()
     const newUser = this.userRepository.create({
       username: dto.nationalId,
       password: dto.pin,
