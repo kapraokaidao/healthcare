@@ -13,27 +13,19 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { debounce } from "lodash";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 import { TitleContext } from "../../App";
-import { Bill, Hospital, Token } from "../../types";
+import { Transaction, Hospital, Token } from "../../types";
 import "./style.scss";
 
-type FilterToken = {
-  isActive?: boolean;
-  tokenType?: Token;
-};
-
-const BillTable = () => {
+const TransactionPage = () => {
   const { setTitle } = useContext(TitleContext);
   useEffect(() => {
-    setTitle("Bill Table");
+    setTitle("Transaction");
   }, [setTitle]);
   const [pageCount, setPageCount] = useState(1);
   const [page, setPage] = useState(1);
-  const [bills, setBill] = useState<Bill[]>([]);
-  const [history] = useState(useHistory());
-  const [fetchData, setFetchData] = useState(false);
-
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const fetchHospital = useCallback(
     debounce(async (name: string) => {
       const { data } = await axios.post("/hospital/search", {
@@ -50,29 +42,37 @@ const BillTable = () => {
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
   const [selectedEndDate, setSelectedEndDate] = useState(new Date());
   const [serviceName, setServiceName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [checkHospital, setCheckHospital] = useState(false);
   const [checkServiceName, setCheckServiceName] = useState(false);
+  const [checkName, setCheckName] = useState(false);
   const [checkStartDate, setCheckStartDate] = useState(false);
   const [checkEndDate, setCheckEndDate] = useState(false);
   useEffect(() => {
     const filter: any = {};
-    if (checkHospital && selectedHospital) filter["hospitalCode"] = selectedHospital.code9;
+    if (checkHospital && selectedHospital) {
+      filter["hospitalCode"] = selectedHospital.code9;
+    }
     if (checkServiceName) filter["serviceName"] = serviceName;
     if (checkStartDate) filter["startDate"] = selectedStartDate.toISOString().split("T")[0];
     if (checkEndDate) filter["endDate"] = selectedEndDate.toISOString().split("T")[0];
+    if (checkName) {
+      filter["firstname"] = firstName;
+      filter["lastname"] = lastName;
+    }
     axios
-      .post("/bill/search", {
+      .post("/transaction/search", {
         page,
         pageSize: 20,
         ...filter,
       })
       .then(({ data }) => {
-        setBill(data.data);
+        setTransactions(data.data);
         setPage(data.page);
         setPageCount(data.pageCount);
       });
@@ -80,17 +80,19 @@ const BillTable = () => {
     page,
     checkHospital,
     checkServiceName,
+    checkName,
     checkStartDate,
     checkEndDate,
-    fetchData,
     selectedHospital,
     serviceName,
+    firstName,
+    lastName,
     selectedStartDate,
     selectedEndDate,
   ]);
   return (
     <>
-      <h1>Bill Table</h1>
+      <h1>Transaction</h1>
 
       <table>
         <tr>
@@ -108,7 +110,6 @@ const BillTable = () => {
             <Autocomplete
               value={selectedHospital}
               onChange={(_, newValue) => {
-                console.log(newValue);
                 setSelectedHospital(newValue);
               }}
               onInputChange={(_, newInputValue) => {
@@ -138,6 +139,33 @@ const BillTable = () => {
               onChange={(e) => {
                 setServiceName(e.target.value);
               }}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <Checkbox
+              checked={checkName}
+              onChange={(e) => {
+                setCheckName(e.target.checked);
+              }}
+              color="primary"
+            />
+          </td>
+          <td>Name</td>
+          <td>
+            <Input
+              placeholder="First Name"
+              onChange={(e) => {
+                setFirstName(e.target.value);
+              }}
+            />
+            <Input
+              placeholder="Last Name"
+              onChange={(e) => {
+                setLastName(e.target.value);
+              }}
+              style={{ marginLeft: 15 }}
             />
           </td>
         </tr>
@@ -190,31 +218,24 @@ const BillTable = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Bill id</TableCell>
-              <TableCell>Hospital</TableCell>
+              <TableCell>Id</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Service</TableCell>
+              <TableCell>Amount</TableCell>
               <TableCell>Created Date</TableCell>
-              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {bills.map((bill) => {
+            {transactions.map((transaction) => {
               return (
-                <TableRow key={`row-${bill.id}`}>
-                  <TableCell>{bill.id}</TableCell>
-                  <TableCell>{bill.hospital?.fullname}</TableCell>
-                  <TableCell>{dayjs(bill.createdDate).format("DD/MM/YYYY H:mm")}</TableCell>
+                <TableRow key={`row-${transaction.id}`}>
+                  <TableCell>{transaction.id}</TableCell>
                   <TableCell>
-                    <Button
-                      onClick={() => {
-                        history.push(`/bill/${bill.id}`);
-                      }}
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                    >
-                      Detail
-                    </Button>
+                    {transaction.firstname} {transaction.lastname}
                   </TableCell>
+                  <TableCell>{transaction.serviceName}</TableCell>
+                  <TableCell>{transaction.amount}</TableCell>
+                  <TableCell>{dayjs(transaction.createdDate).format("DD/MM/YYYY H:mm")}</TableCell>
                 </TableRow>
               );
             })}
@@ -236,4 +257,4 @@ const BillTable = () => {
   );
 };
 
-export default BillTable;
+export default TransactionPage;

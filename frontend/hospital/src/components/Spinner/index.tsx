@@ -35,7 +35,7 @@ const Spinner = () => {
     axios.interceptors.response.use(undefined, (error) => {
       document.getElementById("spinner")?.classList.remove("overlay");
       document.getElementById("dialog")?.classList.add("overlay");
-      if (error.response.status === 401) {
+      if (error.response.status === 401 || error.response.status === 403) {
         authStore.signout();
         const error_message = error.response.data?.message;
         setErrors([...errors, error_message]);

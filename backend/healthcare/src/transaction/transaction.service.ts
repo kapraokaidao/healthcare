@@ -7,14 +7,14 @@ import { Transaction } from "src/entities/transaction.entity";
 import { KeypairService } from "src/keypair/keypair.service";
 import { UserService } from "src/user/user.service";
 import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
-import { EntityManager } from "typeorm";
-import { TransactionSearchDto, TransactionSearchResponseDto } from "./transaction.dto";
+import { EntityManager, Repository } from "typeorm";
+import { SearchTransactionNHSODto, SearchTransactionNHSOResponse, TransactionSearchDto, TransactionSearchResponseDto } from "./transaction.dto";
 
 @Injectable()
 export class TransactionService {
   constructor(
-    @InjectRepository(Transaction) private readonly transactionRepository,
-    @InjectRepository(HealthcareToken) private readonly healthcareTokenRepository,
+    @InjectRepository(Transaction) private readonly transactionRepository: Repository<Transaction>,
+    @InjectRepository(HealthcareToken) private readonly healthcareTokenRepository: Repository<HealthcareToken>,
     private readonly keypairService: KeypairService,
     private readonly userService: UserService
   ) {}
@@ -215,5 +215,91 @@ export class TransactionService {
 
     const [history, totalCount] = await query.getManyAndCount();
     return toPagination<any>(history, totalCount, pageOptions);
+  }
+
+
+  async searchTransactionNHSO(
+    dto: SearchTransactionNHSODto
+  ): Promise<Pagination<SearchTransactionNHSOResponse>> {
+    let query = this.transactionRepository
+    .createQueryBuilder("tx")
+    .leftJoinAndSelect(
+      "tx.healthcareToken",
+      "healthcareToken",
+      "healthcareToken.id = tx.healthcare_token_id"
+    )
+    .leftJoinAndSelect(
+      "tx.destinationUser",
+      "destinationUser",
+      "tx.destination_user_id  = destinationUser.id"
+    )
+    .leftJoinAndSelect(
+      "destinationUser.hospital",
+      "hospital",
+      "hospital.code9 = destinationUser.hospital_code9"
+    )
+    .leftJoinAndSelect(
+      "tx.sourceUser",
+      "sourceUser",
+      "tx.source_user_id  = sourceUser.id"
+    )
+    .take(dto.pageSize)
+    .skip((dto.page - 1) * dto.pageSize)
+    .orderBy("tx.createdDate", "DESC")
+    .andWhere("tx.type = :txType", {
+      txType: TxType.Redeem,
+    })
+
+    if (dto.startDate) {
+      query.andWhere("CAST(tx.created_date as date) >= :startDate", {
+        startDate: dto.startDate,
+      });
+    }
+    if (dto.endDate) {
+      query.andWhere("CAST(tx.created_date as date) <= :endDate", {
+        endDate: dto.endDate,
+      });
+    }
+    if (dto.serviceName) {
+      query.andWhere("healthcareToken.name like :name", {
+        name: `%${dto.serviceName}%`,
+      });
+    }
+    if (dto.hospitalCode) {
+      query.andWhere("hospital.code9 = :hospitalCode", {
+        hospitalCode: dto.hospitalCode,
+      });
+    }
+    if (dto.firstname) {
+      query.andWhere("sourceUser.firstname like :firstname", {
+        firstname: `%${dto.firstname}%`
+      });
+    }
+    if(dto.lastname) {
+      query.andWhere("sourceUser.lastname like :lastname", {
+        lastname: `%${dto.lastname}%`
+      });
+    }
+
+    const [queryResult, totalCount] = await query.getManyAndCount();
+
+    const response = []
+
+    queryResult.forEach(tx => {
+      const e = new SearchTransactionNHSOResponse();
+      e.id = tx.id
+      e.amount = tx.amount
+      e.createdDate = tx.createdDate
+      e.firstname = tx.sourceUser.firstname
+      e.lastname = tx.sourceUser.lastname
+      e.hospitalName = tx.destinationUser.hospital.fullname
+      e.serviceName = tx.healthcareToken.name
+      response.push(e)
+    });
+
+    return toPagination<SearchTransactionNHSOResponse>(response, totalCount, {
+      page: dto.page,
+      pageSize: dto.pageSize,
+    });
   }
 }

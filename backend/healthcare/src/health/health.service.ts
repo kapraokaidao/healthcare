@@ -13,7 +13,7 @@ export class HealthService {
 
   async view(userId: number): Promise<HealthDto> {
     const user = await this.patientRepository.findOne(userId);
-    const BMI = (user.weight / (user.height / 100)) ^ 2;
+    const BMI = user.weight / (user.height / 100) ** 2
     return { ...user, BMI };
   }
 
@@ -23,7 +23,7 @@ export class HealthService {
       user[key] = updateHealthDto[key];
     }
     await this.patientRepository.save(user);
-    const BMI = (user.weight / (user.height / 100)) ^ 2;
+    const BMI = user.weight / (user.height / 100) ** 2
     return { ...user, BMI };
   }
 }

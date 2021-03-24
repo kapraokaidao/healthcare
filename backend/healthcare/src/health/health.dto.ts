@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ToInt } from "class-sanitizer";
+import { ToFloat, ToInt } from "class-sanitizer";
 import { IsEnum, Min } from "class-validator";
 import { BloodType } from "src/constant/enum/patient.enum";
 
@@ -17,12 +17,12 @@ export class HealthDto {
 
 export class UpdateHealthDto {
   @ApiProperty()
-  @ToInt()
+  @ToFloat()
   @Min(0)
   weight?: number;
 
   @ApiProperty()
-  @ToInt()
+  @ToFloat()
   @Min(0)
   height?: number;
 
@@ -46,7 +46,7 @@ export class UpdateHealthDto {
   hearthRate?: number;
 
   @ApiProperty()
-  @ToInt()
+  @ToFloat()
   @Min(0)
   temperature?: number;
 

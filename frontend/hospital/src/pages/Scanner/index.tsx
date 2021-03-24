@@ -68,10 +68,7 @@ const Scanner = () => {
     }
   }, [userId]);
 
-  const [
-    selectedGiveSpecialToken,
-    setSelectedGiveSpecialToken,
-  ] = useState<TokenDetail | null>(null);
+  const [selectedGiveSpecialToken, setSelectedGiveSpecialToken] = useState<TokenDetail | null>(null);
   const [openGiveSpecialToken, setOpenGiveSpecialToken] = useState(false);
   const [pin, setPin] = useState("");
   const giveSpecialToken = useCallback(async () => {
@@ -107,17 +104,17 @@ const Scanner = () => {
       const timer = setInterval(async () => {
         const {
           data: { isConfirmed },
-        } = await axios.get<{ isConfirmed: boolean }>(
-          "/healthcare-token/redeem-check",
-          {
-            params: {
-              id: pollingId,
-            },
-          }
-        );
+        } = await axios.get<{ isConfirmed: boolean }>("/healthcare-token/redeem-check", {
+          params: {
+            id: pollingId,
+          },
+        });
         if (isConfirmed) {
           setPollingId(0);
           clearInterval(timer);
+          setUserId(0);
+          setServiceId(0);
+          setScan(null);
         }
       }, 5000);
       setTimer(timer);
@@ -130,6 +127,9 @@ const Scanner = () => {
         params: { id: pollingId },
       });
       setPollingId(0);
+      setUserId(0);
+      setServiceId(0);
+      setScan(null);
       if (timer) clearInterval(timer);
     }
   }, [pollingId, timer]);
@@ -189,10 +189,7 @@ const Scanner = () => {
                 </tr>
                 <tr>
                   <td colSpan={2}>
-                    <img
-                      src={scan?.user.patient?.selfieImage}
-                      className="w-full"
-                    />
+                    <img src={scan?.user.patient?.selfieImage} className="w-full" />
                   </td>
                 </tr>
               </table>
@@ -217,8 +214,7 @@ const Scanner = () => {
                   <tr>
                     <td>Age Range</td>
                     <td>
-                      {scan?.healthcareToken.startAge} -{" "}
-                      {scan?.healthcareToken.endAge}
+                      {scan?.healthcareToken.startAge} - {scan?.healthcareToken.endAge}
                     </td>
                   </tr>
                   <tr>
@@ -312,8 +308,7 @@ const Scanner = () => {
               <tr>
                 <td>Age Range</td>
                 <td>
-                  {selectedGiveSpecialToken?.startAge} -{" "}
-                  {selectedGiveSpecialToken?.endAge}
+                  {selectedGiveSpecialToken?.startAge} - {selectedGiveSpecialToken?.endAge}
                 </td>
               </tr>
               <tr>
@@ -378,8 +373,7 @@ const Scanner = () => {
               <tr>
                 <td>Age Range</td>
                 <td>
-                  {scan?.healthcareToken.startAge} -{" "}
-                  {scan?.healthcareToken.endAge}
+                  {scan?.healthcareToken.startAge} - {scan?.healthcareToken.endAge}
                 </td>
               </tr>
               <tr>
@@ -443,12 +437,7 @@ const Scanner = () => {
               <CircularProgress />
             </div>
             <div className="align-right mt-15">
-              <Button
-                onClick={cancelRequestRedeem}
-                variant="contained"
-                color="secondary"
-                size="large"
-              >
+              <Button onClick={cancelRequestRedeem} variant="contained" color="secondary" size="large">
                 Cancel Request Redeem
               </Button>
             </div>
