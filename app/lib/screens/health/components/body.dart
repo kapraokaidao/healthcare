@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/screens/account/account_screen.dart';
@@ -149,14 +150,19 @@ class _BodyState extends State<Body> {
                                       ),
                                     )),
                                 TextField(
-                                    onChanged: (String value) {
-                                      _change = true;
-                                    },
-                                    style: TextStyle(fontSize: 14),
-                                    controller: _heightController,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    )),
+                                  // onChanged: (String value) {
+                                  //   _change = true;
+                                  // },
+                                  style: TextStyle(fontSize: 14),
+                                  controller: _heightController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9.]+$'))
+                                  ],
+                                ),
                               ]),
                               rowSpacer,
                               TableRow(children: [
@@ -170,16 +176,21 @@ class _BodyState extends State<Body> {
                                       ),
                                     )),
                                 TextField(
-                                    // onChanged: (String value) {
-                                    //   _change = true;
-                                    // },
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    controller: _weightController,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    )),
+                                  // onChanged: (String value) {
+                                  //   _change = true;
+                                  // },
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                  controller: _weightController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9.]+$'))
+                                  ],
+                                ),
                               ]),
                               rowSpacer,
                               TableRow(children: [
@@ -216,16 +227,21 @@ class _BodyState extends State<Body> {
                                       ),
                                     )),
                                 TextField(
-                                    // onChanged: (String value) {
-                                    //   _change = true;
-                                    // },
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    controller: _pressureController,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    )),
+                                  // onChanged: (String value) {
+                                  //   _change = true;
+                                  // },
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                  controller: _pressureController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9]+$'))
+                                  ],
+                                ),
                               ]),
                               rowSpacer,
                               TableRow(children: [
@@ -239,16 +255,21 @@ class _BodyState extends State<Body> {
                                       ),
                                     )),
                                 TextField(
-                                    // onChanged: (String value) {
-                                    //   _change = true;
-                                    // },
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    controller: _hearthRateController,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    )),
+                                  // onChanged: (String value) {
+                                  //   _change = true;
+                                  // },
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                  controller: _hearthRateController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9]+$'))
+                                  ],
+                                ),
                               ]),
                               rowSpacer,
                               TableRow(children: [
@@ -262,16 +283,21 @@ class _BodyState extends State<Body> {
                                       ),
                                     )),
                                 TextField(
-                                    // onChanged: (String value) {
-                                    //   _change = true;
-                                    // },
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    controller: _temperatureController,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    )),
+                                  // onChanged: (String value) {
+                                  //   _change = true;
+                                  // },
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                  controller: _temperatureController,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9.]+$'))
+                                  ],
+                                ),
                               ])
                             ],
                           ),
