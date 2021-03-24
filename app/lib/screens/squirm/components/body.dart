@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/utils/index.dart';
@@ -166,11 +167,10 @@ class _BodyState extends State<Body> {
               ),
             ),
             Container(
-              padding: EdgeInsets.all(20),
+              margin: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Color(0xFFBBC4CE)),
-                borderRadius: BorderRadius.circular(10),
               ),
               child: FutureBuilder<dynamic>(
                   future: fetchFetus(),
@@ -186,12 +186,14 @@ class _BodyState extends State<Body> {
                         });
                       }
                       return DataTable(
+                        columnSpacing: 30,
                         headingRowColor: MaterialStateColor.resolveWith(
                             (states) => Color(0xff98d583)),
                         columns: const <DataColumn>[
                           DataColumn(
                             label: Text(
                               'วันที่',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -199,6 +201,7 @@ class _BodyState extends State<Body> {
                           DataColumn(
                             label: Text(
                               'จำนวนครั้งที่ดิ้น',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -206,6 +209,7 @@ class _BodyState extends State<Body> {
                           DataColumn(
                             label: Text(
                               'น้ำหนักเฉลี่ย',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -221,17 +225,17 @@ class _BodyState extends State<Body> {
                                   DataCell(Text(fdata['date'],
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                       ))),
                                   DataCell(Text('${fdata['amount']}',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                       ))),
                                   DataCell(Text('${fdata['weight']}',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                       )))
                                 ]);
                           },
@@ -276,6 +280,10 @@ class _BodyState extends State<Body> {
                               style: TextStyle(
                                 fontSize: 14, // This is not so important
                               ),
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^[0-9.]+$'))
+                              ],
                             ),
                           )),
                           ButtonTheme(
