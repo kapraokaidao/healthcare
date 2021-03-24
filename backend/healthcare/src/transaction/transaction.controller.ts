@@ -8,6 +8,8 @@ import { RolesGuard } from "src/guards/roles.guard";
 import { Pagination } from "src/utils/pagination.util";
 import { isBetween } from "../utils/number.util";
 import {
+  SearchTransactionNHSODto,
+  SearchTransactionNHSOResponse,
   TransactionSearchDto,
   TransactionSearcHistoryhDto,
   TransactionSearchResponseDto,
@@ -45,5 +47,13 @@ export class TransactionController {
     const page = Number.isInteger(dto.page) && dto.page > 0 ? dto.page : 1;
     const pageSize = isBetween(dto.pageSize, 0, 1001) ? dto.pageSize : 100;
     return this.transactionService.searchHistory(userId, dto, { page, pageSize });
+  }
+
+  @Roles(UserRole.NHSO)
+  @Post("search")
+  async searchTransactionNHSO(
+    @Body() dto: SearchTransactionNHSODto
+  ): Promise<Pagination<SearchTransactionNHSOResponse>> {
+    return this.transactionService.searchTransactionNHSO(dto)
   }
 }
