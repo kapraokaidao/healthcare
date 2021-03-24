@@ -38,6 +38,13 @@ class _BodyState extends State<Body> {
         setState(() {
           this._isLoading = false;
         });
+        return showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text('โอนเสร็จสิ้น'),
+              );
+            });
       } catch (e) {
         setState(() {
           this._isLoading = false;
