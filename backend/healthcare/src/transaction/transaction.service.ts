@@ -277,7 +277,7 @@ export class TransactionService {
     }
     if(dto.lastname) {
       query.andWhere("sourceUser.lastname like :lastname", {
-        lastname: `%${dto.firstname}%`
+        lastname: `%${dto.lastname}%`
       });
     }
 
