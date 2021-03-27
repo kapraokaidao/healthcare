@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
+  Get, HttpCode, HttpService,
   Param,
   ParseIntPipe,
   Patch,
@@ -30,6 +30,7 @@ import {
 } from "../auth/auth.dto";
 import { AuthService } from "../auth/auth.service";
 import { User } from "../entities/user.entity";
+import { ConfigService } from "@nestjs/config";
 
 @ApiBearerAuth()
 @ApiTags("Patient")
@@ -37,10 +38,15 @@ import { User } from "../entities/user.entity";
 @UseGuards(RolesGuard)
 @Roles(UserRole.Patient)
 export class PatientController {
+  private readonly smsServiceUrl: string
   constructor(
     private readonly patientService: PatientService,
-    private readonly authService: AuthService
-  ) {}
+    private readonly authService: AuthService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
+  ) {
+    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl")
+  }
 
   @PublicAPI()
   @Post("login")
@@ -48,14 +54,22 @@ export class PatientController {
     return this.patientService.login(credential);
   }
 
+  // @PublicAPI()
+  // @Post("register")
+  // async register(@Body() user: User) {
+  //   return this.authService.register(user);
+  // }
+
   @PublicAPI()
-  @Post("register")
-  async register(@Body() user: User) {
-    return this.authService.register(user);
+  @HttpCode(200)
+  @Post('otp/request')
+  async requestOtp(@Body() dto: { phoneNumber: string }) {
+    const { data } = await this.httpService.post(this.smsServiceUrl + 'otp/request', dto).toPromise()
+    return data
   }
 
   @PublicAPI()
-  @Post("register-v2")
+  @Post("register")
   async registerV2(@Body() dto: PatientRegisterDto): Promise<AuthResponseDto> {
     return this.patientService.registerV2(dto);
   }

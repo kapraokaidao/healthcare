@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { HttpModule, Module } from "@nestjs/common";
 import { PatientController } from "./patient.controller";
 import { PatientService } from "./patient.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -15,6 +15,7 @@ import { KeypairModule } from "src/keypair/keypair.module";
     S3Module,
     AuthModule,
     KeypairModule,
+    HttpModule
   ],
   controllers: [PatientController],
   providers: [PatientService],
