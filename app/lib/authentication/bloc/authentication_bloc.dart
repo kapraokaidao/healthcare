@@ -118,7 +118,7 @@ class AuthenticationBloc
 
   Future<AuthenticationState> _mapRegisterRequestToState(AuthenticationRegisterRequest event) async {
     final Map<String, dynamic>  userDto = event.user;
-    Map<String, dynamic> registerResult = await HttpClient.post('/auth/register', userDto);
+    Map<String, dynamic> registerResult = await HttpClient.post('/patient/register', userDto);
     if (registerResult['access_token'] != null) {
       String accessToken = registerResult['access_token'];
       SharedPreferences prefs = await SharedPreferences.getInstance();

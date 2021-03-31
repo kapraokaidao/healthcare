@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -29,7 +30,49 @@ class _RegisterPageState extends State<RegisterPage> {
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
   final birthdateController = TextEditingController();
+  final otpController = TextEditingController();
   String gender = 'Male';
+  String ref = '';
+  Timer _timer;
+  final int _startTime = 300;
+  int _countDown = 0;
+  Duration _oneSecDuration = new Duration(seconds: 1);
+
+  void _startTimer() {
+    setState(() {
+      _countDown = _startTime;
+    });
+    _timer = new Timer.periodic(_oneSecDuration,
+          (Timer timer) {
+        if (_countDown == 0 && timer != null) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _countDown--;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    if (_timer != null) _timer.cancel();
+    super.dispose();
+  }
+
+  void requestOtp() async {
+    String phoneNumber = phoneController.value.text;
+    Map<String, dynamic> body = {};
+    body['phoneNumber'] = phoneNumber;
+    Map<String, dynamic> response = await HttpClient.post('/patient/otp/request', body);
+    setState(() {
+      this.ref = response['ref'];
+    });
+    _startTimer();
+  }
 
   @override
   void initState() {
@@ -43,8 +86,14 @@ class _RegisterPageState extends State<RegisterPage> {
       return Scaffold(
         backgroundColor: Colors.white,
         body: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
             padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
             decoration: BoxDecoration(
                 image: DecorationImage(image: AssetImage('assets/images/background.png'), fit: BoxFit.cover)),
@@ -123,10 +172,41 @@ class _RegisterPageState extends State<RegisterPage> {
                       widthFactor: 1,
                     ),
                     Container(
-                      margin: EdgeInsets.only(top: 6, bottom: 16),
-                      child: StyledTextFormField(
-                        controller: phoneController,
-                      ),
+                        margin: EdgeInsets.only(top: 6, bottom: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 200,
+                              margin: EdgeInsets.only(right: 20),
+                              child: StyledTextFormField(
+                                controller: phoneController,
+                              ),
+                            ),
+                            ElevatedButton(
+                              child: Text(_countDown == 0 ? "ขอ OTP" : "$_countDown", style: TextStyle(color: Colors.white)),
+                              onPressed: _countDown == 0 ? requestOtp : null,
+                            )
+                          ],
+                        )
+                    ),
+                    FractionallySizedBox(
+                      child: Text("รหัส OTP", style: TextStyle(fontSize: 16)),
+                      widthFactor: 1,
+                    ),
+                    Container(
+                        margin: EdgeInsets.only(top: 6, bottom: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 200,
+                              margin: EdgeInsets.only(right: 20),
+                              child: StyledTextFormField(
+                                controller: otpController,
+                              ),
+                            ),
+                            Text("ref: $ref")
+                          ],
+                        )
                     ),
                     FractionallySizedBox(
                       child: Text("ที่อยู่", style: TextStyle(fontSize: 16)),

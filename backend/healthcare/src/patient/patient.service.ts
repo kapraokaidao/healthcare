@@ -1,4 +1,10 @@
-import { BadRequestException, HttpService, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpService,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Patient } from "../entities/patient.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -46,11 +52,7 @@ export class PatientService {
     if (existed) {
       throw new BadRequestException("Duplicate Patient's National ID");
     }
-    const otpBody = {
-      otp: dto.otp,
-      ref: dto.ref
-    }
-    await this.httpService.post(this.smsServiceUrl + 'otp/verify', otpBody).toPromise()
+    await this.verifyOtp(dto.otp, dto.ref)
     const newUser = this.userRepository.create({
       username: dto.nationalId,
       password: dto.pin,
@@ -191,6 +193,18 @@ export class PatientService {
     const path = `user_${userId}/reset-password/national-id_${Date.now()}.jpg`;
     resetPasswordKYC.nationalIdImage = await this.s3Service.uploadImage(image, path);
     await this.resetPasswordKycRepository.save(resetPasswordKYC);
+  }
+
+  private async verifyOtp(otp: string, ref: string): Promise<void> {
+    try {
+      await this.httpService.post(this.smsServiceUrl + 'otp/verify', { otp, ref }).toPromise()
+    } catch (e) {
+      if (e.response?.status === 400) {
+        throw new BadRequestException(e.response.data)
+      } else {
+        throw new InternalServerErrorException(e)
+      }
+    }
   }
 
   // TODO: if unused delete this code (consult team about where to put register patient API)
