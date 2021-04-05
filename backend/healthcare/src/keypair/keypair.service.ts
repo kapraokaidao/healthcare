@@ -3,8 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Keypair } from "src/entities/keypair.entity";
 import { StellarService } from "src/stellar/stellar.service";
-import { MoreThan, Repository } from "typeorm";
-import { CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
+import { Repository } from "typeorm";
+import { IsActiveResponseDto } from "./keypair.dto";
 import { AES, enc, SHA256 } from "crypto-js";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import StellarSdk from "stellar-sdk";
@@ -268,4 +268,13 @@ export class KeypairService {
       .andWhere("user.id = :user_id", { user_id: userId });
     return query.getMany();
   }
+
+  async updateAccountMergeXdr(userId: number, pin: string, agencyId?: number): Promise<void>{
+    const keypair = await this.findActiveKeypair(userId, agencyId);
+    const secret = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
+    const xdr = await this.stellarService.createAccountMergeXdr(secret, this.stellarReceivingSecret)
+    keypair.accountMergeXdr = xdr;
+    this.keypairRepository.save(keypair)
+  }
+
 }

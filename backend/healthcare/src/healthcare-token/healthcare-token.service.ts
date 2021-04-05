@@ -510,7 +510,9 @@ export class HealthcareTokenService {
       );
     });
 
+    
     //Todo: update XDR
+    await this.keypairService.updateAccountMergeXdr(userId, pin, agencyId);
   }
 
   private async transferToken(
@@ -528,18 +530,19 @@ export class HealthcareTokenService {
     const sourceUserBalance = await this.userTokenRepository.findOneOrFail({
       where: { user: sourceUser, healthcareToken: healthcareToken },
     });
+
+    const agencyId = healthcareToken.createdBy.role === UserRole.Agency
+    ? healthcareToken.createdBy.id
+    : null
+
     const privateKey = await this.keypairService.decryptPrivateKey(
       sourceUserId,
       pin,
-      healthcareToken.createdBy.role === UserRole.Agency
-        ? healthcareToken.createdBy.id
-        : null
+      agencyId
     );
     const sourcePublicKey = await this.keypairService.findPublicKey(
       sourceUserId,
-      healthcareToken.createdBy.role === UserRole.Agency
-        ? healthcareToken.createdBy.id
-        : null
+      agencyId
     );
     const destinationPublicKey = await this.keypairService.findPublicKey(
       destinationUserId
@@ -584,7 +587,9 @@ export class HealthcareTokenService {
         amount
       );
     });
+
     //Todo: update XDR
+    await this.keypairService.updateAccountMergeXdr(sourceUserId, pin, agencyId);
   }
 
   private async transferTokenFromNHSO(
@@ -658,7 +663,6 @@ export class HealthcareTokenService {
         healthcareToken.tokenPerPerson
       );
     });
-    //Todo: update XDR
   }
 
   private validateBasicRule(user: User, healthcareToken: HealthcareToken): boolean {

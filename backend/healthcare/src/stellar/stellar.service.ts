@@ -1,12 +1,11 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
 } from "@nestjs/common";
 import StellarSdk, { Horizon } from "stellar-sdk";
 import { ConfigService } from "@nestjs/config";
-import BalanceLine = Horizon.BalanceLine;
 import { Keypair } from "./stellar.dto";
+import BalanceLine = Horizon.BalanceLine;
 
 @Injectable()
 export class StellarService {
@@ -224,12 +223,34 @@ export class StellarService {
   ): Promise<string> {
     const server = new StellarSdk.Server(this.stellarUrl);
     const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
+    let balances = await this.getBalance(sourceKeys.publicKey())
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
-      const accountMergeTransaction = new StellarSdk.TransactionBuilder(source, {
+      let accountMergeTransaction = new StellarSdk.TransactionBuilder(source, {
         fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
       })
+
+      for (let balance of balances) {
+        if(balance.asset_type === "native") {
+          continue
+        }
+        const serviceAsset = new StellarSdk.Asset(balance.asset_code, balance.asset_issuer);
+        accountMergeTransaction = accountMergeTransaction.addOperation(
+          StellarSdk.Operation.payment({
+            destination: balance.asset_issuer,
+            asset: serviceAsset,
+            amount: balance.balance,
+          })
+        )
+        .addOperation(
+          StellarSdk.Operation.changeTrust({
+            asset: serviceAsset,
+            limit: "0",
+          })
+        )
+      }
+      accountMergeTransaction = accountMergeTransaction
         .addOperation(
           StellarSdk.Operation.accountMerge({
             destination: destinationPublicKey,
