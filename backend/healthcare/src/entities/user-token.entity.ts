@@ -9,11 +9,11 @@ export class UserToken {
   id: number;
 
   @ApiProperty()
-  @Column({ name: "is_trusted" })
+  @Column({ name: "is_trusted", default: true })
   isTrusted: boolean;
 
   @ApiProperty()
-  @Column({ name: "is_received" })
+  @Column({ name: "is_received", default: false })
   isReceived: boolean;
 
   @ApiProperty()

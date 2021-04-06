@@ -56,7 +56,7 @@ export class StellarService {
     publicKey: string,
     name?: string,
     issuingPublicKey?: string
-  ): Promise<BalanceLine[]> {
+  ): Promise<any> {
     const server = new StellarSdk.Server(this.stellarUrl);
     const account = await server.loadAccount(publicKey);
     let balances = account.balances;
@@ -109,7 +109,6 @@ export class StellarService {
         receivingPublicKey: receivingKeys.publicKey(),
       };
     } catch (e) {
-      // console.log(e.response.data.extras);
       throw new BadRequestException(e);
     }
   }
@@ -232,7 +231,7 @@ export class StellarService {
       })
 
       for (let balance of balances) {
-        if(balance.asset_type === "native") {
+        if(balance.asset_type === "native" || balance.balance <= 0) {
           continue
         }
         const serviceAsset = new StellarSdk.Asset(balance.asset_code, balance.asset_issuer);
@@ -260,6 +259,49 @@ export class StellarService {
         .build();
       accountMergeTransaction.sign(sourceKeys);
       return accountMergeTransaction.toXDR();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async removeTrustline(
+    sourceSecret: string,
+    name: string,
+    issuerPublicKey: string,
+  ) {
+
+    const server = new StellarSdk.Server(this.stellarUrl);
+    const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
+    const serviceAsset = new StellarSdk.Asset(name, issuerPublicKey);
+
+    const balance = await this.getBalance(sourceKeys.publicKey(), name, issuerPublicKey)
+
+    try {
+      const source = await server.loadAccount(sourceKeys.publicKey());
+      let changeTrustTransaction = new StellarSdk.TransactionBuilder(source, {
+        fee: this.stellarFee,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      })
+      if (balance && balance.balance > 0) {
+        changeTrustTransaction = changeTrustTransaction.addOperation(
+          StellarSdk.Operation.payment({
+            destination: issuerPublicKey,
+            asset: serviceAsset,
+            amount: balance.balance,
+          })
+        )
+
+      }
+      changeTrustTransaction = changeTrustTransaction.addOperation(
+          StellarSdk.Operation.changeTrust({
+            asset: serviceAsset,
+            limit: "0"
+          })
+        )
+        .setTimeout(100)
+        .build();
+      changeTrustTransaction.sign(sourceKeys);
+      await server.submitTransaction(changeTrustTransaction);
     } catch (e) {
       throw e;
     }

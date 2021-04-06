@@ -101,7 +101,7 @@ export class AgencyService {
     member.transferred = true;
     await this.userTokenRepository.update(
       { user: { id: patient.user.id }, healthcareToken: { id: serviceId } },
-      { balance: parseInt(stellarBalance["balance"]) }
+      { balance: parseInt(stellarBalance["balance"]), isReceived: true }
     );
     await this.memberRepository.save(member);
   }
