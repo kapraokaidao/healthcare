@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/
 import { InjectRepository } from "@nestjs/typeorm";
 import { TxType } from "src/constant/enum/transaction.enum";
 import { UserRole } from "src/constant/enum/user.enum";
-import { Roles } from "src/decorators/roles.decorator";
 import { BillDetailLine } from "src/entities/bill-detail-line.entity";
 import { BillDetail } from "src/entities/bill-detail.entity";
 import { Bill } from "src/entities/bill.entity";
@@ -13,6 +12,7 @@ import { KeypairService } from "src/keypair/keypair.service";
 import { UserService } from "src/user/user.service";
 import { Pagination, PaginationOptions, toPagination } from "src/utils/pagination.util";
 import { Repository } from "typeorm";
+import { Hospital } from "./../entities/hospital.entity";
 import { CreateBillDto, LineItem, SearchBillDto, ServiceItem } from "./bill.dto";
 
 @Injectable()
@@ -185,13 +185,16 @@ export class BillService {
 
   async getBillDetails(userId: number, id: number): Promise<ServiceItem[]> {
     const user = await this.userService.findById(userId, true);
-    
+
     const bill = await this.billRepository.findOneOrFail(id, {
       relations: ["billDetails", "billDetails.healthcareToken", "hospital"],
     });
 
-    if(user.role === UserRole.HospitalAdmin && bill.hospital.code9 !== user.hospital.code9) {
-      throw new UnauthorizedException("You can't view other hospital bill")
+    if (
+      user.role === UserRole.HospitalAdmin &&
+      bill.hospital.code9 !== user.hospital.code9
+    ) {
+      throw new UnauthorizedException("You can't view other hospital bill");
     }
 
     const services = [];
@@ -205,16 +208,25 @@ export class BillService {
     return services;
   }
 
+  async getHospitalBill(id: number): Promise<Hospital> {
+    const bill = await this.billRepository.findOneOrFail(id, {
+      relations: ["hospital"],
+    });
+    return bill.hospital;
+  }
+
   async getBillDetailLines(
     userId: number,
     id: number,
     pageOptions: PaginationOptions
   ): Promise<Pagination<LineItem>> {
     const user = await this.userService.findById(userId, true);
-    if(user.role === UserRole.HospitalAdmin) {
-      const billDetail = await this.billDetailRepository.findOneOrFail(id, {relations: ["bill", "bill.hospital"]})
-      if(billDetail.bill.hospital.code9 != user.hospital.code9) {
-        throw new UnauthorizedException("You can't view other hospital bill")
+    if (user.role === UserRole.HospitalAdmin) {
+      const billDetail = await this.billDetailRepository.findOneOrFail(id, {
+        relations: ["bill", "bill.hospital"],
+      });
+      if (billDetail.bill.hospital.code9 != user.hospital.code9) {
+        throw new UnauthorizedException("You can't view other hospital bill");
       }
     }
 

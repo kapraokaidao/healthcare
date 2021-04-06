@@ -4,6 +4,7 @@ import { UserRole } from "src/constant/enum/user.enum";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserId } from "src/decorators/user-id.decorator";
 import { Bill } from "src/entities/bill.entity";
+import { Hospital } from "src/entities/hospital.entity";
 import { RolesGuard } from "src/guards/roles.guard";
 import { Pagination } from "src/utils/pagination.util";
 import { CreateBillDto, LineItem, SearchBillDto, ServiceItem } from "./bill.dto";
@@ -33,8 +34,17 @@ export class BillController {
 
   @Get("/:id")
   @Roles(UserRole.NHSO, UserRole.HospitalAdmin)
-  async getBillDetails(@UserId() userId, @Param("id") id: number): Promise<ServiceItem[]> {
+  async getBillDetails(
+    @UserId() userId,
+    @Param("id") id: number
+  ): Promise<ServiceItem[]> {
     return this.billService.getBillDetails(userId, id);
+  }
+
+  @Get("/:id/hospital")
+  @Roles(UserRole.NHSO)
+  async getHospitalBill(@Param("id") id: number): Promise<Hospital> {
+    return this.billService.getHospitalBill(id);
   }
 
   @Get("/detail/:id")
