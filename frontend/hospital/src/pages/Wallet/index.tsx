@@ -81,6 +81,7 @@ const Wallet = () => {
 								<TableCell>{b.balance}</TableCell>
 								<TableCell>
 									<Input
+										placeholder="type number"
 										type="number"
 										onChange={(e) => {
 											setAmountCallBack(b.healthcareToken.id, Number(e.target.value));
