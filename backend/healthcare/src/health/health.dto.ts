@@ -12,7 +12,15 @@ export class HealthDto {
   hearthRate: number;
   temperature: number;
   BMI: number;
-  pregnantBMI: number;
+  startPregnantWeight: number;
+  startPregnantHeight: number;
+}
+
+export class PregnantDto {
+  startPregnantWeight: number;
+  startPregnantHeight: number;
+  BMI: number;
+  recommend: string;
 }
 
 export class UpdateHealthDto {
@@ -53,5 +61,10 @@ export class UpdateHealthDto {
   @ApiProperty()
   @ToInt()
   @Min(0)
-  pregnantBMI?: number;
+  startPregnantWeight?: number;
+
+  @ApiProperty()
+  @ToInt()
+  @Min(0)
+  startPregnantHeight?: number;
 }
