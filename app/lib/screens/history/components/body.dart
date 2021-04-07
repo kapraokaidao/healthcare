@@ -60,7 +60,11 @@ class Body extends StatelessWidget {
                               ],
                             ),
                             children: <Widget>[
-                              Divider(),
+                              Divider(
+                                thickness: 1.25,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
                               ListTile(
                                 dense: true,
                                 leading: Text("โรงพยาบาล: ",
