@@ -27,7 +27,7 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class PatientService {
-  private readonly smsServiceUrl
+  private readonly smsServiceUrl;
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
@@ -42,7 +42,7 @@ export class PatientService {
     @InjectRepository(ResetPasswordKYC)
     private readonly resetPasswordKycRepository: Repository<ResetPasswordKYC>
   ) {
-    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl")
+    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl");
   }
 
   async registerV2(dto: PatientRegisterDto): Promise<AuthResponseDto> {
@@ -52,7 +52,7 @@ export class PatientService {
     if (existed) {
       throw new BadRequestException("Duplicate Patient's National ID");
     }
-    await this.verifyOtp(dto.otp, dto.ref)
+    await this.verifyOtp(dto.otp, dto.ref);
     const newUser = this.userRepository.create({
       username: dto.nationalId,
       password: dto.pin,
@@ -197,12 +197,14 @@ export class PatientService {
 
   private async verifyOtp(otp: string, ref: string): Promise<void> {
     try {
-      await this.httpService.post(this.smsServiceUrl + 'otp/verify', { otp, ref }).toPromise()
+      await this.httpService
+        .post(this.smsServiceUrl + "otp/verify", { otp, ref })
+        .toPromise();
     } catch (e) {
       if (e.response?.status === 400) {
-        throw new BadRequestException(e.response.data)
+        throw new BadRequestException(e.response.data);
       } else {
-        throw new InternalServerErrorException(e)
+        throw new InternalServerErrorException(e);
       }
     }
   }
