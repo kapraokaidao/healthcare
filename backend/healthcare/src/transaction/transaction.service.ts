@@ -64,6 +64,9 @@ export class TransactionService {
     return this.transactionRepository.find({
       where: { sourceUser: { id: userId } },
       relations: ["healthcareToken", "destinationUser", "destinationUser.hospital"],
+      order: {
+        createdDate: "DESC"
+      }
     });
   }
 
