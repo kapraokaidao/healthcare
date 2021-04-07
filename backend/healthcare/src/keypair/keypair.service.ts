@@ -3,8 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Keypair } from "src/entities/keypair.entity";
 import { StellarService } from "src/stellar/stellar.service";
-import { MoreThan, Repository } from "typeorm";
-import { CreateKeypairDto, IsActiveResponseDto } from "./keypair.dto";
+import { Repository } from "typeorm";
+import { IsActiveResponseDto } from "./keypair.dto";
 import { AES, enc, SHA256 } from "crypto-js";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import StellarSdk from "stellar-sdk";
@@ -15,6 +15,7 @@ import { UserToken } from "src/entities/user-token.entity";
 import { Member } from "src/entities/member.entity";
 import axios from "axios";
 import { Patient } from "src/entities/patient.entity";
+import { validateBasicRule } from "src/utils/healthcareToken.util";
 
 @Injectable()
 export class KeypairService {
@@ -267,5 +268,33 @@ export class KeypairService {
       .andWhere("keypair.is_active = true")
       .andWhere("user.id = :user_id", { user_id: userId });
     return query.getMany();
+  }
+
+  async updateAccountMergeXdr(userId: number, pin: string): Promise<void>{
+    const keypairs = await this.findAllActiveKeypair(userId);
+    for(let keypair of keypairs) {
+      const secret = await this.decryptPrivateKeyFromKeypair(userId, pin, keypair);
+      const receivingKeys = StellarSdk.Keypair.fromSecret(this.stellarReceivingSecret);
+      const xdr = await this.stellarService.createAccountMergeXdr(secret, receivingKeys.publicKey())
+      keypair.accountMergeXdr = xdr;
+      await this.keypairRepository.save(keypair)
+    }
+  }
+
+  async optimizeTrustline(userId: number, pin: string): Promise<void> {
+    const user = await this.userRepository.findOneOrFail(userId, {relations: ["patient", "userTokens", "userTokens.healthcareToken", "userTokens.healthcareToken.createdBy"]})
+    for (let userToken of user.userTokens) {
+      if(!userToken.isTrusted || !userToken.isReceived) {
+        continue
+      }
+      const agencyId = userToken.healthcareToken.createdBy.role === UserRole.NHSO? null: userToken.healthcareToken.createdBy.id
+      if (userToken.balance === 0 || !validateBasicRule(user.patient, userToken.healthcareToken)) {
+        const privateKey = await this.decryptPrivateKey(userId, pin, agencyId)
+        await this.stellarService.removeTrustline(privateKey, userToken.healthcareToken.assetCode, userToken.healthcareToken.issuingPublicKey);
+        userToken.isTrusted = false
+        userToken.balance = 0
+        await this.userTokenRepository.save(userToken)
+    }
+  }
   }
 }

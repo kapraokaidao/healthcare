@@ -21,16 +21,21 @@ const BillDetail = (props: any) => {
 	}, [setTitle]);
 
 	const [services, setServices] = useState<BillService[]>([]);
+	const [hospitalName, setHospitalName] = useState('');
 	useEffect(() => {
 		if (props.match.params.id) {
 			axios.get(`/bill/${props.match.params.id}`).then(({ data }) => {
 				setServices(data);
 			});
+			axios.get(`/bill/${props.match.params.id}/hospital`).then(({ data }) => {
+				setHospitalName(data.fullname);
+			});
 		}
 	}, [props.match.params.id]);
 	return (
 		<>
-			<h1>Bill Detail</h1>
+			<h1>Bill ID: {props.match.params.id}</h1>
+			<h2>{hospitalName}</h2>
 			{services.map((service) => {
 				return (
 					<Accordion key={`service-${service.billDetailId}`}>

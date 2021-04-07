@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,6 +9,8 @@ import 'package:healthcare_app/components/round_button.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/authentication_repository.dart';
 import 'package:healthcare_app/screens/register/authentication_register.dart';
+
+import 'forget_password.dart';
 
 class AuthenticationLogin extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -124,6 +127,28 @@ class AuthenticationLogin extends StatelessWidget {
                               },
                               // color: Color(0xff0c96e4),
                               textColor: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            child: TextButton(
+                              child: Text('ลืมรหัสผ่าน', style: TextStyle(color: Colors.black, fontSize: 16, decoration: TextDecoration.underline),),
+                              onPressed: () {
+                                context
+                                    .read<AuthenticationBloc>()
+                                    .add(AuthenticationStatusChanged(AuthenticationStatus.unauthenticated));
+                                context
+                                    .read<AuthenticationBloc>()
+                                    .add(AuthenticationStepChanged(AuthenticationStep.forgetPassword));
+                                Navigator.push(context, ForgetPasswordPage.route());
+                              },
+                              // color: Color(0xff0c96e4),
+                              // textColor: Colors.white,
                             ),
                           ),
                         )

@@ -1,3 +1,7 @@
+* {
+    font-family: 'Sarabun', sans-serif !important;
+}
+
 body {
     background-image: url("../images/background.png");
     height: 100%;

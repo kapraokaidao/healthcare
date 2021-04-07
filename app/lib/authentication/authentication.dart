@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/login/authentication_login.dart';
+import 'package:healthcare_app/screens/login/forget_password.dart';
 import 'package:healthcare_app/screens/main_menu.dart';
 import 'package:healthcare_app/screens/register/authentication_register.dart';
 import 'package:healthcare_app/screens/register/register_await_approval.dart';
@@ -93,6 +94,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     break;
                   case AuthenticationStep.awaitApproval:
                     content = RegisterAwaitApproval();
+                    break;
+                  case AuthenticationStep.forgetPassword:
+                    content = ForgetPasswordPage();
                     break;
                   default:
                     content = Container(child: Text(''));

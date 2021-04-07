@@ -131,7 +131,7 @@ const BillTable = () => {
 				<Table>
 					<TableHead>
 						<TableRow>
-							<TableCell>Bill id</TableCell>
+							<TableCell>Bill ID</TableCell>
 							<TableCell>Hospital</TableCell>
 							<TableCell>Created Date</TableCell>
 							<TableCell></TableCell>

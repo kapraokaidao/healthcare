@@ -17,7 +17,7 @@ type BillService = {
 const BillDetail = (props: any) => {
 	const { setTitle } = useContext(TitleContext);
 	useEffect(() => {
-		setTitle('Bill Table');
+		setTitle('Bill Detail');
 	}, [setTitle]);
 
 	const [services, setServices] = useState<BillService[]>([]);
@@ -30,7 +30,7 @@ const BillDetail = (props: any) => {
 	}, [props.match.params.id]);
 	return (
 		<>
-			<h1>Bill Detail</h1>
+			<h1>Bill ID: {props.match.params.id}</h1>
 			{services.map((service) => {
 				return (
 					<Accordion key={`service-${service.billDetailId}`}>

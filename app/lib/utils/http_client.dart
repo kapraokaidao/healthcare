@@ -9,10 +9,9 @@ import 'package:mime_type/mime_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpClient {
-  // static final String baseUrl = 'http://localhost:3000'; // Local
-  static final String baseUrl =
-      'https://dev-healthcare-backend.kaoths.dev'; // Dev
-  // static final String baseUrl = 'http://10.0.2.2:3000'; // Dev
+  // static final String baseUrl =
+  //     'https://dev-healthcare-backend.kaoths.dev';
+  static final String baseUrl = 'http://10.0.2.2:3000';
 
   static Future<Map<String, String>> _getDefaultHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -149,5 +148,44 @@ class HttpClient {
       String path, Map<String, dynamic> body) async {
     http.Response response = await http.delete(baseUrl + path);
     return json.decode(response.body);
+  }
+
+  static Future<void> resetPassword({
+    @required String nationalId,
+    @required String newPassword,
+    @required String nationalIdFilePath,
+    @required String selfieFilePath}) async {
+    Map<String, dynamic> body = {};
+    body["username"] = nationalId;
+    body["newPassword"] = newPassword;
+    http.Response response = await http.post(baseUrl + '/patient/password/reset', body: body);
+    if (response.statusCode >= 400) {
+      dynamic data = json.decode(response.body);
+      throw ("'HTTP ${data['statusCode']}: ${data['message']}'");
+    }
+    final decoded = json.decode(response.body);
+    final int rpid = decoded['resetPasswordId'];
+    await uploadResetPasswordKyc(id: rpid, type: 'national-id', filePath: nationalIdFilePath);
+    await uploadResetPasswordKyc(id: rpid, type: 'selfie', filePath: selfieFilePath);
+  }
+
+  static Future<http.Response> uploadResetPasswordKyc(
+      {
+        @required int id,
+        @required String type,
+        @required String filePath}) async {
+    String path = "/patient/password/reset/$id/upload/" + type;
+    Uri uri = Uri.parse(baseUrl + path);
+    http.MultipartRequest request = http.MultipartRequest('POST', uri);
+    Future<http.MultipartFile> filePromises = http.MultipartFile.fromPath('image', filePath, contentType: MediaType.parse(mime(filePath)));
+    http.MultipartFile multipartFile = await filePromises;
+    request.files.add(multipartFile);
+    http.StreamedResponse streamedResponse = await request.send();
+    http.Response response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode >= 400) {
+      dynamic data = json.decode(response.body);
+      throw ("'HTTP ${data['statusCode']}: ${data['message']}'");
+    }
+    return response;
   }
 }

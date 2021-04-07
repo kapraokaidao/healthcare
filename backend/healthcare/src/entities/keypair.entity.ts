@@ -29,7 +29,7 @@ export class Keypair {
   encryptedPrivateKey: string;
 
   @ApiProperty()
-  @Column({ name: "account_merge_xdr" })
+  @Column("text", { name: "account_merge_xdr" })
   accountMergeXdr: string;
 
   @ApiProperty()

@@ -18,6 +18,7 @@ import { User } from "src/entities/user.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 import { AgencyService } from "src/agency/agency.service";
 import { TxType } from "src/constant/enum/transaction.enum";
+import {validateBasicRule} from "src/utils/healthcareToken.util";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -103,7 +104,7 @@ export class HealthcareTokenService {
     });
     if (user.role === UserRole.Patient) {
       userTokens = userTokens.filter((userToken) =>
-        this.validateBasicRule(user, userToken.healthcareToken)
+        validateBasicRule(user.patient, userToken.healthcareToken)
       );
       totalCount = userTokens.length;
     }
@@ -205,10 +206,14 @@ export class HealthcareTokenService {
     ) {
       throw new BadRequestException("This service is not valid for this user");
     }
+    
+    await this.keypairService.optimizeTrustline(userId, pin)
+
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
       serviceId,
       { relations: ["createdBy"] }
     );
+
     if (healthcareToken.createdBy.role === UserRole.NHSO) {
       await this.transferTokenFromNHSO(userId, serviceId, pin);
     } else if (healthcareToken.createdBy.role === UserRole.Agency) {
@@ -234,6 +239,7 @@ export class HealthcareTokenService {
     }
 
     //Todo: update XDR
+    await this.keypairService.updateAccountMergeXdr(userId, pin);
   }
 
   async getVerificationInfo(userId: number, serviceId: number): Promise<UserToken> {
@@ -510,7 +516,9 @@ export class HealthcareTokenService {
       );
     });
 
+    
     //Todo: update XDR
+    await this.keypairService.updateAccountMergeXdr(userId, pin);
   }
 
   private async transferToken(
@@ -528,18 +536,19 @@ export class HealthcareTokenService {
     const sourceUserBalance = await this.userTokenRepository.findOneOrFail({
       where: { user: sourceUser, healthcareToken: healthcareToken },
     });
+
+    const agencyId = healthcareToken.createdBy.role === UserRole.Agency
+    ? healthcareToken.createdBy.id
+    : null
+
     const privateKey = await this.keypairService.decryptPrivateKey(
       sourceUserId,
       pin,
-      healthcareToken.createdBy.role === UserRole.Agency
-        ? healthcareToken.createdBy.id
-        : null
+      agencyId
     );
     const sourcePublicKey = await this.keypairService.findPublicKey(
       sourceUserId,
-      healthcareToken.createdBy.role === UserRole.Agency
-        ? healthcareToken.createdBy.id
-        : null
+      agencyId
     );
     const destinationPublicKey = await this.keypairService.findPublicKey(
       destinationUserId
@@ -584,7 +593,9 @@ export class HealthcareTokenService {
         amount
       );
     });
+
     //Todo: update XDR
+    await this.keypairService.updateAccountMergeXdr(sourceUserId, pin);
   }
 
   private async transferTokenFromNHSO(
@@ -633,6 +644,7 @@ export class HealthcareTokenService {
       if (!userToken || !userToken.isTrusted) {
         const newUserToken = this.userTokenRepository.create();
         newUserToken.isTrusted = true;
+        newUserToken.isReceived = true;
         newUserToken.balance = healthcareToken.tokenPerPerson;
         newUserToken.healthcareToken = healthcareToken;
         newUserToken.user = user;
@@ -658,31 +670,6 @@ export class HealthcareTokenService {
         healthcareToken.tokenPerPerson
       );
     });
-    //Todo: update XDR
-  }
-
-  private validateBasicRule(user: User, healthcareToken: HealthcareToken): boolean {
-    const now = dayjs();
-    const userAge = now.diff(user.patient.birthDate, "year");
-    if (!healthcareToken.isActive) {
-      return false;
-    }
-    if (healthcareToken.startAge && healthcareToken.startAge > userAge) {
-      return false;
-    }
-    if (healthcareToken.endAge && healthcareToken.endAge < userAge) {
-      return false;
-    }
-    if (healthcareToken.gender && healthcareToken.gender != user.patient.gender) {
-      return false;
-    }
-    if (healthcareToken.startDate && now.isBefore(healthcareToken.startDate, "day")) {
-      return false;
-    }
-    if (healthcareToken.endDate && now.isAfter(healthcareToken.endDate, "day")) {
-      return false;
-    }
-    return true;
   }
 
   private basicRulesQuery(user: User): SelectQueryBuilder<HealthcareToken> {
