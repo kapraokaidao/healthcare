@@ -41,7 +41,9 @@ export class HealthService {
       startPregnantHeight: user.startPregnantHeight,
       startPregnantWeight: user.startPregnantWeight,
       BMI,
-      recommend: `เกณฑ์น้ำหนักมาตรฐาน ${underWeight} - ${normalWeight} กิโลกรัม`,
+      recommend: `เกณฑ์น้ำหนักมาตรฐาน ${underWeight.toFixed(2)} - ${normalWeight.toFixed(
+        2
+      )} กิโลกรัม`,
     };
   }
 }
