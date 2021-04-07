@@ -45,7 +45,7 @@ export class StellarService {
         publicKey: newKeypair.publicKey(),
       };
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -106,7 +106,7 @@ export class StellarService {
         receivingPublicKey: receivingKeys.publicKey(),
       };
     } catch (e) {
-      throw new BadRequestException(e);
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -142,7 +142,7 @@ export class StellarService {
       changeTrustTransaction.sign(sourceKeys);
       await server.submitTransaction(changeTrustTransaction);
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -175,7 +175,7 @@ export class StellarService {
         transferTransaction.sign(fundingKeys);
         await server.submitTransaction(transferTransaction);
       } catch (e) {
-        throw e;
+        throw new BadRequestException(e.toString());
       }
     }
   }
@@ -209,7 +209,7 @@ export class StellarService {
       const res = await server.submitTransaction(transferTransaction);
       return res["id"];
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -261,7 +261,7 @@ export class StellarService {
       accountMergeTransaction.sign(sourceKeys);
       return accountMergeTransaction.toXDR();
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -299,7 +299,17 @@ export class StellarService {
       changeTrustTransaction.sign(sourceKeys);
       await server.submitTransaction(changeTrustTransaction);
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
+    }
+  }
+
+  async submitXdr(xdr: string): Promise<void> {
+    const server = new StellarSdk.Server(this.stellarUrl);
+    try {
+      const tx = StellarSdk.TransactionBuilder.fromXDR(xdr, StellarSdk.Networks.TESTNET)
+      await server.submitTransaction(tx);
+    } catch(e) {
+      throw new BadRequestException(e.toString());
     }
   }
 }

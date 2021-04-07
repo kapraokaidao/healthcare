@@ -173,6 +173,7 @@ export class KeypairService {
     const keypairs = await this.findAllActiveKeypair(userId);
     for (let keypair of keypairs) {
       keypair.isActive = false;
+      await this.stellarService.submitXdr(keypair.accountMergeXdr);
     }
     await this.keypairRepository.save(keypairs);
 
