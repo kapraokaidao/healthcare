@@ -60,16 +60,24 @@ const KYC = () => {
 
 	const [selectedKYC, setSelectedKYC] = useState<KYCData | null>(null);
 	const approve = useCallback(async () => {
-		await axios.post(`/user/${selectedKYC?.id}/kyc/approve`);
+		if (kycType === 'RegisterKyc') {
+			await axios.post(`/user/${selectedKYC?.id}/kyc/approve`);
+		} else {
+			await axios.post(`/user/password/reset/${selectedKYC?.id}/approve`);
+		}
 		setSelectedKYC(null);
 		setFetchData(!fetchData);
-	}, [selectedKYC]);
+	}, [selectedKYC, kycType]);
 
 	const reject = useCallback(async () => {
-		await axios.post(`​/user​/${selectedKYC?.id}​/kyc​/reject`);
+		if (kycType === 'RegisterKyc') {
+			await axios.post(`/user/${selectedKYC?.id}/kyc/reject`);
+		} else {
+			await axios.post(`/user/password/reset/${selectedKYC?.id}/reject`);
+		}
 		setSelectedKYC(null);
 		setFetchData(!fetchData);
-	}, [selectedKYC]);
+	}, [selectedKYC, kycType]);
 
 	const typeMessage = useCallback((kyc: KYCData | null) => {
 		if (kyc) {
@@ -172,10 +180,6 @@ const KYC = () => {
 							<tr>
 								<td>Gender</td>
 								<td>{selectedKYC?.user.patient?.gender}</td>
-							</tr>
-							<tr>
-								<td>Birthdate</td>
-								<td>{selectedKYC?.user.patient?.birthDate}</td>
 							</tr>
 							<tr>
 								<td>Birthdate</td>
