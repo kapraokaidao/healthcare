@@ -85,23 +85,22 @@ export class UserService {
     type: KycQueryType,
     pageOptions: PaginationOptions
   ): Promise<any> {
-    const page = pageOptions.page;
-    let pageSize = pageOptions.pageSize;
+    const { page, pageSize } = pageOptions
     switch (type) {
-      case KycQueryType.All:
-        pageSize = Math.ceil(pageSize / 2);
-        const [registerKyc, registerKycCount] = await this.findRegisterKyc(
-          approved,
-          ready,
-          { page, pageSize }
-        );
-        const [
-          resetPasswordKyc,
-          resetPasswordKycCount,
-        ] = await this.findResetPasswordKyc(ready, { page, pageSize });
-        const combinedKYCs = [...registerKyc, ...resetPasswordKyc];
-        const totalCount = registerKycCount + resetPasswordKycCount;
-        return toPagination<KYC>(combinedKYCs, totalCount, { page, pageSize });
+      // case KycQueryType.All:
+      //   pageSize = Math.ceil(pageSize / 2);
+      //   const [registerKyc, registerKycCount] = await this.findRegisterKyc(
+      //     approved,
+      //     ready,
+      //     { page, pageSize }
+      //   );
+      //   const [
+      //     resetPasswordKyc,
+      //     resetPasswordKycCount,
+      //   ] = await this.findResetPasswordKyc(ready, { page, pageSize });
+      //   const combinedKYCs = [...registerKyc, ...resetPasswordKyc];
+      //   const totalCount = registerKycCount + resetPasswordKycCount;
+      //   return toPagination<KYC>(combinedKYCs, totalCount, { page, pageSize });
       case KycQueryType.Register:
         const [onlyRegisterKyc, onlyRegisterKycCount] = await this.findRegisterKyc(
           approved,

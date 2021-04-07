@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   DefaultValuePipe,
@@ -6,6 +7,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Post,
   Query,
@@ -78,17 +80,15 @@ export class UserController {
     required: false,
   })
   async find(
-    @Query("page") qPage: string,
-    @Query("pageSize") qPageSize: string,
-    @Query("approved") qApproved: string,
-    @Query("ready") qReady: string,
-    @Query("type") qType: KycQueryType
+    @Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query("pageSize", new DefaultValuePipe(10), ParseIntPipe) pageSize: number,
+    @Query("approved", new DefaultValuePipe(false), ParseBoolPipe) approved: boolean,
+    @Query("ready", new DefaultValuePipe(true), ParseBoolPipe) ready: boolean,
+    @Query("type") type: KycQueryType
   ): Promise<Pagination<User>> {
-    const page = qPage ? parseInt(qPage) : 1;
-    const pageSize = qPageSize ? parseInt(qPageSize) : 10;
-    const approved = qApproved === "true";
-    const ready = qReady && qReady === "true";
-    const type = qType ? qType : KycQueryType.All;
+    if (!Object.values(KycQueryType).includes(type)) {
+      throw new BadRequestException(`invalid kyc type [${type}]`);
+    }
     return this.userService.findKyc(approved, ready, type, { page, pageSize });
   }
 
