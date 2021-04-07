@@ -3,9 +3,9 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/dev-healthcare-backend', './backend/healthcare']
 
-#  # Push the container image to Container Registry
-#  - name: 'gcr.io/cloud-builders/docker'
-#    args: ['push', 'gcr.io/$PROJECT_ID/dev-healthcare-backend']
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/dev-healthcare-backend']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -22,5 +22,5 @@ steps:
           'managed',
           '--allow-unauthenticated',
       ]
-#images:
-#  - gcr.io/$PROJECT_ID/dev-healthcare-backend
+images:
+  - gcr.io/$PROJECT_ID/dev-healthcare-backend
