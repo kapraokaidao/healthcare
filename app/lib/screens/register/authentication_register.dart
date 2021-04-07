@@ -240,6 +240,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           address: addressController.value.text,
                           birthdate: birthdateController.value.text,
                           gender: gender,
+                          otp: otpController.value.text,
+                          ref: ref
                         );
                         // await HttpClient.post('/auth/register', user);
 
@@ -271,23 +273,20 @@ class _RegisterPageState extends State<RegisterPage> {
     String address,
     String birthdate,
     String gender,
+    String otp,
+    String ref
   }) {
     var user = <String, dynamic>{};
-    var patient = <String, dynamic>{};
-    user["username"] = nationalId;
-    user["password"] = pin;
     user["firstname"] = firstname;
     user["lastname"] = lastname;
-    user["role"] = "Patient";
     user["phone"] = phone;
     user["address"] = address;
-
-    patient["nationalId"] = nationalId;
-    patient["gender"] = gender;
-    patient["birthDate"] = birthdate;
-
-    user["patient"] = patient;
-
+    user["nationalId"] = nationalId;
+    user["pin"] = pin;
+    user["gender"] = gender;
+    user["birthDate"] = birthdate;
+    user["otp"] = otp;
+    user["ref"] = ref;
     return user;
   }
 /*
