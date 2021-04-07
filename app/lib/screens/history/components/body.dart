@@ -29,57 +29,59 @@ class Body extends StatelessWidget {
                     "serviceId": data['healthcareToken']['id'],
                     "name": data['healthcareToken']['name'],
                     "hospital": data['destinationUser']['hospital']['fullname'],
-                    "date": DateFormat('hh:mm:ss, dd/MM/yyyy').format(
-                        DateTime.parse(data['destinationUser']['updatedDate'])),
+                    "amount": data["amount"],
+                    "date": DateFormat('dd/MM/yyyy')
+                        .format(DateTime.parse(data['createdDate'])),
                   });
                 }
-                return Container(
-                    alignment: Alignment.bottomCenter,
-                    child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: 500),
-                        child: DataTable(
-                          headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Color(0xff98d583)),
-                          columns: const <DataColumn>[
-                            DataColumn(
-                              label: Text(
-                                'สิทธิ',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
+                return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        physics: BouncingScrollPhysics(),
+                        itemCount: show.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Card(
+                              child: ExpansionTile(
+                            title: Column(
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(show[index]["date"],
+                                        style: TextStyle(fontSize: 16.0)),
+                                    Text(show[index]["name"],
+                                        style: TextStyle(fontSize: 16.0)),
+                                  ],
+                                )
+                              ],
                             ),
-                            DataColumn(
-                              label: Text(
-                                'เวลา',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
+                            children: <Widget>[
+                              Divider(
+                                thickness: 1.25,
+                                indent: 5,
+                                endIndent: 5,
                               ),
-                            ),
-                          ],
-                          rows: show.map(
-                            (user) {
-                              return DataRow(
-                                  color:
-                                      MaterialStateColor.resolveWith((states) {
-                                    return Colors.white;
-                                  }),
-                                  cells: <DataCell>[
-                                    DataCell(Text(user["name"],
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        ))),
-                                    DataCell(
-                                      Text(user["date"],
-                                          textAlign: TextAlign.right,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                          )),
-                                    ),
-                                  ]);
-                            },
-                          ).toList(),
-                        )));
+                              ListTile(
+                                dense: true,
+                                leading: Text("โรงพยาบาล: ",
+                                    style: TextStyle(fontSize: 14.0)),
+                                trailing: Text(show[index]["hospital"],
+                                    style: TextStyle(fontSize: 14.0)),
+                              ),
+                              ListTile(
+                                dense: true,
+                                leading: Text("จำนวน: ",
+                                    style: TextStyle(fontSize: 14.0)),
+                                trailing: Text(show[index]["amount"].toString(),
+                                    style: TextStyle(fontSize: 14.0)),
+                              )
+                            ],
+                          ));
+                        }));
               } else {
                 return Center(child: CircularProgressIndicator());
               }

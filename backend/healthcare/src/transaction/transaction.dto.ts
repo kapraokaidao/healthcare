@@ -45,7 +45,7 @@ export class TransactionSearchResponseDto {
 }
 
 export class SearchTransactionNHSODto {
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
   @Length(9, 9)
   @IsNumberString()
   hospitalCode: string;
@@ -70,21 +70,20 @@ export class SearchTransactionNHSODto {
 
   @ApiProperty()
   pageSize: number;
-
 }
 
 export class SearchTransactionNHSOResponse {
-  id: number
+  id: number;
 
-  firstname: string
+  firstname: string;
 
-  lastname: string
+  lastname: string;
 
-  serviceName: string
+  serviceName: string;
 
-  amount: number
+  amount: number;
 
-  createdDate: Date
+  createdDate: Date;
 
-  hospitalName: string
+  hospitalName: string;
 }

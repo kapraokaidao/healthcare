@@ -35,22 +35,22 @@ class MyBottomNavBar extends StatelessWidget {
             children: List.generate(
               navItems.items.length,
               (index) => buildIconNavBarItem(
-                isActive: navItems.selectedIndex == index ? true : false,
-                icon: navItems.items[index].icon,
-                press: () {
-                  navItems.changeNavIndex(index: index);
-                  // maybe destinationChacker is not needed in future because then all of our nav items have destination
-                  // But Now if we click those which dont have destination then it shows error
-                  // And this fix this problem
-                  if (navItems.items[index].destinationChecker())
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.fade,
-                          child: navItems.items[index].destination),
-                    );
-                },
-              ),
+                  isActive: navItems.selectedIndex == index ? true : false,
+                  icon: navItems.items[index].icon,
+                  press: () {
+                    navItems.changeNavIndex(index: index);
+                    // maybe destinationChacker is not needed in future because then all of our nav items have destination
+                    // But Now if we click those which dont have destination then it shows error
+                    // And this fix this problem
+                    if (navItems.items[index].destinationChecker())
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.fade,
+                            child: navItems.items[index].destination),
+                      );
+                  },
+                  title: navItems.items[index].title),
             ),
           ),
         ),
@@ -58,15 +58,18 @@ class MyBottomNavBar extends StatelessWidget {
     );
   }
 
-  IconButton buildIconNavBarItem(
-      {String icon, Function press, bool isActive = false}) {
-    return IconButton(
-      icon: SvgPicture.asset(
-        icon,
-        color: isActive ? kPrimaryColor : Color(0xFFD1D4D4),
-        height: 22,
+  Column buildIconNavBarItem(
+      {String icon, Function press, bool isActive = false, String title}) {
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(
+        icon: SvgPicture.asset(
+          icon,
+          color: isActive ? kPrimaryColor : Color(0xFFD1D4D4),
+          height: 22,
+        ),
+        onPressed: press,
       ),
-      onPressed: press,
-    );
+      Text(title)
+    ]);
   }
 }

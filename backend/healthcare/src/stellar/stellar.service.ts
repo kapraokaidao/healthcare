@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import StellarSdk, { Horizon } from "stellar-sdk";
 import { ConfigService } from "@nestjs/config";
 import { Keypair } from "./stellar.dto";
@@ -48,7 +45,7 @@ export class StellarService {
         publicKey: newKeypair.publicKey(),
       };
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -109,7 +106,7 @@ export class StellarService {
         receivingPublicKey: receivingKeys.publicKey(),
       };
     } catch (e) {
-      throw new BadRequestException(e);
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -145,7 +142,7 @@ export class StellarService {
       changeTrustTransaction.sign(sourceKeys);
       await server.submitTransaction(changeTrustTransaction);
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -178,7 +175,7 @@ export class StellarService {
         transferTransaction.sign(fundingKeys);
         await server.submitTransaction(transferTransaction);
       } catch (e) {
-        throw e;
+        throw new BadRequestException(e.toString());
       }
     }
   }
@@ -212,7 +209,7 @@ export class StellarService {
       const res = await server.submitTransaction(transferTransaction);
       return res["id"];
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
@@ -222,32 +219,36 @@ export class StellarService {
   ): Promise<string> {
     const server = new StellarSdk.Server(this.stellarUrl);
     const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
-    let balances = await this.getBalance(sourceKeys.publicKey())
+    let balances = await this.getBalance(sourceKeys.publicKey());
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
       let accountMergeTransaction = new StellarSdk.TransactionBuilder(source, {
         fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
-      })
+      });
 
       for (let balance of balances) {
-        if(balance.asset_type === "native" || balance.balance <= 0) {
-          continue
+        if (balance.asset_type === "native" || balance.balance <= 0) {
+          continue;
         }
-        const serviceAsset = new StellarSdk.Asset(balance.asset_code, balance.asset_issuer);
-        accountMergeTransaction = accountMergeTransaction.addOperation(
-          StellarSdk.Operation.payment({
-            destination: balance.asset_issuer,
-            asset: serviceAsset,
-            amount: balance.balance,
-          })
-        )
-        .addOperation(
-          StellarSdk.Operation.changeTrust({
-            asset: serviceAsset,
-            limit: "0",
-          })
-        )
+        const serviceAsset = new StellarSdk.Asset(
+          balance.asset_code,
+          balance.asset_issuer
+        );
+        accountMergeTransaction = accountMergeTransaction
+          .addOperation(
+            StellarSdk.Operation.payment({
+              destination: balance.asset_issuer,
+              asset: serviceAsset,
+              amount: balance.balance,
+            })
+          )
+          .addOperation(
+            StellarSdk.Operation.changeTrust({
+              asset: serviceAsset,
+              limit: "0",
+            })
+          );
       }
       accountMergeTransaction = accountMergeTransaction
         .addOperation(
@@ -260,28 +261,23 @@ export class StellarService {
       accountMergeTransaction.sign(sourceKeys);
       return accountMergeTransaction.toXDR();
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
     }
   }
 
-  async removeTrustline(
-    sourceSecret: string,
-    name: string,
-    issuerPublicKey: string,
-  ) {
-
+  async removeTrustline(sourceSecret: string, name: string, issuerPublicKey: string) {
     const server = new StellarSdk.Server(this.stellarUrl);
     const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
     const serviceAsset = new StellarSdk.Asset(name, issuerPublicKey);
 
-    const balance = await this.getBalance(sourceKeys.publicKey(), name, issuerPublicKey)
+    const balance = await this.getBalance(sourceKeys.publicKey(), name, issuerPublicKey);
 
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
       let changeTrustTransaction = new StellarSdk.TransactionBuilder(source, {
         fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
-      })
+      });
       if (balance && balance.balance > 0) {
         changeTrustTransaction = changeTrustTransaction.addOperation(
           StellarSdk.Operation.payment({
@@ -289,13 +285,13 @@ export class StellarService {
             asset: serviceAsset,
             amount: balance.balance,
           })
-        )
-
+        );
       }
-      changeTrustTransaction = changeTrustTransaction.addOperation(
+      changeTrustTransaction = changeTrustTransaction
+        .addOperation(
           StellarSdk.Operation.changeTrust({
             asset: serviceAsset,
-            limit: "0"
+            limit: "0",
           })
         )
         .setTimeout(100)
@@ -303,7 +299,17 @@ export class StellarService {
       changeTrustTransaction.sign(sourceKeys);
       await server.submitTransaction(changeTrustTransaction);
     } catch (e) {
-      throw e;
+      throw new BadRequestException(e.toString());
+    }
+  }
+
+  async submitXdr(xdr: string): Promise<void> {
+    const server = new StellarSdk.Server(this.stellarUrl);
+    try {
+      const tx = StellarSdk.TransactionBuilder.fromXDR(xdr, StellarSdk.Networks.TESTNET)
+      await server.submitTransaction(tx);
+    } catch(e) {
+      throw new BadRequestException(e.toString());
     }
   }
 }

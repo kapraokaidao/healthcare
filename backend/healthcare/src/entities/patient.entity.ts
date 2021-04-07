@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {
   Column,
   CreateDateColumn,
@@ -9,12 +10,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "./user.entity";
-import { UserGender } from "../constant/enum/user.enum";
-import { ApiProperty } from "@nestjs/swagger";
-import { ResetPasswordKYC } from "./reset-password-kyc.entity";
-import { Fetus } from "./fetus.entity";
 import { BloodRh, BloodType } from "../constant/enum/patient.enum";
+import { UserGender } from "../constant/enum/user.enum";
+import { Fetus } from "./fetus.entity";
+import { ResetPasswordKYC } from "./reset-password-kyc.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class Patient {
@@ -54,14 +54,11 @@ export class Patient {
   @Column("decimal", { unsigned: true, precision: 5, scale: 2, nullable: true })
   temperature: number;
 
-  @Column("decimal", {
-    name: "pregnant_bmi",
-    unsigned: true,
-    precision: 5,
-    scale: 2,
-    nullable: true,
-  })
-  pregnantBMI: number;
+  @Column("decimal", { unsigned: true, precision: 5, scale: 2, nullable: true })
+  startPregnantWeight: number;
+
+  @Column("decimal", { unsigned: true, precision: 5, scale: 2, nullable: true })
+  startPregnantHeight: number;
 
   @Column("enum", { enum: BloodRh, nullable: true })
   bloodRh: BloodRh;

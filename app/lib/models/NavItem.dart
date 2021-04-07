@@ -9,8 +9,9 @@ class NavItem {
   final int id;
   final String icon;
   final Widget destination;
+  final String title;
 
-  NavItem({this.id, this.icon, this.destination});
+  NavItem({this.id, this.icon, this.destination, this.title});
 
 // If there is no destination then it help us
   bool destinationChecker() {
@@ -33,25 +34,30 @@ class NavItems extends ChangeNotifier {
   }
 
   List<NavItem> items = [
-    NavItem(id: 1, icon: "assets/icons/inbox.svg", destination: TokenScreen()),
+    NavItem(
+        id: 1,
+        icon: "assets/icons/privilege.svg",
+        destination: TokenScreen(),
+        title: 'สิทธิ'),
     NavItem(
         id: 2,
-        icon: "assets/icons/paper-plane.svg",
-        destination: ValidTokenScreen()),
+        icon: "assets/icons/add.svg",
+        destination: ValidTokenScreen(),
+        title: 'รับสิทธิ'),
     NavItem(
-      id: 3,
-      icon: "assets/icons/health.svg",
-      destination: HealthScreen(),
-    ),
+        id: 3,
+        icon: "assets/icons/health.svg",
+        destination: HealthScreen(),
+        title: 'สุขภาพ'),
     NavItem(
-      id: 4,
-      icon: "assets/icons/history.svg",
-      destination: HistoryScreen(),
-    ),
+        id: 4,
+        icon: "assets/icons/history.svg",
+        destination: HistoryScreen(),
+        title: 'ประวัติ '),
     NavItem(
-      id: 5,
-      icon: "assets/icons/profile.svg",
-      destination: AccountScreen(),
-    ),
+        id: 5,
+        icon: "assets/icons/profile.svg",
+        destination: AccountScreen(),
+        title: 'บัญชี'),
   ];
 }

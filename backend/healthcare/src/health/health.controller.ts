@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { UserRole } from "src/constant/enum/user.enum";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserId } from "src/decorators/user-id.decorator";
-import { HealthDto, UpdateHealthDto } from "./health.dto";
+import { HealthDto, PregnantDto, UpdateHealthDto } from "./health.dto";
 import { HealthService } from "./health.service";
 
 @ApiBearerAuth()
@@ -25,5 +25,11 @@ export class HealthController {
     @Body() updateHealthDto: UpdateHealthDto
   ): Promise<HealthDto> {
     return this.healthService.update(userId, updateHealthDto);
+  }
+
+  @Get("/pregnant")
+  @Roles(UserRole.Patient)
+  async getPregnant(@UserId() userId: number): Promise<PregnantDto> {
+    return this.healthService.getPregnant(userId);
   }
 }

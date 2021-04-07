@@ -4,7 +4,6 @@ export enum KycImageType {
 }
 
 export enum KycQueryType {
-  All = "All",
   Register = "RegisterKyc",
   ResetPassword = "ResetPasswordKyc",
 }
