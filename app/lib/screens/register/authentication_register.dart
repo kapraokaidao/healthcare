@@ -225,7 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Container(
                       margin: EdgeInsets.only(top: 6, bottom: 16),
                       child: StyledTextFormField(
-                        hintText: '23/05/1998',
+                        hintText: '1998-04-29',
                         controller: birthdateController,
                       ),
                     ),
@@ -233,17 +233,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       title: "ลงทะเบียน",
                       onPressed: () async {
                         Map<String, dynamic> user = _createRegisterBody(
-                          firstname: firstnameController.value.text,
-                          lastname: lastnameController.value.text,
-                          nationalId: nationalIdController.value.text,
-                          pin: pinController.value.text,
-                          phone: phoneController.value.text,
-                          address: addressController.value.text,
-                          birthdate: birthdateController.value.text,
-                          gender: gender,
-                          otp: otpController.value.text,
-                          ref: ref
-                        );
+                            firstname: firstnameController.value.text,
+                            lastname: lastnameController.value.text,
+                            nationalId: nationalIdController.value.text,
+                            pin: pinController.value.text,
+                            phone: phoneController.value.text,
+                            address: addressController.value.text,
+                            birthdate: birthdateController.value.text,
+                            gender: gender,
+                            otp: otpController.value.text,
+                            ref: ref);
                         // await HttpClient.post('/auth/register', user);
 
                         ctx
@@ -267,18 +266,17 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  Map<String, dynamic> _createRegisterBody({
-    String firstname,
-    String lastname,
-    String nationalId,
-    String pin,
-    String phone,
-    String address,
-    String birthdate,
-    String gender,
-    String otp,
-    String ref
-  }) {
+  Map<String, dynamic> _createRegisterBody(
+      {String firstname,
+      String lastname,
+      String nationalId,
+      String pin,
+      String phone,
+      String address,
+      String birthdate,
+      String gender,
+      String otp,
+      String ref}) {
     var user = <String, dynamic>{};
     user["firstname"] = firstname;
     user["lastname"] = lastname;

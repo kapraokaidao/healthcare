@@ -21,12 +21,12 @@ class Body extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  Text('Healthcare Token App'),
-                  Text('Welcome user: ${state.user?.username}'),
+                  Text('Healthcare'),
+                  Text('ยินดีต้อนรับ: ${state.user?.username}'),
                   Text(
-                      'full name: ${state.user?.firstname} ${state.user?.lastname}'),
-                  Text('phone: ${state.user?.phone}'),
-                  Text('address: ${state.user?.address}'),
+                      'ชื่อ: ${state.user?.firstname} ${state.user?.lastname}'),
+                  Text('เบอร์โทร: ${state.user?.phone}'),
+                  Text('ที่อยู่: ${state.user?.address}'),
                 ],
               ),
               OutlineButton(
@@ -36,7 +36,7 @@ class Body extends StatelessWidget {
                     AgreementScreen.route(),
                   );
                 },
-                child: Text('Next'),
+                child: Text('ถัดไป'),
               ),
               OutlineButton(
                 onPressed: () {
@@ -44,7 +44,7 @@ class Body extends StatelessWidget {
                       .read<AuthenticationBloc>()
                       .add(AuthenticationLogoutRequested());
                 },
-                child: Text('Logout'),
+                child: Text('ออกจากระบบ'),
               )
             ],
           ),
