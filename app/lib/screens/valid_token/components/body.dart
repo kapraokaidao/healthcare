@@ -41,7 +41,7 @@ class Body extends StatelessWidget {
                         constraints: BoxConstraints(minWidth: 500),
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Color(0xff98d583)),
+                              (states) => Color(0xFF82B1FF)),
                           columns: const <DataColumn>[
                             DataColumn(
                               label: Text(
