@@ -18,7 +18,7 @@ import { User } from "src/entities/user.entity";
 import { UserRole } from "src/constant/enum/user.enum";
 import { AgencyService } from "src/agency/agency.service";
 import { TxType } from "src/constant/enum/transaction.enum";
-import {validateBasicRule} from "src/utils/healthcareToken.util";
+import { validateBasicRule } from "src/utils/healthcareToken.util";
 
 @Injectable()
 export class HealthcareTokenService {
@@ -206,8 +206,8 @@ export class HealthcareTokenService {
     ) {
       throw new BadRequestException("This service is not valid for this user");
     }
-    
-    await this.keypairService.optimizeTrustline(userId, pin)
+
+    await this.keypairService.optimizeTrustline(userId, pin);
 
     const healthcareToken = await this.healthcareTokenRepository.findOneOrFail(
       serviceId,
@@ -516,7 +516,6 @@ export class HealthcareTokenService {
       );
     });
 
-    
     //Todo: update XDR
     await this.keypairService.updateAccountMergeXdr(userId, pin);
   }
@@ -537,9 +536,10 @@ export class HealthcareTokenService {
       where: { user: sourceUser, healthcareToken: healthcareToken },
     });
 
-    const agencyId = healthcareToken.createdBy.role === UserRole.Agency
-    ? healthcareToken.createdBy.id
-    : null
+    const agencyId =
+      healthcareToken.createdBy.role === UserRole.Agency
+        ? healthcareToken.createdBy.id
+        : null;
 
     const privateKey = await this.keypairService.decryptPrivateKey(
       sourceUserId,

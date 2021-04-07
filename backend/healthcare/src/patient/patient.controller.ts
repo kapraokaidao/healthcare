@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
-  Get, HttpCode, HttpService,
+  Get,
+  HttpCode,
+  HttpService,
   Param,
   ParseIntPipe,
   Patch,
@@ -38,14 +40,14 @@ import { ConfigService } from "@nestjs/config";
 @UseGuards(RolesGuard)
 @Roles(UserRole.Patient)
 export class PatientController {
-  private readonly smsServiceUrl: string
+  private readonly smsServiceUrl: string;
   constructor(
     private readonly patientService: PatientService,
     private readonly authService: AuthService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService
   ) {
-    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl")
+    this.smsServiceUrl = this.configService.get<string>("sms.serviceUrl");
   }
 
   @PublicAPI()
@@ -62,10 +64,12 @@ export class PatientController {
 
   @PublicAPI()
   @HttpCode(200)
-  @Post('otp/request')
+  @Post("otp/request")
   async requestOtp(@Body() dto: { phoneNumber: string }) {
-    const { data } = await this.httpService.post(this.smsServiceUrl + 'otp/request', dto).toPromise()
-    return data
+    const { data } = await this.httpService
+      .post(this.smsServiceUrl + "otp/request", dto)
+      .toPromise();
+    return data;
   }
 
   @PublicAPI()

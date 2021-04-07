@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import StellarSdk, { Horizon } from "stellar-sdk";
 import { ConfigService } from "@nestjs/config";
 import { Keypair } from "./stellar.dto";
@@ -222,32 +219,36 @@ export class StellarService {
   ): Promise<string> {
     const server = new StellarSdk.Server(this.stellarUrl);
     const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
-    let balances = await this.getBalance(sourceKeys.publicKey())
+    let balances = await this.getBalance(sourceKeys.publicKey());
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
       let accountMergeTransaction = new StellarSdk.TransactionBuilder(source, {
         fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
-      })
+      });
 
       for (let balance of balances) {
-        if(balance.asset_type === "native" || balance.balance <= 0) {
-          continue
+        if (balance.asset_type === "native" || balance.balance <= 0) {
+          continue;
         }
-        const serviceAsset = new StellarSdk.Asset(balance.asset_code, balance.asset_issuer);
-        accountMergeTransaction = accountMergeTransaction.addOperation(
-          StellarSdk.Operation.payment({
-            destination: balance.asset_issuer,
-            asset: serviceAsset,
-            amount: balance.balance,
-          })
-        )
-        .addOperation(
-          StellarSdk.Operation.changeTrust({
-            asset: serviceAsset,
-            limit: "0",
-          })
-        )
+        const serviceAsset = new StellarSdk.Asset(
+          balance.asset_code,
+          balance.asset_issuer
+        );
+        accountMergeTransaction = accountMergeTransaction
+          .addOperation(
+            StellarSdk.Operation.payment({
+              destination: balance.asset_issuer,
+              asset: serviceAsset,
+              amount: balance.balance,
+            })
+          )
+          .addOperation(
+            StellarSdk.Operation.changeTrust({
+              asset: serviceAsset,
+              limit: "0",
+            })
+          );
       }
       accountMergeTransaction = accountMergeTransaction
         .addOperation(
@@ -264,24 +265,19 @@ export class StellarService {
     }
   }
 
-  async removeTrustline(
-    sourceSecret: string,
-    name: string,
-    issuerPublicKey: string,
-  ) {
-
+  async removeTrustline(sourceSecret: string, name: string, issuerPublicKey: string) {
     const server = new StellarSdk.Server(this.stellarUrl);
     const sourceKeys = StellarSdk.Keypair.fromSecret(sourceSecret);
     const serviceAsset = new StellarSdk.Asset(name, issuerPublicKey);
 
-    const balance = await this.getBalance(sourceKeys.publicKey(), name, issuerPublicKey)
+    const balance = await this.getBalance(sourceKeys.publicKey(), name, issuerPublicKey);
 
     try {
       const source = await server.loadAccount(sourceKeys.publicKey());
       let changeTrustTransaction = new StellarSdk.TransactionBuilder(source, {
         fee: this.stellarFee,
         networkPassphrase: StellarSdk.Networks.TESTNET,
-      })
+      });
       if (balance && balance.balance > 0) {
         changeTrustTransaction = changeTrustTransaction.addOperation(
           StellarSdk.Operation.payment({
@@ -289,13 +285,13 @@ export class StellarService {
             asset: serviceAsset,
             amount: balance.balance,
           })
-        )
-
+        );
       }
-      changeTrustTransaction = changeTrustTransaction.addOperation(
+      changeTrustTransaction = changeTrustTransaction
+        .addOperation(
           StellarSdk.Operation.changeTrust({
             asset: serviceAsset,
-            limit: "0"
+            limit: "0",
           })
         )
         .setTimeout(100)

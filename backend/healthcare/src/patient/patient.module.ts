@@ -15,7 +15,7 @@ import { KeypairModule } from "src/keypair/keypair.module";
     S3Module,
     AuthModule,
     KeypairModule,
-    HttpModule
+    HttpModule,
   ],
   controllers: [PatientController],
   providers: [PatientService],

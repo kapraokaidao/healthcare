@@ -54,6 +54,6 @@ export class TransactionController {
   async searchTransactionNHSO(
     @Body() dto: SearchTransactionNHSODto
   ): Promise<Pagination<SearchTransactionNHSOResponse>> {
-    return this.transactionService.searchTransactionNHSO(dto)
+    return this.transactionService.searchTransactionNHSO(dto);
   }
 }
