@@ -36,7 +36,7 @@ class HttpClient {
       query = query + key + "=" + value;
     });
     http.Response response =
-        await http.get(baseUrl + path + query, headers: headers);
+        await http.get(Uri.parse(baseUrl + path + query), headers: headers);
     return json.decode(response.body);
   }
 
@@ -50,7 +50,7 @@ class HttpClient {
       query = query + key + "=" + value;
     });
     http.Response response =
-        await http.get(baseUrl + path + query, headers: headers);
+        await http.get(Uri.parse(baseUrl + path + query), headers: headers);
     return response.body;
   }
 
@@ -58,7 +58,7 @@ class HttpClient {
       String path, Map<String, dynamic> body) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
     headers["content-type"] = "application/json";
-    http.Response response = await http.post(baseUrl + path,
+    http.Response response = await http.post(Uri.parse(baseUrl + path),
         body: jsonEncode(body), headers: headers);
     if (response.statusCode >= 400) {
       dynamic data = json.decode(response.body);
@@ -134,19 +134,20 @@ class HttpClient {
       String path, Map<String, dynamic> body) async {
     Map<String, dynamic> headers = await _getDefaultHeader();
     http.Response response =
-        await http.put(baseUrl + path, body: body, headers: headers);
+        await http.put(Uri.parse(baseUrl + path), body: body, headers: headers);
     return json.decode(response.body);
   }
 
   static Future<Map<String, dynamic>> patch(
       String path, Map<String, dynamic> body) async {
-    http.Response response = await http.patch(baseUrl + path, body: body);
+    http.Response response =
+        await http.patch(Uri.parse(baseUrl + path), body: body);
     return json.decode(response.body);
   }
 
   static Future<Map<String, dynamic>> delete(
       String path, Map<String, dynamic> body) async {
-    http.Response response = await http.delete(baseUrl + path);
+    http.Response response = await http.delete(Uri.parse(baseUrl + path));
     return json.decode(response.body);
   }
 
@@ -158,8 +159,8 @@ class HttpClient {
     Map<String, dynamic> body = {};
     body["username"] = nationalId;
     body["newPassword"] = newPassword;
-    http.Response response =
-        await http.post(baseUrl + '/patient/password/reset', body: body);
+    http.Response response = await http
+        .post(Uri.parse(baseUrl + '/patient/password/reset'), body: body);
     if (response.statusCode >= 400) {
       dynamic data = json.decode(response.body);
       throw ("'HTTP ${data['statusCode']}: ${data['message']}'");

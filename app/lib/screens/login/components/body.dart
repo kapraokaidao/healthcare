@@ -13,11 +13,12 @@ class Body extends StatelessWidget {
 
   _login(context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await http
-        .post("https://dev-healthcare-backend.kaoths.dev/patient/login", body: {
-      "username": nationalIdController.text,
-      "password": pinController.text
-    });
+    final response = await http.post(
+        Uri.parse("https://dev-healthcare-backend.kaoths.dev/patient/login"),
+        body: {
+          "username": nationalIdController.text,
+          "password": pinController.text
+        });
     final responseJson = jsonDecode(response.body);
     final access_token = responseJson['access_token'];
     prefs.setString('access_token', access_token);

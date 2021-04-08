@@ -42,8 +42,9 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _countDown = _startTime;
     });
-    _timer = new Timer.periodic(_oneSecDuration,
-          (Timer timer) {
+    _timer = new Timer.periodic(
+      _oneSecDuration,
+      (Timer timer) {
         if (_countDown == 0 && timer != null) {
           setState(() {
             timer.cancel();
@@ -67,7 +68,8 @@ class _RegisterPageState extends State<RegisterPage> {
     String phoneNumber = phoneController.value.text;
     Map<String, dynamic> body = {};
     body['phoneNumber'] = phoneNumber;
-    Map<String, dynamic> response = await HttpClient.post('/patient/otp/request', body);
+    Map<String, dynamic> response =
+        await HttpClient.post('/patient/otp/request', body);
     setState(() {
       this.ref = response['ref'];
     });
@@ -82,26 +84,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthenticationBloc, AuthenticationState>(builder: (ctx, state) {
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+        builder: (ctx, state) {
       return Scaffold(
         backgroundColor: Colors.white,
         body: Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
-            height: MediaQuery
-                .of(context)
-                .size
-                .height,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
             padding: EdgeInsets.symmetric(vertical: 64, horizontal: 32),
             decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage('assets/images/background.png'), fit: BoxFit.cover)),
+                image: DecorationImage(
+                    image: AssetImage('assets/images/background.png'),
+                    fit: BoxFit.cover)),
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FractionallySizedBox(
                       child: Text("ชื่อ", style: TextStyle(fontSize: 16)),
@@ -124,7 +122,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     FractionallySizedBox(
-                      child: Text("เลขประจำตัวประชาชน", style: TextStyle(fontSize: 16)),
+                      child: Text("เลขประจำตัวประชาชน",
+                          style: TextStyle(fontSize: 16)),
                       widthFactor: 1,
                     ),
                     Container(
@@ -168,7 +167,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           ]),
                     ),
                     FractionallySizedBox(
-                      child: Text("เบอร์โทรศัพท์", style: TextStyle(fontSize: 16)),
+                      child:
+                          Text("เบอร์โทรศัพท์", style: TextStyle(fontSize: 16)),
                       widthFactor: 1,
                     ),
                     Container(
@@ -183,12 +183,13 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                             ElevatedButton(
-                              child: Text(_countDown == 0 ? "ขอ OTP" : "$_countDown", style: TextStyle(color: Colors.white)),
+                              child: Text(
+                                  _countDown == 0 ? "ขอ OTP" : "$_countDown",
+                                  style: TextStyle(color: Colors.white)),
                               onPressed: _countDown == 0 ? requestOtp : null,
                             )
                           ],
-                        )
-                    ),
+                        )),
                     FractionallySizedBox(
                       child: Text("รหัส OTP", style: TextStyle(fontSize: 16)),
                       widthFactor: 1,
@@ -206,8 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             Text("ref: $ref")
                           ],
-                        )
-                    ),
+                        )),
                     FractionallySizedBox(
                       child: Text("ที่อยู่", style: TextStyle(fontSize: 16)),
                       widthFactor: 1,
@@ -225,35 +225,37 @@ class _RegisterPageState extends State<RegisterPage> {
                     Container(
                       margin: EdgeInsets.only(top: 6, bottom: 16),
                       child: StyledTextFormField(
+                        hintText: '1998-04-29',
                         controller: birthdateController,
                       ),
                     ),
                     RoundButton(
-                      title: "submit",
+                      title: "ลงทะเบียน",
                       onPressed: () async {
                         Map<String, dynamic> user = _createRegisterBody(
-                          firstname: firstnameController.value.text,
-                          lastname: lastnameController.value.text,
-                          nationalId: nationalIdController.value.text,
-                          pin: pinController.value.text,
-                          phone: phoneController.value.text,
-                          address: addressController.value.text,
-                          birthdate: birthdateController.value.text,
-                          gender: gender,
-                          otp: otpController.value.text,
-                          ref: ref
-                        );
+                            firstname: firstnameController.value.text,
+                            lastname: lastnameController.value.text,
+                            nationalId: nationalIdController.value.text,
+                            pin: pinController.value.text,
+                            phone: phoneController.value.text,
+                            address: addressController.value.text,
+                            birthdate: birthdateController.value.text,
+                            gender: gender,
+                            otp: otpController.value.text,
+                            ref: ref);
                         // await HttpClient.post('/auth/register', user);
 
-                        ctx.read<AuthenticationBloc>().add(AuthenticationRegisterRequest(user));
+                        ctx
+                            .read<AuthenticationBloc>()
+                            .add(AuthenticationRegisterRequest(user));
                         // ctx.read<AuthenticationBloc>().add(AuthenticationValidateStatus());
                         // Future.delayed(const Duration(seconds: 3), () {});
-                        Navigator.pushReplacement(context, AuthenticationPage.route(null));
+                        Navigator.pushReplacement(
+                            context, AuthenticationPage.route(null));
                         // ctx.read<AuthenticationBloc>().add(AuthenticationNationalIdChanged(nationalIdController.value.text));
                         // ctx.read<AuthenticationBloc>().add(AuthenticationPinChanged(pinController.value.text));
                         // ctx.read<AuthenticationBloc>().add(AuthenticationCredentialsSubmitted());
                         // ctx.read<AuthenticationBloc>().add(AuthenticationValidateStatus());
-
                       },
                     )
                   ],
@@ -264,18 +266,17 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  Map<String, dynamic> _createRegisterBody({
-    String firstname,
-    String lastname,
-    String nationalId,
-    String pin,
-    String phone,
-    String address,
-    String birthdate,
-    String gender,
-    String otp,
-    String ref
-  }) {
+  Map<String, dynamic> _createRegisterBody(
+      {String firstname,
+      String lastname,
+      String nationalId,
+      String pin,
+      String phone,
+      String address,
+      String birthdate,
+      String gender,
+      String otp,
+      String ref}) {
     var user = <String, dynamic>{};
     user["firstname"] = firstname;
     user["lastname"] = lastname;
