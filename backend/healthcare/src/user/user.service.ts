@@ -85,7 +85,7 @@ export class UserService {
     type: KycQueryType,
     pageOptions: PaginationOptions
   ): Promise<any> {
-    const { page, pageSize } = pageOptions
+    const { page, pageSize } = pageOptions;
     switch (type) {
       // case KycQueryType.All:
       //   pageSize = Math.ceil(pageSize / 2);
@@ -134,14 +134,19 @@ export class UserService {
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.patient", "patient")
       .where("user.role = :role", { role: UserRole.Patient })
+      .andWhere("patient.approved = :approved", { approved })
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
     if (ready) {
       query.andWhere("patient.nationalIdImage is not null");
       query.andWhere("patient.selfieImage is not null");
-    }
-    if (approved) {
-      query.andWhere("patient.approved = :approved", { approved });
+    } else {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where("patient.nationalIdImage is null")
+            .orWhere("patient.selfieImage is null");
+        })
+      );
     }
     const [users, totalCount] = await query.getManyAndCount();
     const KYCs: KYC[] = users.map((user) => ({
