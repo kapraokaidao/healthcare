@@ -80,6 +80,8 @@ export class ServiceItem {
 export class LineItem {
   id: number;
 
+  nationalId: string;
+
   firstname: string;
 
   lastname: string;

@@ -62,7 +62,10 @@ class Body extends StatelessWidget {
                                   Text('วันหมดสิทธิ์',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
-                                  Text('${token["healthcareToken"]["endDate"]}')
+                                  Text(token["healthcareToken"]["endDate"] ==
+                                          null
+                                      ? '-'
+                                      : '${token["healthcareToken"]["endDate"]}')
                                 ])
                               ],
                             ),
