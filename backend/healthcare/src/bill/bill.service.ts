@@ -242,6 +242,11 @@ export class BillService {
         "user",
         "user.id = billDetailLine.user_id"
       )
+      .leftJoinAndSelect(
+        "user.patient",
+        "patient",
+        "patient.user_id = user.id"
+      )
       .andWhere("billDetail.id = :id", { id })
       .take(pageOptions.pageSize)
       .skip((pageOptions.page - 1) * pageOptions.pageSize);
@@ -256,6 +261,7 @@ export class BillService {
       lineItem.effectiveDate = line.effectiveDate;
       lineItem.firstname = line.user.firstname;
       lineItem.lastname = line.user.lastname;
+      lineItem.nationalId = line.user.patient.nationalId
       lines.push(lineItem);
     });
 
