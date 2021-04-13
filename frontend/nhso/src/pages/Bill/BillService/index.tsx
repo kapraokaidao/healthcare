@@ -13,6 +13,7 @@ type BillHistory = {
 	effectiveDate: Date;
 	firstname: string;
 	lastname: string;
+	nationalId: string;
 };
 
 const BillService = ({ id }: { id: number }) => {
@@ -43,6 +44,7 @@ const BillService = ({ id }: { id: number }) => {
 			<Table>
 				<TableHead>
 					<TableRow>
+						<TableCell>National Id</TableCell>
 						<TableCell>Name</TableCell>
 						<TableCell>Amount</TableCell>
 						<TableCell>Effective Date</TableCell>
@@ -52,6 +54,7 @@ const BillService = ({ id }: { id: number }) => {
 					{histories.map((history) => {
 						return (
 							<TableRow>
+								<TableCell>{history.nationalId}</TableCell>
 								<TableCell>
 									{history.firstname} {history.lastname}
 								</TableCell>
