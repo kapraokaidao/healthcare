@@ -30,6 +30,9 @@ class Body extends StatelessWidget {
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     final token = snapshot.data;
+                    if(token["healthcareToken"]["endDate"] == null){
+                      token["healthcareToken"]["endDate"] = 'ไม่มีวันหมดอายุ';
+                    }
                     return Column(
                       children: [
                         Container(

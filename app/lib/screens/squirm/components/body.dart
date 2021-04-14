@@ -26,15 +26,20 @@ class _BodyState extends State<Body> {
   }
 
   Future<dynamic> fetchBmi() async {
-    final response = await HttpClient.getWithoutDecode(path: "/health");
+    final response =
+        await HttpClient.getWithoutDecode(path: "/health/pregnant");
     return json.decode(response);
   }
 
   String _amount = '';
   String _weight = '';
+  String _recommend = '';
+  String _bmi = '';
+  bool _isEnable = false;
   TextEditingController _amountController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
-  TextEditingController _pregnantBMIController = TextEditingController();
+  TextEditingController _pregnantHeightController = TextEditingController();
+  TextEditingController _pregnantWeightController = TextEditingController();
 
   updateFetu() async {
     final regex = RegExp(r'^[0-9.]+$');
@@ -51,7 +56,8 @@ class _BodyState extends State<Body> {
 
   updateBmi() async {
     final response = await HttpClient.put('/health', {
-      "pregnantBMI": _pregnantBMIController.text,
+      "startPregnantHeight": _pregnantHeightController.text,
+      "startPregnantWeight": _pregnantWeightController.text,
     });
     if (response.containsKey("statusCode") && response["statusCode"] != 200) {
       return showDialog(
@@ -73,6 +79,10 @@ class _BodyState extends State<Body> {
     }
   }
 
+  updateEnable() async {
+    _isEnable ? _isEnable = false : _isEnable = true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
@@ -81,6 +91,154 @@ class _BodyState extends State<Body> {
         return SingleChildScrollView(
             child: Column(
           children: [
+            Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Color(0xFFBBC4CE)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: FutureBuilder<dynamic>(
+                  future: fetchBmi(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      final hData = snapshot.data;
+                      hData['startPregnantHeight'] == null
+                          ? _pregnantHeightController.text = ''
+                          : _pregnantHeightController.text =
+                              hData['startPregnantHeight'].toString();
+                      hData['startPregnantWeight'] == null
+                          ? _pregnantWeightController.text = ''
+                          : _pregnantWeightController.text =
+                              hData['startPregnantWeight'].toString();
+                      hData['BMI'] == null
+                          ? _bmi = ''
+                          : _bmi = hData['BMI'].toStringAsFixed(2);
+                      hData['recommend'] == null
+                          ? _recommend = ''
+                          : _recommend = hData['recommend'].toString();
+                      return Column(children: [
+                        Row(children: [
+                          new Spacer(),
+                          Text(
+                            'ค่าดัชนีมวลกายหลังเริ่มตั้งครรภ์',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 20.0,
+                            ),
+                          ),
+                          IconButton(
+                              icon: _isEnable
+                                  ? Icon(Icons.close)
+                                  : Icon(Icons.edit),
+                              onPressed: () {
+                                setState(() {
+                                  updateEnable();
+                                });
+                              }),
+                        ]),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Flexible(
+                                child: Text(
+                              'ส่วนสูง(เซนติเมตร)',
+                            )),
+                            Flexible(
+                                child: Text(
+                              'น้ำหนัก(กิโลกรัม)',
+                              textAlign: TextAlign.center,
+                            )),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: TextField(
+                                controller: _pregnantHeightController,
+                                enabled: _isEnable,
+                                textAlign: TextAlign.center,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^[0-9.]+$'))
+                                ],
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(5),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFFBBC4CE), width: 1),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFFBBC4CE), width: 1),
+                                    ),
+                                    border: InputBorder.none,
+                                    hintText: 'ส่วนสูง'),
+                              ),
+                            ),
+                            Expanded(
+                                child: Padding(
+                              padding: EdgeInsets.only(left: 20),
+                              child: TextField(
+                                controller: _pregnantWeightController,
+                                enabled: _isEnable,
+                                textAlign: TextAlign.center,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^[0-9.]+$'))
+                                ],
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(5),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFFBBC4CE), width: 1),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Color(0xFFBBC4CE), width: 1),
+                                    ),
+                                    border: InputBorder.none,
+                                    hintText: 'น้ำหนัก'),
+                              ),
+                            )),
+                          ],
+                        ),
+                        Visibility(
+                            visible: _isEnable,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                ),
+                              ),
+                              // _updateHealth([this.data, this.dataH, this.dataT]),
+                              onPressed: () {
+                                updateBmi();
+                                setState(() {
+                                  updateEnable();
+                                });
+                              },
+                              child: const Text('อัพเดท',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  )),
+                            )),
+                        Visibility(
+                            visible: !_isEnable,
+                            child: Column(children: [
+                              Text('ค่าดัชนีมวลกาย = $_bmi'),
+                              Text('$_recommend'),
+                              Text('*คำแนะนำสำหรับลูกเดี่ยวเท่านั้น')
+                            ]))
+                      ]);
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  }),
+            ),
             Container(
               padding: EdgeInsets.all(20),
               margin: EdgeInsets.all(20),
@@ -97,7 +255,7 @@ class _BodyState extends State<Body> {
                       fontSize: 20.0,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Row(
                     children: [
                       Flexible(
@@ -151,7 +309,6 @@ class _BodyState extends State<Body> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () {
                       this.updateFetu();
@@ -159,7 +316,7 @@ class _BodyState extends State<Body> {
                     color: Colors.blue,
                     textColor: Colors.white,
                     child: Text('+',
-                        style: TextStyle(fontSize: 36, color: Colors.white)),
+                        style: TextStyle(fontSize: 20, color: Colors.white)),
                     padding: EdgeInsets.all(10),
                     shape: CircleBorder(),
                   ),
@@ -177,7 +334,7 @@ class _BodyState extends State<Body> {
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
                       final fetusData = snapshot.data;
-                      List<Map<String, dynamic>> show = new List();
+                      List<Map<String, dynamic>> show = [];
                       for (var fdata in fetusData) {
                         show.add({
                           "date": fdata["date"],
@@ -246,63 +403,6 @@ class _BodyState extends State<Body> {
                     }
                   }),
             ),
-            Container(
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                border: Border.all(color: Color(0xFFBBC4CE)),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: FutureBuilder<dynamic>(
-                  future: fetchBmi(),
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.hasData) {
-                      final hData = snapshot.data;
-                      if (hData['pregnantBMI'] == null) {
-                        _pregnantBMIController.text = '';
-                      } else {
-                        _pregnantBMIController.text =
-                            hData['pregnantBMI'].toString();
-                      }
-                      return Row(
-                        children: [
-                          Text('ค่าดัชนีมวลกายหลังเริ่มตั้งครรภ์'),
-                          Expanded(
-                              child: Padding(
-                            padding: EdgeInsets.only(left: 20),
-                            child: TextField(
-                              controller: _pregnantBMIController,
-                              decoration: const InputDecoration(
-                                hintText: 'ค่า bmi',
-                              ),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14, // This is not so important
-                              ),
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'^[0-9.]+$'))
-                              ],
-                            ),
-                          )),
-                          ButtonTheme(
-                              minWidth: 30.0,
-                              height: 30.0,
-                              child: RaisedButton(
-                                color: Colors.grey[300],
-                                onPressed: updateBmi,
-                                shape: CircleBorder(),
-                                // _updateHealth([this.data, this.dataH, this.dataT]),
-                                child: Icon(Icons.update),
-                              )),
-                        ],
-                      );
-                    } else {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  }),
-            )
           ],
         ));
       } else {
