@@ -65,8 +65,8 @@ export class TransactionService {
       where: { sourceUser: { id: userId } },
       relations: ["healthcareToken", "destinationUser", "destinationUser.hospital"],
       order: {
-        createdDate: "DESC"
-      }
+        createdDate: "DESC",
+      },
     });
   }
 

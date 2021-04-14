@@ -41,6 +41,7 @@ dependencies:
   intl: ^0.16.1
   image_picker: ^0.7.3
   page_transition: ^1.1.7+6
+  flutter_datetime_picker: ^1.5.0
 
 dev_dependencies:
   flutter_test:

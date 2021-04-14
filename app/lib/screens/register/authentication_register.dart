@@ -11,6 +11,8 @@ import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/register/bloc/register_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/utils/http_client.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:intl/intl.dart';
 
 class RegisterPage extends StatefulWidget {
   static route() {
@@ -31,6 +33,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final addressController = TextEditingController();
   final birthdateController = TextEditingController();
   final otpController = TextEditingController();
+  String birthdate = '';
+  String birthdateDisplay = '';
   String gender = 'Male';
   String ref = '';
   Timer _timer;
@@ -223,12 +227,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       widthFactor: 1,
                     ),
                     Container(
-                      margin: EdgeInsets.only(top: 6, bottom: 16),
-                      child: StyledTextFormField(
-                        hintText: '1998-04-29',
-                        controller: birthdateController,
-                      ),
-                    ),
+                        margin: EdgeInsets.only(top: 6, bottom: 16),
+                        child: Row(children: [
+                          Text(birthdateDisplay),
+                          SizedBox(width: 20),
+                          ElevatedButton(
+                              onPressed: () {
+                                DatePicker.showDatePicker(context,
+                                    showTitleActions: true, onConfirm: (date) {
+                                  setState(() {
+                                    birthdate = date.toIso8601String();
+                                    birthdateDisplay =
+                                        DateFormat('dd/MM/yyyy').format(date);
+                                  });
+                                },
+                                    currentTime: DateTime.now(),
+                                    locale: LocaleType.th);
+                              },
+                              child: Text('เลือกวันเกิด',
+                                  style: TextStyle(color: Colors.white)))
+                        ])),
                     RoundButton(
                       title: "ลงทะเบียน",
                       onPressed: () async {
@@ -239,7 +257,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             pin: pinController.value.text,
                             phone: phoneController.value.text,
                             address: addressController.value.text,
-                            birthdate: birthdateController.value.text,
+                            birthdate: birthdate,
                             gender: gender,
                             otp: otpController.value.text,
                             ref: ref);

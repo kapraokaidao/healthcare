@@ -107,7 +107,9 @@ class _BodyState extends State<Body> {
                                   Text('วันหมดสิทธิ์',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
-                                  Text('${token["endDate"]}')
+                                  Text(token["endDate"] == null
+                                      ? "-"
+                                      : '${token["endDate"]}')
                                 ])
                               ],
                             ),

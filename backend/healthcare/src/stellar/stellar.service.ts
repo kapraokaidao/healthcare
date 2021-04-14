@@ -306,9 +306,9 @@ export class StellarService {
   async submitXdr(xdr: string): Promise<void> {
     const server = new StellarSdk.Server(this.stellarUrl);
     try {
-      const tx = StellarSdk.TransactionBuilder.fromXDR(xdr, StellarSdk.Networks.TESTNET)
+      const tx = StellarSdk.TransactionBuilder.fromXDR(xdr, StellarSdk.Networks.TESTNET);
       await server.submitTransaction(tx);
-    } catch(e) {
+    } catch (e) {
       throw new BadRequestException(e.toString());
     }
   }
