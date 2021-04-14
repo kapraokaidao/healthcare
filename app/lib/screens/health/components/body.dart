@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
-import 'package:healthcare_app/screens/account/account_screen.dart';
 import 'package:healthcare_app/screens/squirm/squirm_screen.dart';
 import 'package:healthcare_app/utils/http_client.dart';
 import 'package:page_transition/page_transition.dart';
@@ -17,11 +16,12 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   Future<dynamic> fetchHealth() async {
+    Future.delayed(Duration(seconds: 5));
     final response = await HttpClient.getWithoutDecode(path: '/health');
     return json.decode(response);
   }
 
-  bool _change = true;
+  bool _isEnable = false;
   String _height = '-';
   String _weight = '-';
   String _bloodType = '-';
@@ -36,19 +36,11 @@ class _BodyState extends State<Body> {
   TextEditingController _pressureController = TextEditingController();
   TextEditingController _hearthRateController = TextEditingController();
   TextEditingController _temperatureController = TextEditingController();
+  TextEditingController _bmiController = TextEditingController();
   final rowSpacer =
       TableRow(children: [SizedBox(height: 20), SizedBox(height: 20)]);
 
   updateHealth() async {
-    // final regex = RegExp(r'^[0-9.]+$');
-    // final bloodType = RegExp(r'^[ABCO+-]+$');
-    // if (regex.hasMatch(_height) &&
-    //     regex.hasMatch(_weight) &&
-    //     bloodType.hasMatch(_bloodType) &&
-    //     regex.hasMatch(_systolic) &&
-    //     regex.hasMatch(_diastolic) &&
-    //     regex.hasMatch(_hearthRate) &&
-    //     regex.hasMatch(_temperature)) {
     final response = await HttpClient.put('/health', {
       "height": _heightController.text,
       "weight": _weightController.text,
@@ -79,6 +71,51 @@ class _BodyState extends State<Body> {
     // }
   }
 
+  updateEnable() async {
+    _isEnable ? _isEnable = false : _isEnable = true;
+  }
+
+  setHealthColor(type, value) {
+    if (type == "bmi") {
+      if (double.parse(value) > 30) {
+        return Colors.red;
+      } else if (double.parse(value) < 18.5 || double.parse(value) > 23) {
+        return Colors.yellow;
+      } else {
+        return Colors.green;
+      }
+    } else if (type == "pressure") {
+      var pressure = value.split("/");
+      if (double.parse(pressure[0]) < 90 ||
+          double.parse(pressure[1]) < 60 ||
+          double.parse(pressure[0]) > 160 ||
+          double.parse(pressure[1]) > 100) {
+        return Colors.red;
+      } else if (double.parse(pressure[0]) < 110 ||
+          double.parse(pressure[1]) < 70 ||
+          double.parse(pressure[0]) > 140 ||
+          double.parse(pressure[1]) > 90) {
+        return Colors.yellow;
+      } else {
+        return Colors.green;
+      }
+    } else if (type == "heartRate") {
+      if (double.parse(value) < 60 || double.parse(value) > 100) {
+        return Colors.red;
+      } else {
+        return Colors.green;
+      }
+    } else if (type == "temperature") {
+      if (double.parse(value) < 35 || double.parse(value) > 38.5) {
+        return Colors.red;
+      } else if (double.parse(value) < 36.1 || double.parse(value) > 37.2) {
+        return Colors.yellow;
+      } else {
+        return Colors.green;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
@@ -94,222 +131,388 @@ class _BodyState extends State<Body> {
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.hasData) {
                         final hData = snapshot.data;
-                        _height = hData['height'].toString();
-                        _weight = hData['weight'].toString();
-                        _bloodType = hData['bloodType'].toString();
-                        _systolic = hData['systolic'].toString();
-                        _diastolic = hData['diastolic'].toString();
-                        _hearthRate = hData['hearthRate'].toString();
-                        _temperature = hData['temperature'].toString();
-                        _bmi = hData['BMI'].toString();
-                        if (_height == null) {
-                          _height = '-';
-                        }
-                        if (_weight == null) {
-                          _weight = '-';
-                        }
-                        if (_bloodType == null) {
-                          _bloodType = '-';
-                        }
-                        if (_systolic == null) {
-                          _systolic = '-';
-                        }
-                        if (_diastolic == null) {
-                          _diastolic = '-';
-                        }
-                        if (_hearthRate == null) {
-                          _hearthRate = '-';
-                        }
-                        if (_temperature == null) {
-                          _temperature = '-';
-                        }
-                        if (_bmi == null) {
-                          _bmi = '-';
-                        }
+                        hData['height'] == null
+                            ? _height = '-'
+                            : _height = hData['height'].toString();
+                        hData['weight'] == null
+                            ? _weight = '-'
+                            : _weight = hData['weight'].toString();
+                        hData['bloodType'] == null
+                            ? _bloodType = '-'
+                            : _bloodType = hData['bloodType'].toString();
+                        hData['systolic'] == null
+                            ? _systolic = '-'
+                            : _systolic = hData['systolic'].toString();
+                        hData['diastolic'] == null
+                            ? _diastolic = '-'
+                            : _diastolic = hData['diastolic'].toString();
+                        hData['hearthRate'] == null
+                            ? _hearthRate = '-'
+                            : _hearthRate = hData['hearthRate'].toString();
+                        hData['temperature'] == null
+                            ? _temperature = '-'
+                            : _temperature = hData['temperature'].toString();
+                        hData['BMI'] == null
+                            ? _bmi = '-'
+                            : _bmi = hData['BMI'].toStringAsFixed(2);
                         _heightController.text = _height;
                         _weightController.text = _weight;
                         _bloodTypeController.text = _bloodType;
                         _pressureController.text = "$_systolic/$_diastolic";
                         _hearthRateController.text = _hearthRate;
                         _temperatureController.text = _temperature;
+                        _bmiController.text = _bmi;
                         return Column(children: [
-                          Table(
-                            columnWidths: {
-                              0: FlexColumnWidth(6),
-                              1: FlexColumnWidth(2),
-                            },
-                            children: [
-                              TableRow(children: [
-                                Container(
-                                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: Text(
-                                      'ส่วนสูง (ซม.)',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    flex: 9,
+                                    child: Column(children: [
+                                      Table(
+                                        columnWidths: {
+                                          0: FlexColumnWidth(5),
+                                          1: FlexColumnWidth(3),
+                                        },
+                                        children: [
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'ส่วนสูง (ซม.)',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller: _heightController,
+                                              enabled: _isEnable,
+                                              textAlign: TextAlign.center,
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'^[0-9.]+$'))
+                                              ],
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'ส่วนสูง'),
+                                            ),
+                                          ]),
+                                          rowSpacer,
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'น้ำหนัก (กก.)',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller: _weightController,
+                                              enabled: _isEnable,
+                                              textAlign: TextAlign.center,
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'^[0-9.]+$'))
+                                              ],
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'น้ำหนัก'),
+                                            ),
+                                          ]),
+                                          rowSpacer,
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'ค่าดัชนีมวลกาย',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller: _bmiController,
+                                              enabled: false,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: setHealthColor("bmi",
+                                                      _bmiController.text)),
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none),
+                                            ),
+                                          ]),
+                                          rowSpacer,
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'กรุ๊ปเลือด',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller: _bloodTypeController,
+                                              enabled: _isEnable,
+                                              textAlign: TextAlign.center,
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'กรุ๊ปเลือด'),
+                                            ),
+                                          ]),
+                                          rowSpacer,
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'ความดัน',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller: _pressureController,
+                                              enabled: _isEnable,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: setHealthColor(
+                                                      "pressure",
+                                                      _pressureController
+                                                          .text)),
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'^[0-9]+$'))
+                                              ],
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'ความดัน'),
+                                            ),
+                                          ]),
+                                          rowSpacer,
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'อัตราหัวใจเต้น (bpm)',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller: _hearthRateController,
+                                              enabled: _isEnable,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: setHealthColor(
+                                                      "heartRate",
+                                                      _hearthRateController
+                                                          .text)),
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'^[0-9.]+$'))
+                                              ],
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'อัตราหัวใจเต้น'),
+                                            ),
+                                          ]),
+                                          rowSpacer,
+                                          TableRow(children: [
+                                            Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 10, 0, 0),
+                                                child: Text(
+                                                  'อุณหภูมิ (องศาเซลเซียส)',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                )),
+                                            TextField(
+                                              controller:
+                                                  _temperatureController,
+                                              enabled: _isEnable,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: setHealthColor(
+                                                      "temperature",
+                                                      _temperatureController
+                                                          .text)),
+                                              inputFormatters: <
+                                                  TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'^[0-9.]+$'))
+                                              ],
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(5),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Color(0xFFBBC4CE),
+                                                        width: 1),
+                                                  ),
+                                                  border: InputBorder.none,
+                                                  hintText: 'อุณหภูมิ'),
+                                            ),
+                                          ]),
+                                        ],
                                       ),
-                                    )),
-                                TextField(
-                                  // onChanged: (String value) {
-                                  //   _change = true;
-                                  // },
-                                  style: TextStyle(fontSize: 14),
-                                  controller: _heightController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^[0-9.]+$'))
-                                  ],
-                                ),
+                                    ])),
+                                Expanded(
+                                    flex: 1,
+                                    child: IconButton(
+                                        icon: _isEnable
+                                            ? Icon(Icons.close)
+                                            : Icon(Icons.edit),
+                                        onPressed: () {
+                                          setState(() {
+                                            updateEnable();
+                                          });
+                                        }))
                               ]),
-                              rowSpacer,
-                              TableRow(children: [
-                                Container(
-                                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: Text(
-                                      'น้ำหนัก (กก.)',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    )),
-                                TextField(
-                                  // onChanged: (String value) {
-                                  //   _change = true;
-                                  // },
-                                  style: TextStyle(
-                                    fontSize: 14,
+                          SizedBox(height: 10),
+                          Visibility(
+                              visible: _isEnable,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.blue,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
                                   ),
-                                  controller: _weightController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^[0-9.]+$'))
-                                  ],
                                 ),
-                              ]),
-                              rowSpacer,
-                              TableRow(children: [
-                                Container(
-                                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: Text(
-                                      'กรุ๊ปเลือด',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    )),
-                                TextField(
-                                    // onChanged: (String value) {
-                                    //   _change = true;
-                                    // },
+                                onPressed: () {
+                                  updateHealth();
+                                  setState(() {
+                                    updateEnable();
+                                  });
+                                },
+                                child: const Text('อัพเดท',
                                     style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    controller: _bloodTypeController,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
+                                      fontSize: 16,
                                     )),
-                              ]),
-                              rowSpacer,
-                              TableRow(children: [
-                                Container(
-                                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: Text(
-                                      'ความดัน',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    )),
-                                TextField(
-                                  // onChanged: (String value) {
-                                  //   _change = true;
-                                  // },
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                  controller: _pressureController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^[0-9]+$'))
-                                  ],
-                                ),
-                              ]),
-                              rowSpacer,
-                              TableRow(children: [
-                                Container(
-                                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: Text(
-                                      'อัตราการเต้นของหัวใจ (bpm)',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    )),
-                                TextField(
-                                  // onChanged: (String value) {
-                                  //   _change = true;
-                                  // },
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                  controller: _hearthRateController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^[0-9]+$'))
-                                  ],
-                                ),
-                              ]),
-                              rowSpacer,
-                              TableRow(children: [
-                                Container(
-                                    padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: Text(
-                                      'อุณหภูมิ (องศาเซลเซียส)',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    )),
-                                TextField(
-                                  // onChanged: (String value) {
-                                  //   _change = true;
-                                  // },
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                  controller: _temperatureController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^[0-9.]+$'))
-                                  ],
-                                ),
-                              ])
-                            ],
-                          ),
-                          RaisedButton(
-                            color: _change ? Colors.grey : Colors.grey,
-                            onPressed: updateHealth,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18.0),
-                            ),
-                            // _updateHealth([this.data, this.dataH, this.dataT]),
-                            child: Icon(Icons.update),
-                          )
+                              )),
                         ]);
                       } else {
                         return Center(child: CircularProgressIndicator());
