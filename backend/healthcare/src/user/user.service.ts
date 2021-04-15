@@ -375,12 +375,14 @@ export class UserService {
       .getOneOrFail();
     const updatedUser = this.userRepository.create(resetPasswordKYC.patient.user);
     const updatedPatient = this.patientRepository.create(resetPasswordKYC.patient);
-    updatedUser.password = resetPasswordKYC.newPassword;
     updatedPatient.nationalIdImage = resetPasswordKYC.nationalIdImage;
     updatedPatient.selfieImage = resetPasswordKYC.selfieImage;
-    updatedPatient.user = updatedUser;
     updatedPatient.requiredRecovery = true;
-    await this.patientRepository.save(updatedPatient);
+    updatedUser.password = resetPasswordKYC.newPassword;
+    updatedUser.passwordChangedDate = new Date();
+    updatedUser.patient = updatedPatient
+    await this.userRepository.save(updatedUser)
+    await this.resetPasswordKycRepository.softDelete(id)
     this.smsService.sendSms(
       updatedUser.phone,
       "รหัสผ่าน healthcare token ของคุณถูกรีเซตแล้ว"
