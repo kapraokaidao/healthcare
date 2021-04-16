@@ -59,12 +59,12 @@ export class UpdateHealthDto {
   temperature?: number;
 
   @ApiProperty()
-  @ToInt()
+  @ToFloat()
   @Min(0)
   startPregnantWeight?: number;
 
   @ApiProperty()
-  @ToInt()
+  @ToFloat()
   @Min(0)
   startPregnantHeight?: number;
 }
