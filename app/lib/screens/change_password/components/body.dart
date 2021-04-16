@@ -3,6 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
 import 'package:healthcare_app/screens/account/account_screen.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
+import 'package:healthcare_app/utils/index.dart';
+import 'package:intl/intl.dart';
 
 class Body extends StatefulWidget {
   Body({Key key}) : super(key: key);
@@ -11,8 +17,40 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
-  bool _change = true;
-  final dataH = TextEditingController(text: '170');
+  TextEditingController username = TextEditingController();
+  TextEditingController oldPassword = TextEditingController();
+  TextEditingController newPassword = TextEditingController();
+  TextEditingController confirmNewPassword = TextEditingController();
+
+  changePassword(context) async {
+    if (newPassword.text != confirmNewPassword.text) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text('ยืนยันรหัสผ่านไม่ถูกต้อง'),
+            );
+          });
+    }
+    try {
+      await HttpClient.post('/patient/password/change', {
+        "username": username.text,
+        "password": oldPassword.text,
+        "newPassword": newPassword.text
+      });
+    } catch (e) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text(e),
+            );
+          });
+    }
+    Navigator.push(context,
+        PageTransition(type: PageTransitionType.fade, child: AccountScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +79,7 @@ class _BodyState extends State<Body> {
                       child: Padding(
                         padding: EdgeInsets.only(left: 20),
                         child: TextField(
+                          controller: username,
                           decoration: const InputDecoration(
                               hintText: 'เลขบัตรประชาชน',
                               helperText: 'เลข 13 หลัก'),
@@ -56,6 +95,7 @@ class _BodyState extends State<Body> {
                       child: Padding(
                         padding: EdgeInsets.only(left: 20),
                         child: TextField(
+                          controller: oldPassword,
                           obscureText: true,
                           decoration: const InputDecoration(
                               hintText: 'รหัสผ่านเก่า',
@@ -72,6 +112,7 @@ class _BodyState extends State<Body> {
                       child: Padding(
                         padding: EdgeInsets.only(left: 20),
                         child: TextField(
+                          controller: newPassword,
                           obscureText: true,
                           decoration: const InputDecoration(
                               hintText: 'รหัสผ่านใหม่',
@@ -88,6 +129,7 @@ class _BodyState extends State<Body> {
                       child: Padding(
                         padding: EdgeInsets.only(left: 20),
                         child: TextField(
+                          controller: confirmNewPassword,
                           obscureText: true,
                           decoration: const InputDecoration(
                               hintText: 'ยืนยันรหัสผ่านใหม่',
@@ -121,11 +163,7 @@ class _BodyState extends State<Body> {
                   child: const Text('ยืนยัน',
                       style: TextStyle(fontSize: 16, color: Colors.white)),
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.fade,
-                            child: AccountScreen()));
+                    changePassword(context);
                   }),
             ),
           ),

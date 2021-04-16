@@ -62,7 +62,7 @@ class HttpClient {
         body: jsonEncode(body), headers: headers);
     if (response.statusCode >= 400) {
       dynamic data = json.decode(response.body);
-      throw ("'HTTP ${data['statusCode']}: ${data['message']}'");
+      throw ("${data['message']}");
     }
     return response.body.isEmpty ? {} : json.decode(response.body);
   }
