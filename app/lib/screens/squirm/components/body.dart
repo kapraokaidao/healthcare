@@ -113,7 +113,7 @@ class _BodyState extends State<Body> {
                           : _pregnantWeightController.text =
                               hData['startPregnantWeight'].toString();
                       hData['BMI'] == null
-                          ? _bmi = ''
+                          ? _bmi = '-'
                           : _bmi = hData['BMI'].toStringAsFixed(2);
                       hData['recommend'] == null
                           ? _recommend = ''
