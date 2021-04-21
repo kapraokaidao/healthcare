@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/authentication/bloc/authentication_bloc.dart';
+import 'package:healthcare_app/repositories/index.dart';
 import 'package:healthcare_app/screens/squirm/squirm_screen.dart';
 import 'package:healthcare_app/utils/http_client.dart';
 import 'package:page_transition/page_transition.dart';
@@ -22,6 +23,7 @@ class _BodyState extends State<Body> {
   }
 
   bool _isEnable = false;
+
   String _height = '-';
   String _weight = '-';
   String _bloodType = '-';
@@ -76,7 +78,9 @@ class _BodyState extends State<Body> {
   }
 
   setHealthColor(type, value) {
-    if (type == "bmi") {
+    if (value == "-" || value == "-/-") {
+      return Colors.black;
+    } else if (type == "bmi") {
       if (double.parse(value) > 30) {
         return Colors.red;
       } else if (double.parse(value) < 18.5 || double.parse(value) > 23) {
@@ -531,27 +535,31 @@ class _BodyState extends State<Body> {
               height: 20,
             ),
             Container(
-              margin: EdgeInsets.only(left: 20, right: 20),
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        side: BorderSide(color: Color(0xffFCBC66))),
-                    padding: EdgeInsets.only(
-                        left: 20, right: 20, top: 15, bottom: 15),
-                    color: Color(0xffFCBC66),
-                    child: const Text('นับลูกดื้น',
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          PageTransition(
-                              type: PageTransitionType.fade,
-                              child: SquirmScreen()));
-                    }),
-              ),
-            ),
+                margin: EdgeInsets.only(left: 20, right: 20),
+                child: Visibility(
+                  visible: state.user.patient.gender == "Female" ? true : false,
+                  child: ButtonTheme(
+                    minWidth: double.infinity,
+                    // ignore: deprecated_member_use
+                    child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                            side: BorderSide(color: Color(0xffFCBC66))),
+                        padding: EdgeInsets.only(
+                            left: 20, right: 20, top: 15, bottom: 15),
+                        color: Color(0xffFCBC66),
+                        child: const Text('นับลูกดื้น',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white)),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.fade,
+                                  child: SquirmScreen()));
+                        }),
+                  ),
+                )),
           ],
         );
       } else {
