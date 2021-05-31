@@ -9,7 +9,7 @@ This is a backend for the Healthcare Token Based on Blockchain project. It is us
 
 **1. Set up env**
 ```
-NODE_ENV=production
+NODE_ENV=development
 PORT=
 DB_HOST=
 DB_PORT=
@@ -31,7 +31,7 @@ STELLAR_RECEIVING_SECRET=
 SMS_SERVICE_URL=
 SMS_ENABLE=
 ```
-Note: To synchronize database automatically, use `NODE_ENV=development`
+Note: To disable synchronize database automatically, use `NODE_ENV=production`
 
 **2. Install dependencies**
 ```
@@ -41,8 +41,6 @@ yarn
 ```
 yarn build
 ```
-
-
 ## Running the app
 ```
 yarn start:prod
