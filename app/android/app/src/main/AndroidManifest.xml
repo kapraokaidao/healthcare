@@ -7,10 +7,13 @@
          FlutterApplication and put your custom class here. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <!-- TODO: This is used for debug mode to allow http. Remove android:usesCleartextTraffic -->
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="healthcare_app"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+        >
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

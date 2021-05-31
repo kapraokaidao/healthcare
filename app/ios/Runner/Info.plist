@@ -47,7 +47,8 @@
 
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to camera</string>
-
+	
+	<!-- TODO: This is used for debug mode to allow http. Remove this key and dict -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
