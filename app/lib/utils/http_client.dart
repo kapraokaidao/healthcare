@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HttpClient {
   // static final String baseUrl =
   //     'https://dev-healthcare-backend.kaoths.dev';
-  static final String baseUrl = 'https://dev-healthcare-backend.kaoths.dev';
+  static final String baseUrl = 'http://13.213.31.188:80';
 
   static Future<Map<String, String>> _getDefaultHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

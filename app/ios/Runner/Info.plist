@@ -47,5 +47,11 @@
 
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to camera</string>
+
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
