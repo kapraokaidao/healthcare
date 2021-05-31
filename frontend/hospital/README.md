@@ -3,22 +3,29 @@
 
 This is a web application for hospitals.
 ## Installation
-**1. Set up env**
+
+**1. Node version**
 ```
-REACT_APP_BASE_URL={your-backend-endpoint}
+Compatible node version is 14.15
 ```
-**2. Install dependencies**
+
+**2. Set up env**
+```
+REACT_APP_BASE_URL={backend-url-endpoint}
+```
+**3. Install dependencies**
 ```
 yarn
 ```
-**3. Build project**
+**4. Build project**
 ```
 yarn build
 ```
-
-
-## Running the app
+**5. Install serve**
 ```
-yarn start
+yarn install -g serve
 ```
-
+**6. Start server**
+```
+serve -s build -l 8080
+```
