@@ -1,5 +1,7 @@
 ## Requirements
 - RAM >= 4GB (build application)
+- S3 Bucket with IAM for S3 full access
+- MySQL database with created schema
 ## Description
 This is a backend for the Healthcare Token Based on Blockchain project. It is used as a backend for NHSO web application, Hospital web application and Patient mobile application.
 
