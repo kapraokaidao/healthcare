@@ -45,3 +45,13 @@ yarn build
 ```
 yarn start:prod
 ```
+## Deploy with Docker
+1. Prepare `.env` file as [step1 of installation](#installation)
+2. Create Admin account by running:
+```
+docker run --env-file .\.env -it taan02991/healthcare-backend:latest node dist/scripts/createNhso.js
+```
+3. Serve application
+```
+docker run --env-file .\.env -p 80:3000 taan02991/healthcare-backend:latest
+```
