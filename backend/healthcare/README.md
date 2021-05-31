@@ -34,7 +34,7 @@ SMS_ENABLE=
 ```
 yarn
 ```
-**3 Sync database
+**3. Sync database**
 ```
 yarn start:dev
 ```
