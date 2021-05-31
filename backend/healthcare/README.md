@@ -1,5 +1,7 @@
 
-  ## Description
+## Requirements
+- RAM >= 4GB (build application)
+## Description
 This is a backend for the Healthcare Token Based on Blockchain project. It is used as a backend for NHSO web application, Hospital web application and Patient mobile application.
 
 ## Installation
@@ -32,7 +34,11 @@ SMS_ENABLE=
 ```
 yarn
 ```
-**2. Build project**
+**3 Sync database
+```
+yarn start:dev
+```
+**4. Build project**
 ```
 yarn build
 ```
