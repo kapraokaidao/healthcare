@@ -52,6 +52,7 @@ yarn start:prod
 docker run --env-file .env -it taan02991/healthcare-backend:latest node dist/scripts/createNhso.js
 ```
 Note: It will takes a few minutes to pull the docker image if you don't have the image in the machine
+
 3. Serve application
 ```
 docker run --env-file .\.env -p 80:3000 taan02991/healthcare-backend:latest
