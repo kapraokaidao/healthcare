@@ -1,4 +1,3 @@
-
 ## Requirements
 - RAM >= 4GB (build application)
 ## Description
@@ -30,15 +29,13 @@ STELLAR_RECEIVING_SECRET=
 SMS_SERVICE_URL=
 SMS_ENABLE=
 ```
+Note: To synchronize database automatically, use `NODE_ENV=development`
+
 **2. Install dependencies**
 ```
 yarn
 ```
-**3. Sync database**
-```
-yarn start:dev
-```
-**4. Build project**
+**3. Build project**
 ```
 yarn build
 ```
