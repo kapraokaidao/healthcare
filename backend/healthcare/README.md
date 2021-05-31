@@ -7,6 +7,7 @@ This is a backend for the Healthcare Token Based on Blockchain project. It is us
 **1. Set up env**
 ```
 NODE_ENV=production
+PORT=
 DB_HOST=
 DB_PORT=
 DB_DATABASE=
