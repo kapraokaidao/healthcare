@@ -13,7 +13,6 @@ import { SanitizationPipe } from "./pipes/sanitization.pipe";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService: ConfigService = app.get(ConfigService);
-  app.use(helmet());
   app.enableCors();
 
   Sentry.init({
@@ -37,7 +36,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup("api", app, document);
-
+  app.use(helmet());
   await app.listen(configService.get<number>("port"));
 }
 
