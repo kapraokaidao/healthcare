@@ -50,8 +50,9 @@ yarn build
 yarn start:prod
 ```
 3. Init hospital
+
+Hospital database is store in `./backend/healthcare/healthcare_hospital.zip`
 ```
-Hospital database is store in ./backend/healthcare/healthcare_hospital.zip
 mysql -u {username} -p ${databasename} < {sqlfile} -h {databasehost}
 ```
 
