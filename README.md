@@ -59,7 +59,14 @@ mysql -u {username} -p ${databasename} < {sqlfile} -h {databasehost}
 ## SMS Service Backend
 1. ENV
 ```
-example env
+PORT=80
+SERVICE_ENABLE=true
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+EGHT_API_KEY=
+EGHT_SUB_ACCOUNT_ID=
+OTP_SECRET=
+OTP_EXPIRED_IN_MINUTES=5
 ```
 2. Setup
 ```
