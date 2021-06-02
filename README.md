@@ -49,6 +49,10 @@ yarn script scripts/createNhso.ts
 yarn build
 yarn start:prod
 ```
+3. Init hospital
+```
+Hospital database is store in ./backend/healthcare/healthcare_hospital.zip
+```
 
 ## SMS Service Backend
 1. ENV
